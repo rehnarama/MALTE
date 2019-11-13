@@ -29,5 +29,7 @@ describe("RGA", function() {
 
     assert.exists(insertion);
     assert.equal(insertion.node.content, "a");
+    // Insertion at 0 should refer to head node
+    assert.equal(insertion.reference.compareTo(RGAIdentifier.NullIdentifier), 0);
   });
 });
