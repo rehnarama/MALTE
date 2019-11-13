@@ -7,4 +7,9 @@ describe("RGA", function() {
     const rga = new RGA();
     assert.exists(rga);
   });
+
+  it("should be empty when no insertions", () => {
+    const rga = new RGA();
+    assert.equal(rga.toString(), "");
+  });
 });
