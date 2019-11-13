@@ -64,18 +64,19 @@ export default class RGA {
   }
 
   public createInsertPos(position: number, content: string) {
-    return this.createInsert(this.findNodePos(position), content);
+    return this.createInsert(this.findNodePos(position).id, content);
   }
 
-  public createInsert(reference: RGANode, content: string) {
+  public createInsert(reference: RGAIdentifier, content: string) {
     const node = new RGANode(new RGAIdentifier(this.sid, this.clock), content);
 
-    return new RGAInsert(reference.id, node);
+    return new RGAInsert(reference, node);
   }
 
   public createRemovePos(position: number) {
     return this.createRemove(this.findNodePos(position).id);
   }
+
   public createRemove(id: RGAIdentifier) {
     return new RGARemove(id);
   }
