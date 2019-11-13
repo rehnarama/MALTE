@@ -2,7 +2,7 @@ import "mocha";
 import { assert } from "chai";
 import RGAIdentifier from "../src/RGAIdentifier";
 
-describe("RGA", function() {
+describe("RGAIdentifier", function() {
   it("compareTo should return negative if a precedes b with same sid, different sum", () => {
     const a = new RGAIdentifier(0, 0);
     const b = new RGAIdentifier(0, 1);
