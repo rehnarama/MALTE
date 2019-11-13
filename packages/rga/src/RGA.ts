@@ -1,7 +1,18 @@
+import RGANode from "./RGANode";
+import RGAIdentifier from "./RGAIdentifier";
 
 export default class RGA {
+  private head: RGANode;
 
-    toString() {
-        return "";
-    }
+  public constructor() {
+    this.head = new RGANode(RGAIdentifier.NullIdentifier);
+  }
+
+  public findNode(position: number) {
+      return this.head;
+  }
+
+  public toString() {
+    return "";
+  }
 }
