@@ -6,7 +6,6 @@
       "outDir": "dist",
       "sourceMap": true,
       "resolveJsonModule": true,
-      "lib": ["es2019", "dom"],
       "esModuleInterop": true
     },
     "include": [
