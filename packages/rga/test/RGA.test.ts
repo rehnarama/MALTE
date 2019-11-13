@@ -25,7 +25,7 @@ describe("RGA", function() {
   it("should be able to create insertion operation", () => {
     const rga = new RGA();
     const reference: RGANode = rga.findNodePos(0);
-    const insertion = rga.createInsert(reference, "a");
+    const insertion = rga.createInsert(reference.id, "a");
     const insertionPos = rga.createInsertPos(0, "a");
 
     assert.exists(insertion);
@@ -72,11 +72,24 @@ describe("RGA", function() {
     rga.insert(rga.createInsertPos(1, "b"));
     rga.insert(rga.createInsertPos(2, "c"));
 
-    const reference = rga.findNodePos(1);
+    const reference = rga.findNodePos(2);
     const removal = rga.createRemove(reference.id);
-    const removalPos = rga.createRemovePos(1);
+    const removalPos = rga.createRemovePos(2);
 
     assert.deepEqual(removal.reference, reference.id);
     assert.deepEqual(removalPos.reference, reference.id);
+  });
+
+  it("should be able to apply remove operation", () => {
+    const rga = new RGA();
+
+    rga.insert(rga.createInsertPos(0, "a"));
+    rga.insert(rga.createInsertPos(1, "b"));
+    rga.insert(rga.createInsertPos(2, "c"));
+
+    const removal = rga.createRemovePos(2);
+    rga.remove(removal);
+
+    assert.equal(rga.toString(), "ac");
   });
 });

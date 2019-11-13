@@ -99,11 +99,24 @@ export default class RGA {
     this.clock++;
   }
 
+  remove(removal: RGARemove) {
+    const node = this.getFromNodeMap(removal.reference);
+    if (node === undefined) {
+      throw new Error(
+        "Could not find reference node. Has operations been delivered out of order?"
+      );
+    }
+
+    node.tombstone = true;
+  }
+
   public toString() {
     let str = "";
     let cursor = this.head.next;
     while (cursor !== null) {
-      str += cursor.content;
+      if (!cursor.tombstone) {
+        str += cursor.content;
+      }
       cursor = cursor.next;
     }
     return str;
