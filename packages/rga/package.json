@@ -4,7 +4,8 @@
   "description": "RGA data structure for collaborative editing written in TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.test.ts"
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test:watch": "npm test -- --watch --watch-extensions ts"
   },
   "repository": {
     "type": "git",
