@@ -17,19 +17,38 @@ describe("RGA", function() {
 
   it("head node should have null identifier", () => {
     const rga = new RGA();
-    const node: RGANode = rga.findNode(0);
+    const node: RGANode = rga.findNodePos(0);
 
     assert.equal(node.id.compareTo(RGAIdentifier.NullIdentifier), 0);
   });
 
   it("should be able to create insertion operation", () => {
     const rga = new RGA();
-    const reference: RGANode = rga.findNode(0);
+    const reference: RGANode = rga.findNodePos(0);
     const insertion = rga.createInsert(reference, "a");
+    const insertionPos = rga.createInsertPos(0, "a");
 
     assert.exists(insertion);
     assert.equal(insertion.node.content, "a");
     // Insertion at 0 should refer to head node
-    assert.equal(insertion.reference.compareTo(RGAIdentifier.NullIdentifier), 0);
+    assert.equal(
+      insertion.reference.compareTo(RGAIdentifier.NullIdentifier),
+      0
+    );
+    assert.exists(insertionPos);
+    assert.equal(insertionPos.node.content, "a");
+    assert.equal(
+      insertionPos.reference.compareTo(RGAIdentifier.NullIdentifier),
+      0
+    );
+  });
+
+  it("should be able to apply insertion operation", () => {
+    const rga = new RGA();
+    const insertion = rga.createInsertPos(0, "a");
+
+    rga.insert(insertion);
+
+    assert.equal(rga.toString(), "a");
   });
 });

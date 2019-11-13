@@ -1,6 +1,6 @@
 export default class RGAIdentifier {
-  private sid: number;
-  private sum: number;
+  public sid: number;
+  public sum: number;
 
   constructor(sid: number, sum: number) {
     this.sid = sid;
