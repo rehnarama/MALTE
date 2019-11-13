@@ -1,4 +1,3 @@
-// index.ts
 
 import express from 'express';
 
