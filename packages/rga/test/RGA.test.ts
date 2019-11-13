@@ -116,5 +116,49 @@ describe("RGA", function() {
       assert.equal(rgaA.toString(), "123abc");
       assert.equal(rgaB.toString(), "123abc");
     });
+
+    it("should converge between two clients removing same element", () => {
+      const rgaA = new RGA(1);
+      const rgaB = new RGA(2);
+
+      const op1 = rgaA.insert(rgaA.createInsertPos(0, "a"));
+      const op2 = rgaA.insert(rgaA.createInsertPos(1, "b"));
+      const op3 = rgaA.insert(rgaA.createInsertPos(2, "c"));
+
+      rgaB.insert(op1);
+      rgaB.insert(op2);
+      rgaB.insert(op3);
+
+      const op4a = rgaA.remove(rgaA.createRemovePos(2));
+      const op4b = rgaB.remove(rgaB.createRemovePos(2));
+
+      rgaA.remove(op4b);
+      rgaB.remove(op4a);
+
+      assert.equal(rgaA.toString(), "ac");
+      assert.equal(rgaB.toString(), "ac");
+    });
+
+    it("should converge between two clients removing independently", () => {
+      const rgaA = new RGA(1);
+      const rgaB = new RGA(2);
+
+      const op1 = rgaA.insert(rgaA.createInsertPos(0, "a"));
+      const op2 = rgaA.insert(rgaA.createInsertPos(1, "b"));
+      const op3 = rgaA.insert(rgaA.createInsertPos(2, "c"));
+
+      rgaB.insert(op1);
+      rgaB.insert(op2);
+      rgaB.insert(op3);
+
+      const op4a = rgaA.remove(rgaA.createRemovePos(1));
+      const op4b = rgaB.remove(rgaB.createRemovePos(3));
+
+      rgaA.remove(op4b);
+      rgaB.remove(op4a);
+
+      assert.equal(rgaA.toString(), "b");
+      assert.equal(rgaB.toString(), "b");
+    });
   });
 });
