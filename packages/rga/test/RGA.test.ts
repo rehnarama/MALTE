@@ -51,4 +51,17 @@ describe("RGA", function() {
 
     assert.equal(rga.toString(), "a");
   });
+
+  it("should be able to insert in many different places", () => {
+
+    const rga = new RGA();
+    const insertion1 = rga.createInsertPos(0, "b");
+    rga.insert(insertion1);
+    const insertion2 = rga.createInsertPos(0, "a");
+    rga.insert(insertion2);
+    const insertion3 = rga.createInsertPos(2, "c");
+    rga.insert(insertion3);
+
+    assert.equal(rga.toString(), "abc");
+  });
 });

@@ -31,7 +31,18 @@ export default class RGA {
   }
 
   public findNodePos(position: number) {
-    return this.head;
+    let count = 0;
+    let cursor: RGANode | null = this.head;
+    while (count < position && cursor.next !== null) {
+      cursor = cursor.next;
+      count += cursor.content.length;
+    }
+
+    if (cursor === null) {
+      throw new Error("Couldn't find node at position '" + position + "'. Is something out of sync?");
+    }
+
+    return cursor;
   }
 
   private findNode(reference: RGAIdentifier) {
