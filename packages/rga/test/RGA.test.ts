@@ -21,4 +21,13 @@ describe("RGA", function() {
 
     assert.equal(node.id.compareTo(RGAIdentifier.NullIdentifier), 0);
   });
+
+  it("should be able to create insertion operation", () => {
+    const rga = new RGA();
+    const reference: RGANode = rga.findNode(0);
+    const insertion = rga.createInsert(reference, "a");
+
+    assert.exists(insertion);
+    assert.equal(insertion.node.content, "a");
+  });
 });
