@@ -3,6 +3,13 @@ import { assert } from "chai";
 import RGA from "../src/RGA";
 import RGANode from "../src/RGANode";
 import RGAIdentifier from "../src/RGAIdentifier";
+import RGAInsert from "../src/RGAInsert";
+import RGARemove from "../src/RGARemove";
+
+const LETTERS = "abcdefghijklmnopqrstuvwxyzåäö";
+function randomLetter() {
+  return LETTERS.substr(Math.random() * LETTERS.length, 1);
+}
 
 describe("RGA", function() {
   it("should properly instantitate", () => {
@@ -159,6 +166,87 @@ describe("RGA", function() {
 
       assert.equal(rgaA.toString(), "b");
       assert.equal(rgaB.toString(), "b");
+    });
+
+    it("should converge when many clients do many changes interleaved", () => {
+      const N_CLIENTS = 5;
+      const N_ROUNDS = 5;
+      const N_OPERATIONS = 10;
+
+      /**
+       * doRound - Performs a series of random operations on a RGA and returns them
+       * @param rga The RGA of which to perform random opeartions on
+       */
+      function doRound(rga: RGA) {
+        const insertions: RGAInsert[] = [];
+        const removals: RGARemove[] = [];
+
+        let currentLength = rga.toString().length;
+        for (let operation = 0; operation < N_OPERATIONS; operation++) {
+          if (Math.random() <= 0.5 && currentLength > 0) {
+            // Do removal
+            const op = rga.createRemovePos(Math.random() * currentLength);
+            rga.remove(op);
+
+            removals.push(op);
+            currentLength--;
+          } else {
+            // Do insertion
+            const op = rga.createInsertPos(
+              Math.random() * currentLength,
+              randomLetter()
+            );
+            rga.insert(op);
+
+            insertions.push(op);
+            currentLength++;
+          }
+        }
+        return { insertions, removals };
+      }
+
+      // Initialize the RGA
+      const rgas: RGA[] = [];
+      for (let client = 0; client < N_CLIENTS; client++) {
+        rgas.push(new RGA(client));
+      }
+
+      for (let round = 0; round < N_ROUNDS; round++) {
+        const roundOps = new Map<
+          number,
+          { insertions: RGAInsert[]; removals: RGARemove[] }
+        >();
+
+        // Perform all rounds of random operations
+        for (let client = 0; client < N_CLIENTS; client++) {
+          const ops = doRound(rgas[client]);
+          roundOps.set(client, ops);
+        }
+
+        // Send operations to other clients
+        for (let client = 0; client < N_CLIENTS; client++) {
+          const ops = roundOps.get(client);
+          if (ops === undefined) {
+            throw new Error("Should never happen");
+          }
+          for (let otherClient = 0; otherClient < N_CLIENTS; otherClient++) {
+            if (client === otherClient) {
+              continue;
+            }
+
+            ops.insertions.forEach(op => {
+              rgas[otherClient].insert(op);
+            });
+            ops.removals.forEach(op => {
+              rgas[otherClient].remove(op);
+            });
+          }
+        }
+      }
+
+      for (let client = 1; client < N_CLIENTS; client++) {
+        assert.equal(rgas[client - 1].toString(), rgas[client].toString());
+      }
     });
   });
 });
