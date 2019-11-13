@@ -8,10 +8,10 @@ export default class RGAIdentifier {
   }
 
   compareTo(other: RGAIdentifier) {
-    if (this.sid != other.sid) {
-      return this.sid - other.sid;
-    } else {
+    if (this.sum != other.sum) {
       return this.sum - other.sum;
+    } else {
+      return this.sid - other.sid;
     }
   }
 
