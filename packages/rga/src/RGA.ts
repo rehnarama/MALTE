@@ -68,9 +68,11 @@ export default class RGA {
   }
 
   public createInsert(reference: RGAIdentifier, content: string) {
-    const node = new RGANode(new RGAIdentifier(this.sid, this.clock), content);
-
-    return new RGAInsert(reference, node);
+    return new RGAInsert(
+      reference,
+      new RGAIdentifier(this.sid, this.clock),
+      content
+    );
   }
 
   public createRemovePos(position: number) {
@@ -82,21 +84,33 @@ export default class RGA {
   }
 
   public insert(insertion: RGAInsert) {
-    const reference = this.getFromNodeMap(insertion.reference);
+    let target: RGANode | null =
+      this.getFromNodeMap(insertion.reference) || null;
 
-    if (reference === undefined) {
+    if (!target) {
       throw new Error(
         "Could not find reference node. Has operations been delivered out of order?"
       );
     }
 
-    const next = reference.next;
-    reference.next = insertion.node;
-    reference.next.next = next;
+    while (target.next && target.next.id.compareTo(insertion.id) > 0) {
+      target = target.next;
+    }
 
-    this.setToNodeMap(insertion.node);
+    if (!target) {
+      throw new Error("Whoops, this should never happen! My bad.");
+    }
+
+    const node = new RGANode(insertion.id, insertion.content);
+    const next = target.next;
+    target.next = node;
+    node.next = next;
+
+    this.setToNodeMap(node);
 
     this.clock++;
+
+    return insertion;
   }
 
   remove(removal: RGARemove) {
@@ -108,6 +122,8 @@ export default class RGA {
     }
 
     node.tombstone = true;
+
+    return removal;
   }
 
   public toString() {

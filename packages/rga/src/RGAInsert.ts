@@ -3,10 +3,17 @@ import RGANode from "./RGANode";
 
 export default class RGAInsert {
   public reference: RGAIdentifier;
-  public node: RGANode;
 
-  public constructor(reference: RGAIdentifier, node: RGANode) {
+  public id: RGAIdentifier;
+  public content: string;
+
+  public constructor(
+    reference: RGAIdentifier,
+    id: RGAIdentifier,
+    content: string
+  ) {
     this.reference = reference;
-    this.node = node;
+    this.id = id;
+    this.content = content;
   }
 }

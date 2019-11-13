@@ -29,14 +29,14 @@ describe("RGA", function() {
     const insertionPos = rga.createInsertPos(0, "a");
 
     assert.exists(insertion);
-    assert.equal(insertion.node.content, "a");
+    assert.equal(insertion.content, "a");
     // Insertion at 0 should refer to head node
     assert.equal(
       insertion.reference.compareTo(RGAIdentifier.NullIdentifier),
       0
     );
     assert.exists(insertionPos);
-    assert.equal(insertionPos.node.content, "a");
+    assert.equal(insertionPos.content, "a");
     assert.equal(
       insertionPos.reference.compareTo(RGAIdentifier.NullIdentifier),
       0
@@ -91,5 +91,30 @@ describe("RGA", function() {
     rga.remove(removal);
 
     assert.equal(rga.toString(), "ac");
+  });
+
+  describe("stress test", () => {
+    it("should converge between two clients inserting independently", () => {
+      const rgaA = new RGA(1);
+      const rgaB = new RGA(2);
+
+      const op1a = rgaA.insert(rgaA.createInsertPos(0, "a"));
+      const op2a = rgaA.insert(rgaA.createInsertPos(1, "b"));
+      const op3a = rgaA.insert(rgaA.createInsertPos(2, "c"));
+
+      const op1b = rgaB.insert(rgaB.createInsertPos(0, "1"));
+      const op2b = rgaB.insert(rgaB.createInsertPos(1, "2"));
+      const op3b = rgaB.insert(rgaB.createInsertPos(2, "3"));
+
+      rgaA.insert(op1b);
+      rgaA.insert(op2b);
+      rgaA.insert(op3b);
+      rgaB.insert(op1a);
+      rgaB.insert(op2a);
+      rgaB.insert(op3a);
+
+      assert.equal(rgaA.toString(), "123abc");
+      assert.equal(rgaB.toString(), "123abc");
+    });
   });
 });
