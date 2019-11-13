@@ -1,6 +1,7 @@
 import RGANode from "./RGANode";
 import RGAIdentifier from "./RGAIdentifier";
 import RGAInsert from "./RGAInsert";
+import RGARemove from "./RGARemove";
 
 export default class RGA {
   private head: RGANode;
@@ -39,7 +40,11 @@ export default class RGA {
     }
 
     if (cursor === null) {
-      throw new Error("Couldn't find node at position '" + position + "'. Is something out of sync?");
+      throw new Error(
+        "Couldn't find node at position '" +
+          position +
+          "'. Is something out of sync?"
+      );
     }
 
     return cursor;
@@ -66,6 +71,13 @@ export default class RGA {
     const node = new RGANode(new RGAIdentifier(this.sid, this.clock), content);
 
     return new RGAInsert(reference.id, node);
+  }
+
+  public createRemovePos(position: number) {
+    return this.createRemove(this.findNodePos(position).id);
+  }
+  public createRemove(id: RGAIdentifier) {
+    return new RGARemove(id);
   }
 
   public insert(insertion: RGAInsert) {

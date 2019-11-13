@@ -53,8 +53,8 @@ describe("RGA", function() {
   });
 
   it("should be able to insert in many different places", () => {
-
     const rga = new RGA();
+
     const insertion1 = rga.createInsertPos(0, "b");
     rga.insert(insertion1);
     const insertion2 = rga.createInsertPos(0, "a");
@@ -63,5 +63,20 @@ describe("RGA", function() {
     rga.insert(insertion3);
 
     assert.equal(rga.toString(), "abc");
+  });
+
+  it("should be able to create remove operation", () => {
+    const rga = new RGA();
+
+    rga.insert(rga.createInsertPos(0, "a"));
+    rga.insert(rga.createInsertPos(1, "b"));
+    rga.insert(rga.createInsertPos(2, "c"));
+
+    const reference = rga.findNodePos(1);
+    const removal = rga.createRemove(reference.id);
+    const removalPos = rga.createRemovePos(1);
+
+    assert.deepEqual(removal.reference, reference.id);
+    assert.deepEqual(removalPos.reference, reference.id);
   });
 });
