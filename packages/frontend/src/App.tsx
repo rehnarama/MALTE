@@ -1,9 +1,13 @@
 import * as React from "react";
+import Editor from "./Editor";
 
 const App: React.FC = () => {
   return (
     <div>
-      <p>Hi Malte</p>
+      <div>
+        <p>Hi Malte</p>
+      </div>
+      <Editor />
     </div>
   );
 }
