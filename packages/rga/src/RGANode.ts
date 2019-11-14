@@ -1,5 +1,8 @@
 import RGAIdentifier from "./RGAIdentifier";
 
+/**
+ * Represents a node in the linked RGA structure
+ */
 export default class RGANode {
   public id: RGAIdentifier;
   public content: string;

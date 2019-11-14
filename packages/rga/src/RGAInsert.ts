@@ -1,6 +1,8 @@
 import RGAIdentifier from "./RGAIdentifier";
-import RGANode from "./RGANode";
 
+/**
+ * Represents an insert operations into the RGA
+ */
 export default class RGAInsert {
   public reference: RGAIdentifier;
 

@@ -1,3 +1,6 @@
+/**
+ * Represents an identifier for a RGA node
+ */
 export default class RGAIdentifier {
   public sid: number;
   public sum: number;
