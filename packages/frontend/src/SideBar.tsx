@@ -4,9 +4,7 @@ import classes from "./SideBar.module.css";
 const SideBar: React.FC = () => {
     return (
         <div>
-            <div>
-                <p className={classes.red}>SideBar</p>
-            </div>
+            <p className={classes.red}>SideBar</p>
         </div>
     );
 }

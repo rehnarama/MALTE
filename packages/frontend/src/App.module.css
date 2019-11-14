@@ -1,6 +1,6 @@
-.item1 {grid-area:sidebar;}
-.item2 {grid-area:texteditor;}
-.item3 {grid-area:terminal;}
+.sidebar {grid-area:sidebar;}
+.texteditor {grid-area:texteditor;}
+.terminal {grid-area:terminal;}
 
 .gridContainer {
     display: grid;
