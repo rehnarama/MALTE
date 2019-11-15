@@ -1,10 +1,10 @@
 import "mocha";
 import { assert } from "chai";
-import RGA from "../src/RGA";
-import RGANode from "../src/RGANode";
-import RGAIdentifier from "../src/RGAIdentifier";
-import RGAInsert from "../src/RGAInsert";
-import RGARemove from "../src/RGARemove";
+import RGA from "./RGA";
+import RGANode from "./RGANode";
+import RGAIdentifier from "./RGAIdentifier";
+import RGAInsert from "./RGAInsert";
+import RGARemove from "./RGARemove";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyzåäö";
 function randomLetter() {
