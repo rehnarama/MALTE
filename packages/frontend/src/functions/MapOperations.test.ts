@@ -1,6 +1,4 @@
-import "mocha"
-import {assert} from "chai";
-import mapOperations, { Range, Operation } from "./MapOperations";
+import mapOperations, { Range, Operation, InsertOperation } from "./MapOperations";
 
 function range(startLineNumber: number, startColumn: number, 
                endLineNumber: number, endColumn: number): Range {
@@ -14,10 +12,15 @@ describe("MapOperations", function() {
                           text: "a",
                           rangeOffset: 0,
                           forceMoveMarkers: false};
+
         const ops = mapOperations(monacoOp);
-        assert(ops.length === 1);
+
+        expect(ops.length).toBe(1)
         const op = ops[0];
-        assert(op.type == Operation.Insert && op.position == 0 && op.character === "a");
+        expect(op.type).toBe(Operation.Insert);
+        const opTyped  = op as InsertOperation;
+        expect(opTyped.position).toBe(0);
+        expect(opTyped.character).toEqual("a");
     });
 
 });
