@@ -32,8 +32,12 @@ export interface InsertOperation {
 export type InternalOperation = RemoveOperation | InsertOperation;
 
 function mapOperations(op: MonacoOperation): InternalOperation[] {
+    let newOps: InternalOperation[] = [];
     if (op.rangeLength > 0) {
-        return [{type: Operation.Remove, position: op.rangeOffset}];
+        for (let i = op.rangeLength - 1; i >= 0; i--) {
+            newOps.push({type: Operation.Remove, position: op.rangeOffset + i});
+        }
+        return newOps;
     } else {
         return [{type: Operation.Insert, position: op.rangeOffset, character: op.text}];
     }

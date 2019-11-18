@@ -150,4 +150,35 @@ describe("MapOperations", function() {
             expect(op).toEqual({type: Operation.Remove, position: 8});
         });
     });
+
+    describe("Multiple character deletion", function() {
+        it("should delete two first characters", () => {
+            const monacoOp = {range: range(1, 1, 1, 3),
+                rangeLength: 2,
+                text: "",
+                rangeOffset: 0,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(2)
+            expect(ops[0]).toEqual({type: Operation.Remove, position: 1});
+            expect(ops[1]).toEqual({type: Operation.Remove, position: 0});
+        });
+
+        it("should delete first three second line characters", () => {
+            const monacoOp = {range: range(2, 1, 1, 4),
+                rangeLength: 3,
+                text: "",
+                rangeOffset: 3,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(3)
+            expect(ops[0]).toEqual({type: Operation.Remove, position: 5});
+            expect(ops[1]).toEqual({type: Operation.Remove, position: 4});
+            expect(ops[2]).toEqual({type: Operation.Remove, position: 3});
+        });
+    });
 });
