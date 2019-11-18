@@ -31,19 +31,54 @@ export interface InsertOperation {
 
 export type InternalOperation = RemoveOperation | InsertOperation;
 
+/**
+ * Converts an operation from the Monaco Editor to Internal operations
+ * 
+ * Replacing characters, e.g. autocompletions, are converted to Remove operations
+ * followed by Insert operations.
+ * 
+ * @param op the change operation aquired from 'onDidChangeContent' listener
+ * @return   a list of internal operations that correspond to op
+ */
 function mapOperations(op: MonacoOperation): InternalOperation[] {
-    let newOps: InternalOperation[] = [];
-    if (op.rangeLength > 0) {
-        for (let i = op.rangeLength - 1; i >= 0; i--) {
-            newOps.push({type: Operation.Remove, position: op.rangeOffset + i});
-        }
-        return newOps;
+    if (isRemoveOperation(op)) {
+        return mapRemoveOperation(op);
+    } else if (isReplaceOperation(op)) {
+        return mapReplaceOperation(op);
     } else {
-        for (let i = 0; i < op.text.length; i++) {
-            newOps.push({type: Operation.Insert, position: op.rangeOffset + i, character: op.text.charAt(i)})
-        }
-        return newOps;
+        return mapInsertOperation(op);
     }
 }
 
 export default mapOperations;
+
+function isRemoveOperation(op: MonacoOperation): boolean {
+    return op.rangeLength > 0 && op.text === "";
+}
+
+function isReplaceOperation(op: MonacoOperation): boolean {
+    return op.rangeLength > 0 && op.text !== ""; 
+}
+
+function mapRemoveOperation(op: MonacoOperation): InternalOperation[] {
+    let newOps: InternalOperation[] = [];
+    for (let i = op.rangeLength - 1; i >= 0; i--) {
+        newOps.push({type: Operation.Remove, position: op.rangeOffset + i});
+    }
+    return newOps;
+}
+
+function mapInsertOperation(op: MonacoOperation): InternalOperation[] {
+    let newOps: InternalOperation[] = [];
+    for (let i = 0; i < op.text.length; i++) {
+        newOps.push({ type: Operation.Insert, position: op.rangeOffset + i, character: op.text.charAt(i) });
+    }
+    return newOps;
+}
+
+
+function mapReplaceOperation(op: MonacoOperation): InternalOperation[] {
+    const removeOps = mapRemoveOperation(op);
+    const insertOps = mapInsertOperation(op);
+    return removeOps.concat(insertOps);
+}
