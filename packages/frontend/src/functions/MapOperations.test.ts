@@ -50,7 +50,6 @@ describe("MapOperations", function() {
         });
     
         it("should insert a newline (LF)", () => {
-            // TODO: create test for CRLF
             const monacoOp = {range: range(1, 1, 1, 1),
                               rangeLength: 0,
                               text: "\n",
@@ -62,20 +61,6 @@ describe("MapOperations", function() {
             expect(ops.length).toBe(1)
             const op = ops[0];
             expect(op).toEqual({type: Operation.Insert, position: 0, character: "\n"});
-        });
-    
-        it("should insert a newline (CR)", () => {
-            const monacoOp = {range: range(1, 1, 1, 1),
-                              rangeLength: 0,
-                              text: "\r",
-                              rangeOffset: 0,
-                              forceMoveMarkers: false};
-    
-            const ops = mapOperations(monacoOp);
-    
-            expect(ops.length).toBe(1)
-            const op = ops[0];
-            expect(op).toEqual({type: Operation.Insert, position: 0, character: "\r"});
         });
     
         it("should insert a tab character", () => {
@@ -152,6 +137,7 @@ describe("MapOperations", function() {
     });
 
     describe("Multiple character deletion", function() {
+        // TODO: delete newline
         it("should delete two first characters", () => {
             const monacoOp = {range: range(1, 1, 1, 3),
                 rangeLength: 2,
@@ -183,7 +169,7 @@ describe("MapOperations", function() {
     });
 
     describe("Multiple character insertion", function() {
-        // TODO: Paste newlines
+        // TODO: Paste multiple lines with newlines
         it("should insert two character pasted first in document", () => {
             const monacoOp = {range: range(1, 1, 1, 1),
                 rangeLength: 0,
