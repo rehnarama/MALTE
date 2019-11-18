@@ -6,6 +6,6 @@ const Terminal: React.FC = () => {
       <p>Terminal</p>
     </div>
   );
-}
+};
 
 export default Terminal;
