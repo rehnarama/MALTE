@@ -34,6 +34,7 @@ export type InternalOperation = RemoveOperation | InsertOperation;
 /**
  * Converts an operation from the Monaco Editor to Internal operations
  * 
+ * Removals are done from right-to-left and insertions are done left-to-right.
  * Replacing characters, e.g. autocompletions, are converted to Remove operations
  * followed by Insert operations.
  * 
@@ -75,7 +76,6 @@ function mapInsertOperation(op: MonacoOperation): InternalOperation[] {
     }
     return newOps;
 }
-
 
 function mapReplaceOperation(op: MonacoOperation): InternalOperation[] {
     const removeOps = mapRemoveOperation(op);

@@ -134,6 +134,20 @@ describe("MapOperations", function() {
             const op = ops[0];
             expect(op).toEqual({type: Operation.Remove, position: 8});
         });
+
+        it("should delete a newline", () => {
+            const monacoOp = {range: range(2, 11, 3, 1),
+                rangeLength: 1,
+                text: "",
+                rangeOffset: 17,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(1);
+            const op = ops[0];
+            expect(op).toEqual({type: Operation.Remove, position: 17});
+        });
     });
 
     describe("Multiple character deletion", function() {
@@ -153,7 +167,7 @@ describe("MapOperations", function() {
         });
 
         it("should delete first three second line characters", () => {
-            const monacoOp = {range: range(2, 1, 1, 4),
+            const monacoOp = {range: range(2, 1, 2, 4),
                 rangeLength: 3,
                 text: "",
                 rangeOffset: 3,
@@ -165,6 +179,22 @@ describe("MapOperations", function() {
             expect(ops[0]).toEqual({type: Operation.Remove, position: 5});
             expect(ops[1]).toEqual({type: Operation.Remove, position: 4});
             expect(ops[2]).toEqual({type: Operation.Remove, position: 3});
+        });
+
+        it("should delete multiple lines", () => {
+            const monacoOp = {range: range(2, 10, 3, 2),
+                rangeLength: 4,
+                text: "",
+                rangeOffset: 16,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(4);
+            expect(ops[0]).toEqual({type: Operation.Remove, position: 19});
+            expect(ops[1]).toEqual({type: Operation.Remove, position: 18});
+            expect(ops[2]).toEqual({type: Operation.Remove, position: 17});
+            expect(ops[3]).toEqual({type: Operation.Remove, position: 16});
         });
     });
 
@@ -199,6 +229,23 @@ describe("MapOperations", function() {
             expect(ops[2]).toEqual({type: Operation.Insert, position: 10, character: "c"});
             expect(ops[3]).toEqual({type: Operation.Insert, position: 11, character: "d"});
             expect(ops[4]).toEqual({type: Operation.Insert, position: 12, character: "e"});
+        });
+        
+        it("should insert pasted text including a new line", () => {
+            const monacoOp = {range: range(1, 1, 1, 1),
+                rangeLength: 0,
+                text: "ab\nde",
+                rangeOffset: 0,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(5);
+            expect(ops[0]).toEqual({type: Operation.Insert, position: 0, character: "a"});
+            expect(ops[1]).toEqual({type: Operation.Insert, position: 1, character: "b"});
+            expect(ops[2]).toEqual({type: Operation.Insert, position: 2, character: "\n"});
+            expect(ops[3]).toEqual({type: Operation.Insert, position: 3, character: "d"});
+            expect(ops[4]).toEqual({type: Operation.Insert, position: 4, character: "e"});
         });
         
         it("should insert autocomplete from 'a' to 'alert'", () => {
