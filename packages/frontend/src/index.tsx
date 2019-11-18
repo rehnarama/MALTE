@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./components/App";
-import io from "socket.io-client";
+import Socket from "./functions/Socket";
 
 let backendUrl = "localhost:4000";
 if (process.env.REACT_APP_BACKEND_URL) {
@@ -13,11 +13,9 @@ const socket = io(backendUrl);
 socket.on("connect", () => {
   console.log("Connected to server");
 });
-socket.on("hello-world", (data: any) => {
-  console.log("hello world was sent", data);
-});
 socket.on("file-tree", (data: any) => {
   console.log("file tree was sent", data);
 });
+Socket.getInstance();
 
 ReactDOM.render(<App />, document.getElementById("root"));
