@@ -82,3 +82,13 @@ function mapReplaceOperation(op: MonacoOperation): InternalOperation[] {
     const insertOps = mapInsertOperation(op);
     return removeOps.concat(insertOps);
 }
+
+export function printInternalOperations(ops: InternalOperation[]) {
+    for (const op of ops) {
+        if (op.type === Operation.Insert) {
+            console.log("Insert '" + op.character + "' at position " + op.position);
+        } else {
+            console.log("Remove at position " + op.position);
+        }
+    }
+}

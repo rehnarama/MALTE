@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import {default as Monaco} from '@monaco-editor/react';
-import mapOperations from "../functions/MapOperations";
+import mapOperations, { printInternalOperations } from "../functions/MapOperations";
 
 
 const CodeEditor: React.FC = () => {
@@ -12,7 +12,7 @@ const CodeEditor: React.FC = () => {
     editorRef.current = editor;
     editor.getModel().onDidChangeContent((event: any) => {
       const op = event.changes[0];
-      console.log(mapOperations(op));
+      printInternalOperations(mapOperations(op));
     })
   }
 
