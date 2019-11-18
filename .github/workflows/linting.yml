@@ -20,12 +20,12 @@ jobs:
     - name: npm install and check styling errors in frontend
       working-directory: packages/frontend
       run: |
-        npm install
+        npm ci
         npm run lint
     - name: npm install and check styling errors in backend
       working-directory: packages/backend
       run: |
-        npm install
+        npm ci
         npm run lint
       env:
         CI: true
