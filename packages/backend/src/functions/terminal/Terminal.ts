@@ -1,6 +1,12 @@
 import * as pty from "node-pty"
 import socketio from "socket.io";
 
+/**
+ * Create a pseudo-terminal and pipe the std-out/in to
+ * a socket.
+ * 
+ * @argument socket The socket to pipe data on.
+ */
 class Terminal {
     private terminal: pty.IPty
 
