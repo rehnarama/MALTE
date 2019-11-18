@@ -12,6 +12,7 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
+    "socket.io-client": "^2.3.0",
     "typescript": "3.7.2",
     "xterm": "^4.2.0-vscode1"
   },
@@ -36,5 +37,7 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/socket.io-client": "^1.4.32"
+  }
 }

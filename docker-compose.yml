@@ -8,9 +8,10 @@ services:
       - ./packages:/home/ubuntu/packages
     ports:
       - "4000:4000"
-    network_mode: host
     command: su ubuntu -c "cd /home/ubuntu/packages/backend && npm install && npm start"
   frontend:
+    environment:
+      - REACT_APP_BACKEND_URL=localhost:4000
     build:
       context: .
       dockerfile: frontend.Dockerfile
@@ -18,5 +19,4 @@ services:
       - ./packages:/home/ubuntu/packages
     ports:
       - "3000:3000"
-    network_mode: host
     command: su ubuntu -c "cd /home/ubuntu/packages/frontend && npm install && npm start"
