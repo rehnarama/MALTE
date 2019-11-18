@@ -18,7 +18,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -36,13 +36,5 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
-    "@types/chai": "^4.2.5",
-    "@types/mocha": "^5.2.7",
-    "babel-core": "^6.26.3",
-    "babel-register": "^6.26.0",
-    "chai": "^4.2.0",
-    "mocha": "^6.2.2",
-    "ts-node": "^8.5.0"
-  }
+  "devDependencies": {}
 }
