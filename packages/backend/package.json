@@ -10,10 +10,12 @@
   },
   "author": "",
   "devDependencies": {
-    "@types/mocha": "^5.2.7",
-    "mocha": "^6.2.2",
+    "@types/chai": "^4.2.5",
     "@types/express": "^4.17.2",
+    "@types/mocha": "^5.2.7",
     "@types/socket.io": "^2.1.4",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "ts-node": "^8.5.0",
     "typescript": "^3.7.2"
