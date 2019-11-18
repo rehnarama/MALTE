@@ -39,7 +39,10 @@ function mapOperations(op: MonacoOperation): InternalOperation[] {
         }
         return newOps;
     } else {
-        return [{type: Operation.Insert, position: op.rangeOffset, character: op.text}];
+        for (let i = 0; i < op.text.length; i++) {
+            newOps.push({type: Operation.Insert, position: op.rangeOffset + i, character: op.text.charAt(i)})
+        }
+        return newOps;
     }
 }
 

@@ -181,4 +181,38 @@ describe("MapOperations", function() {
             expect(ops[2]).toEqual({type: Operation.Remove, position: 3});
         });
     });
+
+    describe("Multiple character insertion", function() {
+        // TODO: Paste newlines
+        it("should insert two character pasted first in document", () => {
+            const monacoOp = {range: range(1, 1, 1, 1),
+                rangeLength: 0,
+                text: "ab",
+                rangeOffset: 0,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(2)
+            expect(ops[0]).toEqual({type: Operation.Insert, position: 0, character: "a"});
+            expect(ops[1]).toEqual({type: Operation.Insert, position: 1, character: "b"});
+        });
+
+        it("should insert five character pasted in the middle of a line", () => {
+            const monacoOp = {range: range(2, 4, 2, 4),
+                rangeLength: 0,
+                text: "abcde",
+                rangeOffset: 8,
+                forceMoveMarkers: false};
+
+            const ops = mapOperations(monacoOp);
+
+            expect(ops.length).toBe(5)
+            expect(ops[0]).toEqual({type: Operation.Insert, position: 8, character: "a"});
+            expect(ops[1]).toEqual({type: Operation.Insert, position: 9, character: "b"});
+            expect(ops[2]).toEqual({type: Operation.Insert, position: 10, character: "c"});
+            expect(ops[3]).toEqual({type: Operation.Insert, position: 11, character: "d"});
+            expect(ops[4]).toEqual({type: Operation.Insert, position: 12, character: "e"});
+        });
+    });
 });
