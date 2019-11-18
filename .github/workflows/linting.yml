@@ -1,4 +1,4 @@
-name: Prettier Check
+name: Lint check
 
 on: [push]
 
@@ -17,9 +17,17 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Check styling errors
+    - name: npm install and check styling errors in frontend
+      working-directory: packages/frontend
       run: |
-        npx prettier --check "**/src/**/*.{ts,tsx,css,html,scss}"
+        npm install
+        npn run lint
+    - name: npm install and check styling errors in backend
+      working-directory: packages/backend
+      run: |
+        npm install
+        npn run lint
       env:
         CI: true
+
 
