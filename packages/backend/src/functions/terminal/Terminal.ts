@@ -1,10 +1,10 @@
 import * as pty from "node-pty"
-import socketio from "socket.io";
+import socketio from "socket.io"
 
 /**
  * Create a pseudo-terminal and pipe the std-out/in to
  * a socket.
- * 
+ *
  * @argument socket The socket to pipe data on.
  */
 class Terminal {
@@ -16,14 +16,21 @@ class Terminal {
             env: process.env,
             cwd: process.env.HOME
         })
-        
-        this.terminal.on("data", function (data) {
-            socket.emit("pty-data", data.toString());
+
+        this.terminal.on("data", function(data) {
+            socket.emit("pty-data", data.toString())
         })
-        
-        socket.on("pty-data", (data) => {
+
+        socket.on("pty-data", data => {
             this.terminal.write(data)
-        })        
+        })
+    }
+
+    /**
+     * Kill the terminal
+     */
+    public kill() {
+        this.terminal.kill()
     }
 }
 
