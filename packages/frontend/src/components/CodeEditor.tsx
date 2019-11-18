@@ -6,6 +6,6 @@ const CodeEditor: React.FC = () => {
       <p>CodeEditor</p>
     </div>
   );
-}
+};
 
 export default CodeEditor;

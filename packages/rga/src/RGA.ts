@@ -4,7 +4,7 @@ import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
 /**
- * The RGA structure is a CRDT that allows for collaborative editing. 
+ * The RGA structure is a CRDT that allows for collaborative editing.
  * More info here: https://pages.lip6.fr/Marc.Shapiro/papers/rgasplit-group2016-11.pdf
  */
 export default class RGA {
@@ -73,7 +73,7 @@ export default class RGA {
 
   /**
    * Creates an insertion to the right of the given reference with the given content
-   * @param reference The identifier of the reference node. 
+   * @param reference The identifier of the reference node.
    * The insertion will be to the right of the reference noded
    * @param content The content to insert. Should be a single character with length 1
    */

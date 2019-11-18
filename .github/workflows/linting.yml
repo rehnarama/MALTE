@@ -1,0 +1,33 @@
+name: Lint check
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install and check styling errors in frontend
+      working-directory: packages/frontend
+      run: |
+        npm ci
+        npm run lint
+    - name: npm install and check styling errors in backend
+      working-directory: packages/backend
+      run: |
+        npm ci
+        npm run lint
+      env:
+        CI: true
+
+
