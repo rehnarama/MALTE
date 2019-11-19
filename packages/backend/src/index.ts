@@ -19,7 +19,12 @@ async function start(): Promise<void> {
   const app = express();
   const port = 4000;
 
-  let whitelist = ["http://127.0.0.1:4000"];
+  let frontendUrl = "http://localhost:3000";
+  if (process.env.REACT_APP_FRONTEND_URL) {
+    frontendUrl = "http://" + process.env.REACT_APP_FRONTEND_URL;
+  }
+
+  let whitelist = [frontendUrl];
   if (process.env.REACT_APP_FRONTEND_URL) {
     whitelist = ["http://" + process.env.REACT_APP_FRONTEND_URL];
   }
