@@ -104,6 +104,20 @@ describe("MapOperations", function() {
             const op = ops[0];
             expect(op).toEqual({type: Operation.Insert, position: 2, character: "d"});
         });
+
+        it("shouldn't insert from empty string without delete", () => {
+            // This case can occur when changing the EOL to LineFeed 
+            // on an empty model using model.pushEOL().
+            const monacoOp = {range: range(1, 1, 1, 1),
+                              rangeLength: 0,
+                              text: "",
+                              rangeOffset: 0,
+                              forceMoveMarkers: false};
+    
+            const ops = mapOperations(monacoOp);
+    
+            expect(ops.length).toBe(0);
+        });
     });
 
     describe("Single character deletion", function() {
