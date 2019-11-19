@@ -7,6 +7,7 @@ import socketio from "socket.io";
 import fsTree from "./functions/fsTree";
 import Project from "./functions/Project";
 import cors from "cors";
+import Terminal from "./functions/terminal/Terminal";
 
 async function start(): Promise<void> {
   // Initialize a project in a random temporary directory for now
@@ -44,7 +45,6 @@ async function start(): Promise<void> {
     }
     return console.log(`Server is listening on ${port}`);
   });
-
 
   const sockets: socketio.Socket[] = [];
   let origins = "127.0.0.1:3000";

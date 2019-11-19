@@ -24,17 +24,3 @@ const Terminal: React.FC = () => {
 };
 
 export default Terminal;
-
-/*
-
-      const terminal = new XTerm();
-      terminal.open(node);
-
-      const s = Socket.getInstance();
-      terminal.onData(data => {
-        s.getSocket().emit("pty-data", data);
-      });
-      s.getSocket().on("pty-data", (data: string) => {
-        terminal.write(data));
-
-        */

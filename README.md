@@ -14,12 +14,14 @@ in the folder `packages`.
 We manage all projects with node, which means you can install all dependencies
 by simply typing `npm install` in each project folder.
 
-## Environment Variables (Frontend)
-* `REACT_APP_BACKEND_URL`: (default: `localhost:3000`). The backend URL. All requests and WebSocket connections will be established with this URL
 
 # How to Run
 
-Execute `npm run` in each folder. Frontend will run at port `3000` and backend at port `4000`. You may need to set `REACT_APP_BACKEND_URL` and `REACT_APP_FRONTEND_URL`, e.g. `REACT_APP_BACKEND_URL=192.168.124.5:4000`and `REACT_APP_FRONTEND_URL=192.168.124.5:3000`.
+Execute `npm run` in each folder. Depending on your setup, you may need to set enviroment variables.
+
+## Environment Variables
+* `REACT_APP_BACKEND_URL`: (default: `127.0.0.1:3000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=192.168.124.5:4000`
+* `REACT_APP_FRONTEND_URL`: (default: `localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=192.168.124.5:3000`
 
 # Code Styling
 
