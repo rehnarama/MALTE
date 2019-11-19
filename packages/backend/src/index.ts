@@ -51,7 +51,6 @@ async function start(): Promise<void> {
     return console.log(`Server is listening on ${port}`);
   });
 
-  const sockets: socketio.Socket[] = [];
   let origins = frontendUrl;
   if (process.env.REACT_APP_FRONTEND_URL) {
     origins = process.env.REACT_APP_FRONTEND_URL;
@@ -59,16 +58,13 @@ async function start(): Promise<void> {
   const io = socketio(server, { origins });
   io.on("connection", async socket => {
     console.log(`Socket with id ${socket.id} connected`);
-    sockets.push(socket);
     new Terminal(socket);
     socket.emit("file-tree", await fsTree(projectRoot));
   });
 
   project.getWatcher().on("all", async () => {
     const tree = await fsTree(projectRoot);
-    for (const socket of sockets) {
-      socket.emit("file-tree", tree);
-    }
+    io.sockets.emit("file-tree", tree);
   });
 }
 
