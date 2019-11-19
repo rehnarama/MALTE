@@ -6,26 +6,26 @@ declare module "react-treebeard" {
 
     export type TreeAnimations = Object
     export interface TreeTheme {
-        tree: {
-            base: CSS
-            node: {
-                base: CSS
-                link: CSS
-                activeLink: CSS
-                toggle: {
-                    base: CSS
-                    wrapper: CSS
-                    height: number
-                    width: number
-                    arrow: CSS
+        tree?: {
+            base?: CSS
+            node?: {
+                base?: CSS
+                link?: CSS
+                activeLink?: CSS
+                toggle?: {
+                    base?: CSS
+                    wrapper?: CSS
+                    height?: number
+                    width?: number
+                    arrow?: CSS
                 }
-                header: {
-                    base: CSS
-                    connector: CSS
-                    title: CSS
+                header?: {
+                    base?: CSS
+                    connector?: CSS
+                    title?: CSS
                 }
-                subtree: CSS
-                loading: CSS
+                subtree?: CSS
+                loading?: CSS
             }
         }
     }

@@ -1,5 +1,6 @@
 import * as React from "react";
 import classes from "./SideBar.module.css";
+import styles from './SideBar.styles';
 import {Treebeard, TreeNode} from "react-treebeard";
 
 // example JSON 
@@ -85,11 +86,12 @@ class SideBar extends React.Component<Props,State> {
     render() {
         return (
             <div>
-                <p className={classes.red}>SideBar</p>
+                <p className={classes.red}>Files</p>
                 <Treebeard
                     data={this.state.data}
                     onToggle={this.onToggle}
-                />`
+                    style={styles}
+                />
             </div>
         );
     }
