@@ -1,12 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-
-export interface TreeNode {
-  name: string;
-  path: string;
-  children?: TreeNode[];
-  type: "directory" | "file";
-}
+import TreeNode from "malte-common/dist/TreeNode";
 
 /**
  * fsTree Generates a JSON tree of the file system
