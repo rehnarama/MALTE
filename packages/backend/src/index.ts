@@ -18,7 +18,7 @@ if (process.env.REACT_APP_FRONTEND_URL) {
 }
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin: function(origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
