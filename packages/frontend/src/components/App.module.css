@@ -1,26 +1,32 @@
-.sidebar {grid-area:sidebar;}
-.texteditor {grid-area:texteditor;}
-.terminal {grid-area:terminal;}
+.sidebar {
+  grid-area: sidebar;
+}
+.texteditor {
+  grid-area: texteditor;
+}
+.terminal {
+  grid-area: terminal;
+}
 
 .gridContainer {
-    display: grid;
-    grid:
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar texteditor texteditor texteditor texteditor texteditor'
-    'sidebar terminal terminal terminal terminal terminal';
-    background-color: coral;
-    grid-gap: 10px;
-    padding: 10px;
-    height: calc(100vh - 20px); /*full height - padding*/
+  display: grid;
+  grid:
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar texteditor texteditor texteditor texteditor texteditor"
+    "sidebar terminal terminal terminal terminal terminal";
+  background-color: coral;
+  grid-gap: 10px;
+  padding: 10px;
+  height: calc(100vh - 20px); /*full height - padding*/
 }
-    
-.gridContainer > div{
-    background-color: rgba(255,255,255,0.8);
-    text-align: center;
-    padding: 10px;
+
+.gridContainer > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 10px;
 }
