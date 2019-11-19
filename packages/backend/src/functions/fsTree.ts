@@ -16,7 +16,7 @@ export interface TreeNode {
  */
 export default async function fsTree(
   root: string,
-  depth: number = Infinity
+  depth = Infinity
 ): Promise<TreeNode> {
   const stats = await fs.lstat(root);
 
