@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { default as MonacoEditor } from "@monaco-editor/react";
-import { default as monaco } from "monaco-editor";
+import * as monaco from "monaco-editor";
 import mapOperations, {
   printInternalOperations
 } from "../functions/MapOperations";
