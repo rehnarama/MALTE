@@ -1,11 +1,12 @@
-import mapOperations, { Range, Operation } from "./MapOperations";
+import mapOperations, { Operation } from "./MapOperations";
+import { IRange } from "monaco-editor";
 
 function range(
   startLineNumber: number,
   startColumn: number,
   endLineNumber: number,
   endColumn: number
-): Range {
+): IRange {
   return { startColumn, startLineNumber, endColumn, endLineNumber };
 }
 

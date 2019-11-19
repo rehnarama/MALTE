@@ -1,29 +1,39 @@
 import React, { useRef } from "react";
-import { default as Monaco, monaco } from "@monaco-editor/react";
+import { default as MonacoEditor } from "@monaco-editor/react";
+import { default as monaco } from "monaco-editor";
 import mapOperations, {
   printInternalOperations
 } from "../functions/MapOperations";
 
 const CodeEditor: React.FC = () => {
-  const editorRef = useRef();
+  const editorRef: React.MutableRefObject<
+    monaco.editor.ICodeEditor | undefined
+  > = useRef();
 
-  const handleEditorDidMount = (valueGetter: any, editor: any): void => {
+  const handleEditorDidMount = (
+    valueGetter: Function,
+    editor: monaco.editor.ICodeEditor
+  ): void => {
     console.log("Editor has loaded!");
     editorRef.current = editor;
 
-    // Set the EOL of the editor model to LineFeed
-    monaco.init().then(monacoInstance => {
-      editor.getModel().pushEOL(monacoInstance.editor.EndOfLineSequence.LF);
-    });
-
-    editor.getModel().onDidChangeContent((event: any) => {
-      const op = event.changes[0];
-      printInternalOperations(mapOperations(op));
-    });
+    const currentModel: monaco.editor.IEditorModel | null = editor.getModel();
+    if (currentModel) {
+      // Set the EOL of the editor model to LineFeed
+      currentModel.pushEOL(monaco.editor.EndOfLineSequence.LF);
+      currentModel.onDidChangeContent(
+        (event: monaco.editor.IModelContentChangedEvent) => {
+          const op = event.changes[0];
+          printInternalOperations(mapOperations(op));
+        }
+      );
+    } else {
+      console.error("No current model in Monaco editorDidMount");
+    }
   };
 
   return (
-    <Monaco
+    <MonacoEditor
       height="75vh"
       width="80vw"
       language="javascript"
