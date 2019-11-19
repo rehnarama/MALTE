@@ -30,6 +30,40 @@ export interface InsertOperation {
 
 export type InternalOperation = RemoveOperation | InsertOperation;
 
+function isRemoveOperation(op: MonacoOperation): boolean {
+  return op.rangeLength > 0 && op.text === "";
+}
+
+function isReplaceOperation(op: MonacoOperation): boolean {
+  return op.rangeLength > 0 && op.text !== "";
+}
+
+function mapRemoveOperation(op: MonacoOperation): InternalOperation[] {
+  const newOps: InternalOperation[] = [];
+  for (let i = op.rangeLength - 1; i >= 0; i--) {
+    newOps.push({ type: Operation.Remove, position: op.rangeOffset + i });
+  }
+  return newOps;
+}
+
+function mapInsertOperation(op: MonacoOperation): InternalOperation[] {
+  const newOps: InternalOperation[] = [];
+  for (let i = 0; i < op.text.length; i++) {
+    newOps.push({
+      type: Operation.Insert,
+      position: op.rangeOffset + i,
+      character: op.text.charAt(i)
+    });
+  }
+  return newOps;
+}
+
+function mapReplaceOperation(op: MonacoOperation): InternalOperation[] {
+  const removeOps = mapRemoveOperation(op);
+  const insertOps = mapInsertOperation(op);
+  return removeOps.concat(insertOps);
+}
+
 /**
  * Converts an operation from the Monaco Editor to Internal operations
  *
@@ -52,41 +86,7 @@ function mapOperations(op: MonacoOperation): InternalOperation[] {
 
 export default mapOperations;
 
-function isRemoveOperation(op: MonacoOperation): boolean {
-  return op.rangeLength > 0 && op.text === "";
-}
-
-function isReplaceOperation(op: MonacoOperation): boolean {
-  return op.rangeLength > 0 && op.text !== "";
-}
-
-function mapRemoveOperation(op: MonacoOperation): InternalOperation[] {
-  let newOps: InternalOperation[] = [];
-  for (let i = op.rangeLength - 1; i >= 0; i--) {
-    newOps.push({ type: Operation.Remove, position: op.rangeOffset + i });
-  }
-  return newOps;
-}
-
-function mapInsertOperation(op: MonacoOperation): InternalOperation[] {
-  let newOps: InternalOperation[] = [];
-  for (let i = 0; i < op.text.length; i++) {
-    newOps.push({
-      type: Operation.Insert,
-      position: op.rangeOffset + i,
-      character: op.text.charAt(i)
-    });
-  }
-  return newOps;
-}
-
-function mapReplaceOperation(op: MonacoOperation): InternalOperation[] {
-  const removeOps = mapRemoveOperation(op);
-  const insertOps = mapInsertOperation(op);
-  return removeOps.concat(insertOps);
-}
-
-export function printInternalOperations(ops: InternalOperation[]) {
+export function printInternalOperations(ops: InternalOperation[]): void {
   for (const op of ops) {
     if (op.type === Operation.Insert) {
       console.log("Insert '" + op.character + "' at position " + op.position);
