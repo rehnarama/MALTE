@@ -7,7 +7,7 @@ import mapOperations, {
 const CodeEditor: React.FC = () => {
   const editorRef = useRef();
 
-  const handleEditorDidMount = (valueGetter: any, editor: any) => {
+  const handleEditorDidMount = (valueGetter: any, editor: any): void => {
     console.log("Editor has loaded!");
     editorRef.current = editor;
 
