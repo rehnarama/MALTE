@@ -12,7 +12,22 @@ import Terminal from "./functions/terminal/Terminal";
 const app = express();
 const port = 4000;
 
-app.use(cors());
+let whitelist = ["http://127.0.0.1:4000"];
+if (process.env.REACT_APP_FRONTEND_URL) {
+  whitelist = ["http://" + process.env.REACT_APP_FRONTEND_URL];
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
 app.get("/", (req, res) => {
   res.send("YAY! It actually works!");
 });
@@ -24,9 +39,14 @@ const server = app.listen(port, err => {
   return console.log(`Server is listening on ${port}`);
 });
 
-const io = socketio(server, { origins: "*:*" });
+let origins = "127.0.0.1:4000";
+if (process.env.REACT_APP_FRONTEND_URL) {
+  origins = process.env.REACT_APP_FRONTEND_URL;
+}
+console.log(origins);
+const io = socketio(server, { origins });
 
-io.on("connection", socket => {
+io.on("connection", async socket => {
   console.log(`Socket with id ${socket.id} connected`);
   new Terminal(socket);
   socket.emit("file-tree", await fsTree(PROJECT_ROOT));

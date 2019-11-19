@@ -19,7 +19,7 @@ by simply typing `npm install` in each project folder.
 
 # How to Run
 
-Execute `docker-compose up`. Frontend will run at port `3000` and backend at port `4000`
+Execute `npm run` in each folder. Frontend will run at port `3000` and backend at port `4000`. You may need to set `REACT_APP_BACKEND_URL` and `REACT_APP_FRONTEND_URL`, e.g. `REACT_APP_BACKEND_URL=192.168.124.5:4000`and `REACT_APP_FRONTEND_URL=192.168.124.5:3000`.
 
 # Code Styling
 
