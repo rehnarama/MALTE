@@ -1,22 +1,5 @@
 import { editor } from "monaco-editor";
-
-export enum Operation {
-  Insert,
-  Remove
-}
-
-export interface RemoveOperation {
-  type: Operation.Remove;
-  position: number;
-}
-
-export interface InsertOperation {
-  type: Operation.Insert;
-  position: number;
-  character: string;
-}
-
-export type InternalOperation = RemoveOperation | InsertOperation;
+import { Operation, InternalOperation } from "malte-common/dist/Operations";
 
 function isRemoveOperation(op: editor.IModelContentChange): boolean {
   return op.rangeLength > 0 && op.text === "";

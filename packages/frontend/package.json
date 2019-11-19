@@ -10,6 +10,7 @@
     "@types/react": "16.9.11",
     "@types/react-dom": "16.9.4",
     "lint": "^0.7.0",
+    "malte-common": "file:../malte-common",
     "monaco": "^1.201704190613.0",
     "monaco-editor": "^0.18.1",
     "prop-types": "^15.7.2",

@@ -19,6 +19,25 @@ by simply typing `npm install` in each project folder.
 
 Execute `npm run` in each folder. Depending on your setup, you may need to set enviroment variables.
 
+## malte-common
+
+`malte-common` is a supporting library which allows us to share code and type 
+definitions between frontend and backend. This library, however, has to be 
+built whenever it's changed (this is a nuisance, I know, but there is currently
+no other way to support mono-repos in create-react-app, see this 
+[issue](https://github.com/facebook/create-react-app/issues/1333)).
+
+To build `malte-common` once, enter `packages/malte-common` and run
+```sh
+npm run build
+```
+To have it build continually in the background, simply run
+```sh
+npm run build:watch
+```
+in a background job/tab.
+
+
 ## Environment Variables
 * `REACT_APP_BACKEND_URL`: (default: `127.0.0.1:3000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=192.168.124.5:4000`
 * `REACT_APP_FRONTEND_URL`: (default: `localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=192.168.124.5:3000`
