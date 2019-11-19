@@ -52,7 +52,7 @@ async function start(): Promise<void> {
   });
 
   const sockets: socketio.Socket[] = [];
-  let origins = "127.0.0.1:3000";
+  let origins = frontendUrl;
   if (process.env.REACT_APP_FRONTEND_URL) {
     origins = process.env.REACT_APP_FRONTEND_URL;
   }
