@@ -29,7 +29,7 @@ class Terminal {
   /**
    * Kill the terminal
    */
-  public kill() {
+  public kill(): void {
     this.terminal.kill();
   }
 }
