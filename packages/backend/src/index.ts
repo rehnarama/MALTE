@@ -48,7 +48,7 @@ if (process.env.REACT_APP_FRONTEND_URL) {
   origins = process.env.REACT_APP_FRONTEND_URL;
 }
 console.log(origins);
-const io = socketio(server, { origins });
+const io = socketio(server, { origins: frontendUrl });
 
 io.on("connection", async socket => {
   console.log(`Socket with id ${socket.id} connected`);
