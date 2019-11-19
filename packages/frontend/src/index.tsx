@@ -16,5 +16,8 @@ socket.on("connect", () => {
 socket.on("hello-world", (data: any) => {
   console.log("hello world was sent", data);
 });
+socket.on("file-tree", (data: any) => {
+  console.log("file tree was sent", data);
+});
 
 ReactDOM.render(<App />, document.getElementById("root"));
