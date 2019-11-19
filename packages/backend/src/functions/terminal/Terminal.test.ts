@@ -1,10 +1,10 @@
-import "mocha"
-import Terminal from "./Terminal"
-import MockedSocket from "socket.io-mock"
+import "mocha";
+import Terminal from "./Terminal";
+import MockedSocket from "socket.io-mock";
 
 describe("Terminal class", function() {
-    it("should terminate graceful", () => {
-        const terminal = new Terminal(new MockedSocket())
-        terminal.kill()
-    })
-})
+  it("should terminate graceful", () => {
+    const terminal = new Terminal(new MockedSocket());
+    terminal.kill();
+  });
+});
