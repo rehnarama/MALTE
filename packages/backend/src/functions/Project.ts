@@ -42,14 +42,14 @@ export default class Project {
   /**
    * Get a file from the project. If the file isn't open or doesn't exist
    * it is created.
-   * @param path path of file
+   * @param filePath path of file
    */
-  private async getFile(path: string): Promise<File> {
-    let f: File = this.files.find((f) => {
-      return f.path === path;
+  private async getFile(filePath: string): Promise<File> {
+    let f: File = this.files.find(f => {
+      return f.path == path.join(this.path, filePath);
     });
     if (f === undefined) {
-      f = await this.createFile(path);
+      f = await this.createFile(filePath);
     }
     return f;
   }
@@ -62,14 +62,14 @@ export default class Project {
 
     this.socketIds.push(socket.id);
 
-    socket.on("join-buffer", async (data: {path: string}) => {
+    socket.on("join-buffer", async (data: { path: string }) => {
       const path: string = data.path;
       const file = await this.getFile(path);
       file.join(socket);
-      socket.emit("open-buffer", {path, content: file.getContent()});
+      socket.emit("open-buffer", { path, content: file.getContent() });
     });
 
-    socket.on("leave-buffer", async (data: {path: string}) => {
+    socket.on("leave-buffer", async (data: { path: string }) => {
       const path: string = data.path;
       const file = await this.getFile(path);
       file.leave(socket);

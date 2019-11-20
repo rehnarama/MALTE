@@ -19,8 +19,13 @@ export default class File {
    * Initialize the file defined in the constructor path.
    */
   public async initialize(): Promise<void> {
-    await fs.appendFile(this.path, "console.log(\"hello world\")", { encoding: "utf8" });
-    const fileContent: string = await fs.readFile(this.path, { encoding: "utf8" });
+    console.log("Initializing file");
+    await fs.writeFile(this.path, 'console.log("hello world")', {
+      encoding: "utf8"
+    });
+    const fileContent: string = await fs.readFile(this.path, {
+      encoding: "utf8"
+    });
     this.rga = RGA.fromString(fileContent);
   }
 
@@ -31,14 +36,14 @@ export default class File {
     return this.rga;
   }
 
-  public join(socket: SocketIO.Socket) {
+  public join(socket: SocketIO.Socket): void {
     if (this.sockets.some(s => s.id === socket.id)) {
       return;
     }
     this.sockets.push(socket);
   }
 
-  public leave(socket: SocketIO.Socket) {
+  public leave(socket: SocketIO.Socket): void {
     const i = this.sockets.findIndex(s => s.id === socket.id);
     if (i > -1) {
       this.sockets.splice(i, 1);
