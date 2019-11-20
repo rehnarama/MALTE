@@ -1,14 +1,22 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { default as MonacoEditor } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import mapOperations, {
   printInternalOperations
 } from "../functions/MapOperations";
+import RGA from "rga/dist/RGA";
 
-const CodeEditor: React.FC = () => {
+const CodeEditor: React.FC<{ socket: SocketIOClient.Socket }> = ({
+  socket
+}) => {
   const editorRef: React.MutableRefObject<
     monaco.editor.ICodeEditor | undefined
   > = useRef();
+  const [value, setValue] = useState("");
+
+  socket.on("open-buffer", (data: { path: string; content: RGA }) => {
+    setValue(RGA.fromRGA(data.content).toString());
+  });
 
   const handleEditorDidMount = (
     valueGetter: Function,
@@ -37,6 +45,7 @@ const CodeEditor: React.FC = () => {
       height="75vh"
       width="80vw"
       language="javascript"
+      value={value}
       editorDidMount={handleEditorDidMount}
     />
   );

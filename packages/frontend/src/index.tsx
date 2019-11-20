@@ -13,10 +13,12 @@ if (process.env.REACT_APP_BACKEND_URL) {
 const socket = io(backendUrl);
 socket.on("connect", () => {
   console.log("Connected to server");
+  socket.emit("join-buffer", { path: "tmp.js" });
 });
+
 socket.on("file-tree", (data: any) => {
   console.log("file tree was sent", data);
 });
 Socket.getInstance();
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App socket={socket} />, document.getElementById("root"));
