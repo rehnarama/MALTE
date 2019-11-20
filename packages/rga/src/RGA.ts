@@ -179,4 +179,12 @@ export default class RGA {
     }
     return rga;
   }
+
+  public static fromRGA(rga: RGA): RGA {
+    const newRga = new RGA();
+    newRga.head = rga.head;
+    newRga.nodeMap = rga.nodeMap;
+    newRga.clock = rga.clock;
+    return newRga;
+  }
 }
