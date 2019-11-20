@@ -1,7 +1,6 @@
 import * as React from "react";
-import classes from "./SideBar.module.css";
 import TreeNode from "malte-common/dist/TreeNode";
-import Tree from "./Tree/Tree";
+import Tree from "./Tree";
 
 // example JSON
 const data: TreeNode = {
