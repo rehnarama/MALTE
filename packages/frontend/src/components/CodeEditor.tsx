@@ -40,8 +40,6 @@ const CodeEditor: React.FC = () => {
 
   return (
     <MonacoEditor
-      height="75vh"
-      width="80vw"
       language="javascript"
       editorDidMount={handleEditorDidMount}
       onChange={handleEditorChange}
