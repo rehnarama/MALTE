@@ -23,11 +23,12 @@ function mapInsertOperation(
   op: editor.IModelContentChange
 ): InternalOperation[] {
   const newOps: InternalOperation[] = [];
-  for (let i = 0; i < op.text.length; i++) {
+  const text = op.text.replace("\r\n", "\n");
+  for (let i = 0; i < text.length; i++) {
     newOps.push({
       type: Operation.Insert,
       position: op.rangeOffset + i,
-      character: op.text.charAt(i)
+      character: text.charAt(i)
     });
   }
   return newOps;
