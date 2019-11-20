@@ -1,11 +1,13 @@
 import * as React from "react";
 import classes from "./SideBar.module.css";
-import styles from "./SideBar.styles";
-import { Treebeard, TreeNode } from "react-treebeard";
+import TreeNode from "malte-common/dist/TreeNode";
+import Tree from "./Tree/Tree";
 
 // example JSON
-const data = {
+const data: TreeNode = {
   name: "root",
+  type: "directory",
+  path: "/tmp/root",
   children: [
     {
       name: "folder1",
@@ -17,79 +19,50 @@ const data = {
           type: "file",
           path: "root/folder1/file1.js"
         },
-        { name: "file2.js", type: "file" }
+        { name: "file2.js", type: "file", path: "root/folder1/file2.js" }
       ]
     },
     {
-      name: "folder2",
-      type: "directory",
-      children: [
-        { name: "file1.js", type: "file" },
-        { name: "file2.js", type: "file" }
-      ]
+      name: "file1.js",
+      type: "file",
+      path: "root/file1.js"
     },
-    {
-      name: "folder3",
-      type: "directory",
-      children: [
-        {
-          name: "folder4",
-          type: "directory",
-          children: [
-            { name: "file1.js", type: "file" },
-            { name: "file2.js", type: "file" }
-          ]
-        },
-        {
-          name: "folder5",
-          type: "directory",
-          children: [
-            { name: "file1.js", type: "file" },
-            { name: "file2.js", type: "file" }
-          ]
-        }
-      ]
-    }
+    { name: "file2.js", type: "file", path: "root/file2.js" }
   ]
 };
 
 interface State {
-  data: TreeNode | Array<TreeNode>;
-  active?: boolean;
+  data: TreeNode;
+  toggledKeys: { [key: string]: boolean };
 }
 
 class SideBar extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
-    this.state = { data };
+    this.state = { data, toggledKeys: {} };
   }
 
-  onToggle = (node: TreeNode, toggled: boolean): void => {
-    const { data } = this.state;
-
-    if (node) {
-      if (node.type === "file") {
-        /*This will later be used by CodeEditor to open the specific file */
-        console.log(JSON.stringify(node.path));
-      }
-      this.setState(() => ({ active: false }));
-    }
-
-    if (node.children) {
-      node.toggled = toggled;
-    }
-
-    this.setState(() => ({ data: Object.assign({}, data) }));
+  onSelect = (node: TreeNode) => {
+    console.log("select", node);
+  };
+  onToggle = (node: TreeNode) => {
+    const isToggled = this.state.toggledKeys[node.path] === true;
+    const newToggledKeys = Object.assign({}, this.state.toggledKeys, {
+      [node.path]: !isToggled
+    });
+    this.setState({ toggledKeys: newToggledKeys });
   };
 
   render() {
     return (
       <div>
-        <p className={classes.red}>Files</p>
-        <Treebeard
-          data={this.state.data}
+        <p>Files</p>
+        <Tree
+          node={this.state.data}
+          root
+          toggledKeys={this.state.toggledKeys}
+          onSelect={this.onSelect}
           onToggle={this.onToggle}
-          style={styles}
         />
       </div>
     );
