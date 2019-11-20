@@ -38,6 +38,7 @@
     "express": "^4.17.1",
     "malte-common": "file:../malte-common",
     "node-pty": "^0.9.0",
+    "rga": "file:../rga",
     "socket.io": "^2.3.0"
   }
 }
