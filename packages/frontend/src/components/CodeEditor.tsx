@@ -27,7 +27,6 @@ const CodeEditor: React.FC<{ socket: SocketIOClient.Socket }> = ({
 
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
-      // Set the EOL of the editor model to LineFeed
       currentModel.onDidChangeContent(
         (event: editorType.IModelContentChangedEvent) => {
           const op = event.changes[0];
