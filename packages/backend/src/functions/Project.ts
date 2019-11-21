@@ -70,8 +70,10 @@ export default class Project {
     socket.on("join-buffer", async (data: { path: string }) => {
       const path: string = data.path;
       const file = await this.getFile(path);
-      file.join(socket);
-      socket.emit("open-buffer", { path, content: file.getContent() });
+      const joined = file.join(socket);
+      if (joined) {
+        socket.emit("open-buffer", { path, content: file.getContent() });
+      }
     });
 
     socket.on("leave-buffer", async (data: { path: string }) => {
