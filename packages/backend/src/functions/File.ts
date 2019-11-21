@@ -36,11 +36,12 @@ export default class File {
     return this.rga;
   }
 
-  public join(socket: SocketIO.Socket): void {
+  public join(socket: SocketIO.Socket): boolean {
     if (this.sockets.some(s => s.id === socket.id)) {
-      return;
+      return false;
     }
     this.sockets.push(socket);
+    return true;
   }
 
   public leave(socket: SocketIO.Socket): void {

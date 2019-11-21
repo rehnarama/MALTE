@@ -54,10 +54,15 @@ export default class Project {
     return f;
   }
 
-  public join(socket: SocketIO.Socket): void {
+  /**
+   * Add a client to a project
+   * @param socket the socket to the client that wants to join the Project
+   * @returns true if successfully joined the project
+   */
+  public join(socket: SocketIO.Socket): boolean {
     if (this.socketIds.includes(socket.id)) {
       // You can't join twice
-      return;
+      return false;
     }
 
     this.socketIds.push(socket.id);
@@ -74,5 +79,7 @@ export default class Project {
       const file = await this.getFile(path);
       file.leave(socket);
     });
+
+    return true;
   }
 }
