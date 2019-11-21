@@ -59,9 +59,13 @@ async function start(): Promise<void> {
   io.on("connection", async socket => {
     console.log(`Socket with id ${socket.id} connected`);
     new Terminal(socket);
-    socket.emit("file-tree", await fsTree(projectRoot));
+    // send file tree on request from client
+    socket.on("refresh-file-tree", async () => {
+      socket.emit("file-tree", await fsTree(projectRoot));
+    });
   });
 
+  // send file tree when filesystem changes
   project.getWatcher().on("all", async () => {
     const tree = await fsTree(projectRoot);
     io.sockets.emit("file-tree", tree);
