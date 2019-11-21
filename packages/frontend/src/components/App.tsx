@@ -5,14 +5,14 @@ import Terminal from "./Terminal";
 import CodeEditor from "./CodeEditor";
 import classes from "./App.module.css";
 
-const App: React.FC<{ socket: SocketIOClient.Socket }> = ({ socket }) => {
+const App: React.FC = () => {
   return (
     <div className={classes.gridContainer}>
       <div className={classes.sidebar}>
         <SideBar />
       </div>
       <div className={classes.texteditor}>
-        <CodeEditor socket={socket} />
+        <CodeEditor />
       </div>
       <div className={classes.terminal}>
         <Terminal />

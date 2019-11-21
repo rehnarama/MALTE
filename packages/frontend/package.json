@@ -21,7 +21,8 @@
     "rga": "file:../rga",
     "socket.io-client": "^2.3.0",
     "typescript": "3.7.2",
-    "xterm": "^4.2.0-vscode1"
+    "xterm": "^4.2.0-vscode1",
+    "xterm-addon-fit": "^0.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

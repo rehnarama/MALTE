@@ -5,18 +5,13 @@ import mapOperations, {
   printInternalOperations
 } from "../functions/MapOperations";
 import RGA from "rga/dist/RGA";
+import Socket from "../functions/Socket";
 
-const CodeEditor: React.FC<{ socket: SocketIOClient.Socket }> = ({
-  socket
-}) => {
+const CodeEditor: React.FC = () => {
   const editorRef: React.MutableRefObject<
     editorType.ICodeEditor | undefined
   > = useRef();
   const [value, setValue] = useState("");
-
-  socket.on("open-buffer", (data: { path: string; content: RGA }) => {
-    setValue(RGA.fromRGA(data.content).toString());
-  });
 
   const handleEditorDidMount = (
     valueGetter: Function,
@@ -24,6 +19,12 @@ const CodeEditor: React.FC<{ socket: SocketIOClient.Socket }> = ({
   ): void => {
     console.log("Editor has loaded!");
     editorRef.current = editor;
+
+    const socket = Socket.getInstance().getSocket();
+    socket.on("open-buffer", (data: { path: string; content: RGA }) => {
+      setValue(RGA.fromRGA(data.content).toString());
+    });
+    socket.emit("join-buffer", { path: "tmp.js" });
 
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
@@ -47,8 +48,6 @@ const CodeEditor: React.FC<{ socket: SocketIOClient.Socket }> = ({
 
   return (
     <MonacoEditor
-      height="75vh"
-      width="80vw"
       language="javascript"
       value={value}
       editorDidMount={handleEditorDidMount}
