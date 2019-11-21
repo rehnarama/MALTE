@@ -13,7 +13,7 @@ class SideBar extends React.Component<{}, State> {
     super(props);
     const socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
-    socket.on("file-tree", (data: any) => {
+    socket.on("file-tree", (data: TreeNode) => {
       this.setState(() => ({ data }));
     });
   }
