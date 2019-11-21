@@ -24,6 +24,10 @@ class Terminal {
     socket.on("pty-data", data => {
       this.terminal.write(data);
     });
+
+    socket.on("disconnect", () => {
+      this.kill();
+    });
   }
 
   /**
@@ -31,6 +35,7 @@ class Terminal {
    */
   public kill(): void {
     this.terminal.kill();
+
   }
 }
 
