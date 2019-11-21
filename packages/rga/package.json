@@ -4,6 +4,8 @@
   "description": "RGA data structure for collaborative editing written in TypeScript",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
     "test": "mocha -r ts-node/register src/**/*.test.ts",
     "test:watch": "npm test -- --watch --watch-extensions ts"
   },
