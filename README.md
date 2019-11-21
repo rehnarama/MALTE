@@ -19,6 +19,17 @@ by simply typing `npm install` in each project folder.
 
 Execute `npm run` in each folder. Depending on your setup, you may need to set enviroment variables.
 
+## Dependencies
+
+### Backend
+
+* node.js >12.X
+* node-pty dependencies, see [here](https://github.com/microsoft/node-pty#dependencies)
+
+### Frontend
+
+* node.js >12.X
+
 ## malte-common
 
 `malte-common` is a supporting library which allows us to share code and type 
