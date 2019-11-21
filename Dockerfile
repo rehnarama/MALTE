@@ -2,8 +2,12 @@ FROM ubuntu:18.04
 
 ARG REACT_APP_BACKEND_URL
 ARG REACT_APP_FRONTEND_URL
+ARG PROJECT_USERNAME
+ARG PROJECT_DIRECTORY
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 ENV REACT_APP_FRONTEND_URL=$REACT_APP_FRONTEND_URL
+ENV PROJECT_USERNAME=$PROJECT_USERNAME
+ENV PROJECT_DIRECTORY=$PROJECT_DIRECTORY
 
 ENV DISTRO="bionic" 
 RUN apt-get update
@@ -17,7 +21,7 @@ RUN apt-get update
 RUN npm install -g npm@latest
 
 RUN useradd -ms /bin/bash app_service
-RUN useradd -ms /bin/bash developer
+RUN useradd -ms /bin/bash $PROJECT_USERNAME
 
 EXPOSE 80
 COPY packages/ /home/app_service
