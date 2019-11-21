@@ -35,7 +35,6 @@ class Terminal {
    */
   public kill(): void {
     this.terminal.kill();
-
   }
 }
 
