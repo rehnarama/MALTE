@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import { sep } from "path";
-import os from "os";
+import os, { homedir } from "os";
 
 import express from "express";
 import socketio from "socket.io";
@@ -8,11 +8,41 @@ import fsTree from "./functions/fsTree";
 import Project from "./functions/Project";
 import cors from "cors";
 import Terminal from "./functions/terminal/Terminal";
+import mkdirp from "mkdirp";
 
-async function start(): Promise<void> {
-  // Initialize a project in a random temporary directory for now
+async function initializeRandomDirectory(): Promise<string> {
   const tmpDir = os.tmpdir();
   const projectRoot = await fs.mkdtemp(`${tmpDir}${sep}`);
+  return projectRoot;
+}
+
+async function initializeWorkspaceInUserHome(): Promise<string> {
+  let projectRoot;
+  if (process.env.PROJECT_USERNAME) {
+    const dir = `${sep}home${sep}${process.env.PROJECT_USERNAME}${sep}${process.env.PROJECT_DIRECTORY}`;
+    projectRoot = dir;
+    mkdirp(dir, function(err) {
+      if (err) console.error(err);
+    });
+  } else {
+    const dir = `${homedir}${sep}${process.env.PROJECT_DIRECTORY}`;
+    projectRoot = dir;
+    mkdirp(dir, function(err) {
+      if (err) console.error(err);
+    });
+  }
+  return projectRoot;
+}
+
+async function start(): Promise<void> {
+  let projectRoot;
+  if (process.env.PROJECT_DIRECTORY) {
+    projectRoot = await initializeWorkspaceInUserHome();
+  } else {
+    console.log("random dir");
+    projectRoot = await initializeRandomDirectory();
+  }
+
   const project = new Project(projectRoot);
   await project.initialize();
 
