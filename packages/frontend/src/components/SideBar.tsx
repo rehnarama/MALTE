@@ -1,44 +1,27 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
 import Tree from "./Tree";
-
-// example JSON
-const data: TreeNode = {
-  name: "root",
-  type: "directory",
-  path: "/tmp/root",
-  children: [
-    {
-      name: "folder1",
-      type: "directory",
-      path: "root",
-      children: [
-        {
-          name: "file1.js",
-          type: "file",
-          path: "root/folder1/file1.js"
-        },
-        { name: "file2.js", type: "file", path: "root/folder1/file2.js" }
-      ]
-    },
-    {
-      name: "file1.js",
-      type: "file",
-      path: "root/file1.js"
-    },
-    { name: "file2.js", type: "file", path: "root/file2.js" }
-  ]
-};
+import Socket from "../functions/Socket";
 
 interface State {
-  data: TreeNode;
+  data?: TreeNode;
   toggledKeys: { [key: string]: boolean };
 }
 
 class SideBar extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
-    this.state = { data, toggledKeys: {} };
+    const socket = Socket.getInstance().getSocket();
+    this.state = { toggledKeys: {} };
+    socket.on("file-tree", (data: any) => {
+      this.setState(() => ({ data }));
+    });
+  }
+
+  componentWillUnmount() {
+    Socket.getInstance()
+      .getSocket()
+      .removeListener("file-tree");
   }
 
   onSelect = (node: TreeNode) => {
@@ -56,13 +39,17 @@ class SideBar extends React.Component<{}, State> {
     return (
       <div>
         <p>Files</p>
-        <Tree
-          node={this.state.data}
-          root
-          toggledKeys={this.state.toggledKeys}
-          onSelect={this.onSelect}
-          onToggle={this.onToggle}
-        />
+        {this.state.data ? (
+          <Tree
+            node={this.state.data}
+            root
+            toggledKeys={this.state.toggledKeys}
+            onSelect={this.onSelect}
+            onToggle={this.onToggle}
+          />
+        ) : (
+          <p>Loading...</p>
+        )}
       </div>
     );
   }
