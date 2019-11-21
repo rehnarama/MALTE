@@ -26,6 +26,7 @@ async function initializeWorkspaceInUserHome(): Promise<string> {
     });
   } else {
     const dir = `${homedir}${sep}${process.env.PROJECT_DIRECTORY}`;
+    console.log("dir to be used = " + dir);
     projectRoot = dir;
     mkdirp(dir, function(err) {
       if (err) console.error(err);

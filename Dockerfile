@@ -21,7 +21,7 @@ RUN apt-get update
 RUN npm install -g npm@latest
 
 RUN useradd -ms /bin/bash app_service
-RUN useradd -ms /bin/bash $PROJECT_USERNAME
+RUN if [ -z "$PROJECT_USERNAME" ]; then useradd -ms /bin/bash $PROJECT_USERNAME; fi
 
 EXPOSE 80
 COPY packages/ /home/app_service
