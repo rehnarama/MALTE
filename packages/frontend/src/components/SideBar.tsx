@@ -13,20 +13,23 @@ class SideBar extends React.Component<{}, State> {
     super(props);
     const socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
-    socket.on("file-tree", (data: TreeNode) => {
-      this.setState(() => ({ data }));
-    });
+    socket.on("file-tree", this.onFileTree);
   }
+
+  onFileTree = (data: TreeNode) => {
+    this.setState(() => ({ data }));
+  };
 
   componentWillUnmount() {
     Socket.getInstance()
       .getSocket()
-      .removeListener("file-tree");
+      .removeListener("file-tree", this.onFileTree);
   }
 
   onSelect = (node: TreeNode) => {
     console.log("select", node);
   };
+
   onToggle = (node: TreeNode) => {
     const isToggled = this.state.toggledKeys[node.path] === true;
     const newToggledKeys = Object.assign({}, this.state.toggledKeys, {
