@@ -10,11 +10,11 @@ import socketio from "socket.io";
 class Terminal {
   private terminal: pty.IPty;
 
-  constructor(socket: socketio.Socket) {
+  constructor(socket: socketio.Socket, homeDirectory?: string) {
     this.terminal = pty.spawn("bash", [], {
       name: "xterm-color",
       env: process.env,
-      cwd: process.env.HOME
+      cwd: homeDirectory ? homeDirectory : process.env.HOME
     });
 
     this.terminal.on("data", function(data) {
