@@ -1,10 +1,11 @@
 import * as React from "react";
+import { User as UserData } from "malte-common/dist/oauth/GitHub";
 
 import User from "../../functions/User";
 import Avatar from "../Avatar";
 
 const UserButton: React.SFC = () => {
-  const [user, setUser] = React.useState<any | null>(null);
+  const [user, setUser] = React.useState<UserData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [needAuthentication, setNeedAuthentication] = React.useState(false);
   React.useEffect(() => {

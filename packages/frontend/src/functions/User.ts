@@ -1,5 +1,7 @@
+import { User as UserData } from "malte-common/dist/oauth/GitHub";
+
 export default class User {
-  private static user: any = null;
+  private static user: UserData | null = null;
 
   public static hasUser() {
     return User.user !== null;
@@ -15,7 +17,7 @@ export default class User {
       }
     );
     if (res.ok) {
-      const user = await res.json();
+      const user = (await res.json()) as UserData;
       User.user = user;
     } else {
       throw new Error(`Couldn't fetch user, reason: ${await res.json()}`);

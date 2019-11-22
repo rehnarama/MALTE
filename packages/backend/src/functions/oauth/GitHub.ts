@@ -1,18 +1,11 @@
 import fetch from "node-fetch";
 import { Express, Handler } from "express";
+import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
 
 interface AccessTokenResponse {
   access_token: string;
   scope: string;
   token_type: string;
-}
-interface UserResponse {
-  login: string;
-  id: number;
-  avatar_url: string;
-  url: string;
-  name: string;
-  email: string;
 }
 
 const USER_ID_COOKIE_NAME = "userId";
