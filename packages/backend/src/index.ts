@@ -8,7 +8,7 @@ import fsTree from "./functions/fsTree";
 import Project from "./functions/Project";
 import cors from "cors";
 import Terminal from "./functions/terminal/Terminal";
-import mkdirp from "mkdirp";
+import path from "path";
 
 async function initializeRandomDirectory(): Promise<string> {
   const tmpDir = os.tmpdir();
@@ -19,18 +19,18 @@ async function initializeRandomDirectory(): Promise<string> {
 async function initializeWorkspaceInUserHome(): Promise<string> {
   let projectRoot;
   if (process.env.PROJECT_USERNAME) {
-    const dir = `${sep}home${sep}${process.env.PROJECT_USERNAME}${sep}${process.env.PROJECT_DIRECTORY}`;
+    const dir = path.join(
+      homedir(),
+      "..",
+      process.env.PROJECT_USERNAME,
+      process.env.PROJECT_DIRECTORY
+    );
     projectRoot = dir;
-    mkdirp(dir, function(err) {
-      if (err) console.error(err);
-    });
+    await fs.mkdir(dir, { recursive: true });
   } else {
-    const dir = `${homedir}${sep}${process.env.PROJECT_DIRECTORY}`;
-    console.log("dir to be used = " + dir);
+    const dir = path.join(homedir(), process.env.PROJECT_DIRECTORY);
     projectRoot = dir;
-    mkdirp(dir, function(err) {
-      if (err) console.error(err);
-    });
+    await fs.mkdir(dir, { recursive: true });
   }
   return projectRoot;
 }
@@ -40,7 +40,6 @@ async function start(): Promise<void> {
   if (process.env.PROJECT_DIRECTORY) {
     projectRoot = await initializeWorkspaceInUserHome();
   } else {
-    console.log("random dir");
     projectRoot = await initializeRandomDirectory();
   }
 

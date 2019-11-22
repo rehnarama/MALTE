@@ -52,8 +52,8 @@ in a background job/tab.
 ## Environment Variables
 * `REACT_APP_BACKEND_URL`: (default: `127.0.0.1:3000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=192.168.124.5:4000`
 * `REACT_APP_FRONTEND_URL`: (default: `localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=192.168.124.5:3000`
-* PROJECT_USERNAME - username of the account of the owner of the workspace
-* PROJECT_DIRECTORY - name of the workspace. Will create folder in /home/${PROJECT_USERNAME}/${PROJECT_USERNAME}
+* `PROJECT_USERNAME` - username of the account of the owner of the workspace
+* `PROJECT_DIRECTORY` - name of the workspace. Will create folder in `/home/${PROJECT_USERNAME}/${PROJECT_USERNAME}`
 
 # Code Styling
 
