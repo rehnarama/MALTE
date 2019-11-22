@@ -36,8 +36,8 @@ export default class GitHub {
   private userIdAccessTokenMap: Map<string, string>;
 
   constructor(app: Express) {
-    this.clientId = process.env.githubClientId;
-    this.clientSecret = process.env.githubClientSecret;
+    this.clientId = process.env.GH_CLIENT_ID;
+    this.clientSecret = process.env.GH_CLIENT_SECRET;
     this.redirectUrl = process.env.REACT_APP_BACKEND_URL + REDIRECT_PATH;
     this.callbackUrl = process.env.REACT_APP_BACKEND_URL + CALLBACK_PATH;
     this.userIdAccessTokenMap = new Map<string, string>();
