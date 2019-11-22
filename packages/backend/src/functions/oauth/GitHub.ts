@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { Express, Handler } from "express";
 import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
+import uuidv4 from "uuid/v4";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -16,16 +17,6 @@ const ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
 const CALLBACK_PATH = "/oauth/github/callback";
 const REDIRECT_PATH = "/oauth/github/auth";
 const USER_PATH = "/oauth/github/user";
-
-const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-function randomUUID() {
-  // TODO: actually use UUIDv4 when I get internet
-  let str = "";
-  for (let i = 0; i < 32; i++) {
-    str += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return str;
-}
 
 export default class GitHub {
   private clientId: string;
@@ -55,7 +46,7 @@ export default class GitHub {
       return res.redirect(process.env.REACT_APP_FRONTEND_URL);
     }
 
-    res.cookie(USER_ID_COOKIE_NAME, randomUUID());
+    res.cookie(USER_ID_COOKIE_NAME, uuidv4());
     return res.redirect(
       `${AUTHORIZE_URL}?client_id=${this.clientId}&scope=${SCOPE}&redirect_uri=${this.callbackUrl}`
     );
