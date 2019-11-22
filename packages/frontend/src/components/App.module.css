@@ -24,8 +24,8 @@
   grid-template-columns: auto auto;
   grid-template-rows: min-content auto auto;
   background-color: coral;
-  grid-gap: 10px;
-  padding: 10px;
+  grid-gap: 8px;
+  padding: 8px;
   height: 100vh;
 }
 

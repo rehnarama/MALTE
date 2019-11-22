@@ -1,7 +1,7 @@
 .container {
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 16px;
   position: fixed;
   left: 0;
   top: 0;
