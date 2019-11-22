@@ -59,9 +59,11 @@ async function start(): Promise<void> {
 
   const whitelist = [frontendUrl];
   const corsOptions = {
-    origin: function(origin, callback) {
+    origin: function(
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void
+    ): void {
       // origin is undefined if same origin or server-2-server
-      console.log(whitelist, origin);
       if (!origin || whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
