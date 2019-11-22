@@ -105,20 +105,13 @@ export default class GitHub {
     return res.redirect(process.env.REACT_APP_FRONTEND_URL);
   };
 
-  onGetUser: Handler = async (req, res) => {
-    const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
-    if (!userId) {
-      // We have no cookie?! Who is this user?! Let's redirect it back so a
-      // cookie can be set
-      return res.redirect(this.redirectUrl);
-    }
-    console.log("got user id");
+  async getUser(userId: string): Promise<UserResponse> {
     const at = this.userIdAccessTokenMap.get(userId);
     if (!at) {
-      // No access token, can't get user. Let's authenticate user again
-      return res.redirect(this.redirectUrl);
+      throw {
+        name: "no_access_token"
+      };
     }
-    console.log("got access token");
 
     const response = await fetch("https://api.github.com/user", {
       headers: {
@@ -130,10 +123,34 @@ export default class GitHub {
     if (!response.ok) {
       this.userIdAccessTokenMap.delete(userId);
       // Access token must be invalid, let's try to auth them again
-      return res.status(403).json(await response.json());
+      throw {
+        name: "invalid_access_token"
+      };
     }
 
     const data = (await response.json()) as UserResponse;
-    return res.json(data);
+    return data;
+  }
+
+  onGetUser: Handler = async (req, res) => {
+    const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
+    if (!userId) {
+      // We have no cookie?! Who is this user?! Let's redirect it back so a
+      // cookie can be set
+      return res.redirect(this.redirectUrl);
+    }
+    try {
+      const user = await this.getUser(userId);
+      return res.json(user);
+    } catch (err) {
+      if (err.name && err.name === "no_access_token") {
+        // 401=Unauthorized
+        return res.sendStatus(401);
+      }
+      if (err.name && err.name === "invalid_access_token") {
+        // 500=Internal server error
+        return res.sendStatus(500);
+      }
+    }
   };
 }
