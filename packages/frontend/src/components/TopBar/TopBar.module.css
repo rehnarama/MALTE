@@ -8,6 +8,11 @@
   right: 0;
   background: transparent;
   z-index: 10;
+  pointer-events: none;
+}
+
+.container * {
+  pointer-events: auto;
 }
 
 .rightSide {
