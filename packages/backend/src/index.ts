@@ -84,7 +84,9 @@ async function start(): Promise<void> {
     return console.log(`Server is listening on ${PORT}`);
   });
 
-  const origins = frontendUrl;
+  // For some reason, socket.io refuses to work on heroku unless all
+  // ports are allowed, so let's make it so!
+  const origins = frontendUrl.replace(/:\d+$/, "") + ":*";
   const io = socketio(server, { origins });
   io.on("connection", async socket => {
     console.log(`Socket with id ${socket.id} connected`);

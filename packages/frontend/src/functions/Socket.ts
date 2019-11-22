@@ -5,7 +5,7 @@ class Socket {
   private s: SocketIOClient.Socket;
 
   private constructor() {
-    let backendUrl = "localhost:4000";
+    let backendUrl = "http://localhost:4000";
     if (process.env.REACT_APP_BACKEND_URL) {
       backendUrl = process.env.REACT_APP_BACKEND_URL;
     }
