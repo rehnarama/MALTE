@@ -5,7 +5,6 @@ import UserButton from "../UserButton";
 const TopBar: React.SFC = () => {
   return (
     <header className={classes.container}>
-      <h1 className={classes.title}>MALTE</h1>
       <div className={classes.rightSide}>
         <UserButton />
       </div>

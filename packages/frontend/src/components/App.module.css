@@ -15,14 +15,10 @@
   overflow: auto;
   grid-area: terminal;
 }
-.topBar {
-  grid-area: topBar;
-}
 
 .gridContainer {
   display: grid;
   grid:
-    "topBar topBar"
     "sidebar texteditor"
     "sidebar terminal";
   grid-template-columns: auto auto;
