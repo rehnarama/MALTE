@@ -56,6 +56,7 @@ async function start(): Promise<void> {
 
   const app = express();
   app.use(cookieParser());
+  app.use("/", express.static("public_frontend"));
 
   const whitelist = [frontendUrl];
   const corsOptions = {
