@@ -9,7 +9,8 @@ export default class User {
 
   public static async fetchUser() {
     const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/oauth/github/user`,
+      `${process.env.REACT_APP_BACKEND_URL ||
+        "http://localhost:4000"}/oauth/github/user`,
       {
         method: "GET",
         credentials: "include",
