@@ -47,7 +47,7 @@ export default class GitHub {
     app.get(USER_PATH, this.onGetUser);
   }
 
-  onRedirect: Handler = (req, res) => {
+  private onRedirect: Handler = (req, res) => {
     const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
     if (userId && this.userIdAccessTokenMap.has(userId)) {
       // We already have an access token, great! Let's get this user back to
@@ -61,7 +61,7 @@ export default class GitHub {
     );
   };
 
-  onCallback: Handler = async (req, res) => {
+  private onCallback: Handler = async (req, res) => {
     const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
     if (!userId) {
       // We have no cookie?! Who is this user?! Let's redirect it back so a
@@ -105,7 +105,29 @@ export default class GitHub {
     return res.redirect(process.env.REACT_APP_FRONTEND_URL);
   };
 
-  async getUser(userId: string): Promise<UserResponse> {
+  private onGetUser: Handler = async (req, res) => {
+    const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
+    if (!userId) {
+      // We have no cookie?! Who is this user?! Let's redirect it back so a
+      // cookie can be set
+      return res.redirect(this.redirectUrl);
+    }
+    try {
+      const user = await this.getUser(userId);
+      return res.json(user);
+    } catch (err) {
+      if (err.name && err.name === "no_access_token") {
+        // 401=Unauthorized
+        return res.sendStatus(401);
+      }
+      if (err.name && err.name === "invalid_access_token") {
+        // 500=Internal server error
+        return res.sendStatus(500);
+      }
+    }
+  };
+
+  public async getUser(userId: string): Promise<UserResponse> {
     const at = this.userIdAccessTokenMap.get(userId);
     if (!at) {
       throw {
@@ -131,26 +153,4 @@ export default class GitHub {
     const data = (await response.json()) as UserResponse;
     return data;
   }
-
-  onGetUser: Handler = async (req, res) => {
-    const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
-    if (!userId) {
-      // We have no cookie?! Who is this user?! Let's redirect it back so a
-      // cookie can be set
-      return res.redirect(this.redirectUrl);
-    }
-    try {
-      const user = await this.getUser(userId);
-      return res.json(user);
-    } catch (err) {
-      if (err.name && err.name === "no_access_token") {
-        // 401=Unauthorized
-        return res.sendStatus(401);
-      }
-      if (err.name && err.name === "invalid_access_token") {
-        // 500=Internal server error
-        return res.sendStatus(500);
-      }
-    }
-  };
 }
