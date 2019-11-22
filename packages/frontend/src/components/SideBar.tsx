@@ -20,6 +20,12 @@ class SideBar extends React.Component<{}, State> {
     this.setState(() => ({ data }));
   };
 
+  componentDidMount() {
+    Socket.getInstance()
+      .getSocket()
+      .emit("refresh-file-tree");
+  }
+
   componentWillUnmount() {
     Socket.getInstance()
       .getSocket()

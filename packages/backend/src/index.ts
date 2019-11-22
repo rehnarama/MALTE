@@ -17,16 +17,20 @@ async function start(): Promise<void> {
   await project.initialize();
 
   const app = express();
-  const port = 4000;
+  app.use("/", express.static("public_frontend"));
+  let port = 4000;
+  if (process.env.PORT) {
+    port = parseInt(process.env.PORT);
+  }
 
   let frontendUrl = "http://localhost:3000";
   if (process.env.REACT_APP_FRONTEND_URL) {
-    frontendUrl = "http://" + process.env.REACT_APP_FRONTEND_URL;
+    frontendUrl = "https://" + process.env.REACT_APP_FRONTEND_URL;
   }
 
   let whitelist = [frontendUrl];
   if (process.env.REACT_APP_FRONTEND_URL) {
-    whitelist = ["http://" + process.env.REACT_APP_FRONTEND_URL];
+    whitelist = ["https://" + process.env.REACT_APP_FRONTEND_URL];
   }
 
   const corsOptions = {
@@ -40,9 +44,6 @@ async function start(): Promise<void> {
   };
 
   app.use(cors(corsOptions));
-  app.get("/", (req, res) => {
-    res.send("YAY! It actually works!");
-  });
 
   const server = app.listen(port, err => {
     if (err) {
@@ -53,7 +54,7 @@ async function start(): Promise<void> {
 
   let origins = frontendUrl;
   if (process.env.REACT_APP_FRONTEND_URL) {
-    origins = process.env.REACT_APP_FRONTEND_URL;
+    origins = process.env.REACT_APP_FRONTEND_URL + ":*";
   }
   const io = socketio(server, { origins });
   io.on("connection", async socket => {
@@ -61,8 +62,14 @@ async function start(): Promise<void> {
     new Terminal(socket);
     project.join(socket);
     socket.emit("file-tree", await fsTree(projectRoot));
+
+    // send file tree on request from client
+    socket.on("refresh-file-tree", async () => {
+      socket.emit("file-tree", await fsTree(projectRoot));
+    });
   });
 
+  // send file tree when filesystem changes
   project.getWatcher().on("all", async () => {
     const tree = await fsTree(projectRoot);
     io.sockets.emit("file-tree", tree);
