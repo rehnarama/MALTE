@@ -117,26 +117,22 @@ export default class GitHub {
     if (!userId) {
       return res.sendStatus(401);
     }
-    try {
-      const user = await this.getUser(userId);
-      return res.json(user);
-    } catch (err) {
-      if (err.name && err.name === "no_access_token") {
-        return res.sendStatus(401);
-      }
-      if (err.name && err.name === "invalid_access_token") {
-        // 500=Internal server error
-        return res.sendStatus(500);
-      }
+    const response = await this.getUser(userId);
+    if (response === "needs_auth") {
+      return res.sendStatus(401);
+    } else if (response === "unknown_error") {
+      return res.sendStatus(500);
+    } else {
+      return res.json(response);
     }
   };
 
-  public async getUser(userId: string): Promise<UserResponse> {
+  public async getUser(
+    userId: string
+  ): Promise<UserResponse | "needs_auth" | "unknown_error"> {
     const at = this.userIdAccessTokenMap.get(userId);
     if (!at) {
-      throw {
-        name: "no_access_token"
-      };
+      return "needs_auth";
     }
 
     const response = await fetch("https://api.github.com/user", {
@@ -148,10 +144,11 @@ export default class GitHub {
 
     if (!response.ok) {
       this.userIdAccessTokenMap.delete(userId);
-      // Access token must be invalid, let's try to auth them again
-      throw {
-        name: "invalid_access_token"
-      };
+      if (response.status === 401) {
+        return "needs_auth";
+      } else {
+        return "unknown_error";
+      }
     }
 
     const data = (await response.json()) as UserResponse;
