@@ -53,13 +53,13 @@ in a background job/tab.
 
 ## Environment Variables (Backend)
 
-- `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`
-- `REACT_APP_FRONTEND_URL`: (default: `http://localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=http://192.168.124.5:3000`
+- `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`. N.B. that if not protocol is defined, http is assumed by most browsers.
+- `REACT_APP_FRONTEND_URL`: (default: `http://localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=http://192.168.124.5:3000`. N.B. that if not protocol is defined, http is assumed by most browsers.
 - `GH_CLIENT_ID`: (no default). The GitHub OAuth app client id. (Contact `rehn.michael@outlook.com` to get it)
 - `GH_CLIENT_SECRET`: (no default). The GitHub OAuth app client secret. (Contact `rehn.michael@outlook.com` to get it)
 
 ## Environment Variables (Frontend)
-- `REACT_APP_BACKEND_URL`: (default: `http://127.0.0.1:4000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`
+- `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`
 - `PROJECT_DIRECTORY` - name of the workspace. Will create folder in `/home/${PROJECT_USERNAME}/${PROJECT_USERNAME}`
 
 # Code Styling
