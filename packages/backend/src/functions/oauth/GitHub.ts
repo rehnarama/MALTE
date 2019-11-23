@@ -92,25 +92,36 @@ export default class GitHub {
     const data = (await response.json()) as AccessTokenResponse;
     const at = data.access_token;
     this.userIdAccessTokenMap.set(userId, at);
-    console.log("GOT THE ACCESS TOKEN");
 
-    // All done! Let's get user back to frontend
-    return res.redirect(process.env.REACT_APP_FRONTEND_URL);
+    // All done! This should have been opened in a popup window, as such
+    // we can now close it
+    return res.send(`
+      <html>
+        <head>
+          <script>
+            window.close();
+          </script>
+        </head>
+        <body>
+          <p>
+            Authentication has completed successfully. You can now close
+            this window.
+          </p>
+        </body>
+      </html>
+    `);
   };
 
   private onGetUser: Handler = async (req, res) => {
     const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
     if (!userId) {
-      // We have no cookie?! Who is this user?! Let's redirect it back so a
-      // cookie can be set
-      return res.redirect(this.redirectUrl);
+      return res.sendStatus(401);
     }
     try {
       const user = await this.getUser(userId);
       return res.json(user);
     } catch (err) {
       if (err.name && err.name === "no_access_token") {
-        // 401=Unauthorized
         return res.sendStatus(401);
       }
       if (err.name && err.name === "invalid_access_token") {
