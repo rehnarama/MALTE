@@ -42,13 +42,12 @@ export default class GitHub {
 
   private onRedirect: Handler = (req, res) => {
     const userId = req.cookies?.[USER_ID_COOKIE_NAME] as string;
-    if (userId && this.userIdAccessTokenMap.has(userId)) {
-      // We already have an access token, great! Let's get this user back to
-      // the frontend
-      return res.redirect(process.env.REACT_APP_FRONTEND_URL);
+
+    if (!userId) {
+      // This user doesn't have a cookie yet, let's give it one
+      res.cookie(USER_ID_COOKIE_NAME, uuidv4());
     }
 
-    res.cookie(USER_ID_COOKIE_NAME, uuidv4());
     return res.redirect(
       `${AUTHORIZE_URL}?client_id=${this.clientId}&scope=${SCOPE}&redirect_uri=${this.callbackUrl}`
     );
