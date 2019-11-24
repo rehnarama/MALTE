@@ -1,5 +1,4 @@
 import * as React from "react";
-import { User as UserData } from "malte-common/dist/oauth/GitHub";
 
 import User from "../../functions/User";
 import Avatar from "../Avatar";
