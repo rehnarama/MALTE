@@ -7,7 +7,7 @@ export default class Project {
   private path: string;
   private watcher: chokidar.FSWatcher;
   private files: File[] = [];
-  private socketIds: string[] = [];
+  private sockets: SocketIO.Socket[] = [];
 
   constructor(path: string) {
     this.path = path;
@@ -60,12 +60,12 @@ export default class Project {
    * @returns true if successfully joined the project
    */
   public join(socket: SocketIO.Socket): boolean {
-    if (this.socketIds.includes(socket.id)) {
+    if (this.sockets.find(s => s.id === socket.id)) {
       // You can't join twice
       return false;
     }
 
-    this.socketIds.push(socket.id);
+    this.sockets.push(socket);
 
     socket.on("join-buffer", async (data: { path: string }) => {
       const path: string = data.path;
