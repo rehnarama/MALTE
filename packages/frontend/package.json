@@ -17,7 +17,6 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
-    "react-treebeard": "^3.2.4",
     "rga": "file:../rga",
     "socket.io-client": "^2.3.0",
     "typescript": "3.7.2",
