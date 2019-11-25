@@ -2,6 +2,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import chokidar from "chokidar";
 import File from "./File";
+import RGAInsert from "rga/dist/RGAInsert";
+import RGARemove from "rga/dist/RGARemove";
 
 export default class Project {
   private path: string;
@@ -81,6 +83,16 @@ export default class Project {
       const file = await this.getFile(path);
       file.leave(socket);
     });
+
+    socket.on(
+      "buffer-operation",
+      async (data: { path: string; operation: RGAInsert | RGARemove }) => {
+        const file = this.files.find(f => f.path === data.path);
+        if (file) {
+          file.applyOperation(data.operation, socket);
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
       const index = this.sockets.findIndex(s => s.id === socket.id);
