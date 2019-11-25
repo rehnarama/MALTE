@@ -1,6 +1,5 @@
 import * as pty from "node-pty";
 import socketio from "socket.io";
-import os from "os";
 
 const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
 
