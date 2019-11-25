@@ -19,7 +19,7 @@ describe("File", function() {
       };
 
       const f = new File("filename");
-      f.triggerSave();
+      f.scheduleSave();
 
       assert.equal(saveCount, 1);
     });
@@ -31,8 +31,8 @@ describe("File", function() {
       };
 
       const f = new File("filename");
-      f.triggerSave();
-      f.triggerSave();
+      f.scheduleSave();
+      f.scheduleSave();
 
       assert.equal(saveCount, 1);
     });
@@ -45,8 +45,8 @@ describe("File", function() {
 
       const MAX_SAVE_TIME = 10;
       const f = new File("filename", MAX_SAVE_TIME);
-      f.triggerSave();
-      f.triggerSave();
+      f.scheduleSave();
+      f.scheduleSave();
 
       assert.equal(saveCount, 1);
 
@@ -64,14 +64,14 @@ describe("File", function() {
 
       const MAX_SAVE_TIME = 10;
       const f = new File("filename", MAX_SAVE_TIME);
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
-      f.triggerSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
+      f.scheduleSave();
 
       assert.equal(saveCount, 1);
 

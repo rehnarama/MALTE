@@ -35,10 +35,10 @@ export default class File {
   }
 
   /**
-   * Triggers a save. The save will occur in the next `maxSaveRate` milliseconds
+   * Schedules a save. The save will occur in the next `maxSaveRate` milliseconds
    * as defined in the constructor
    */
-  public triggerSave(): void {
+  public scheduleSave(): void {
     const deltaTime = Date.now() - this.lastSave;
 
     if (deltaTime >= this.maxSaveRate) {
@@ -55,7 +55,7 @@ export default class File {
     } else if (this.saveTimeoutHandle === null) {
       // If we have no save scheduled, let's schedule one
       this.saveTimeoutHandle = setTimeout(
-        this.triggerSave.bind(this),
+        this.scheduleSave.bind(this),
         Math.max(this.maxSaveRate - deltaTime, 0)
       );
     }
