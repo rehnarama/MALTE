@@ -26,7 +26,7 @@ class Terminal {
       this.terminal.write(data);
     });
 
-    socket.on("resize-pty", (data: TerminalSize) => {
+    socket.on("pty-resize", (data: TerminalSize) => {
       if (!data?.columns || !data?.rows) {
         return;
       }

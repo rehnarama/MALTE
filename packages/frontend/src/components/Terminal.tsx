@@ -33,7 +33,6 @@ const Terminal: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function resizeTerminal(width: number, height: number) {
-    console.log("resize called");
     const dim = fitAddon.proposeDimensions();
     if (
       !lastSizeSent ||
@@ -51,7 +50,7 @@ const Terminal: React.FC = () => {
 
       fitAddon.fit();
 
-      socket.getSocket().emit("resize-pty", lastSizeSent);
+      socket.getSocket().emit("pty-resize", lastSizeSent);
     }
   }
 
