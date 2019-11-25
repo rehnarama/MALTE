@@ -45,14 +45,14 @@ export default class File {
       // If no save is scheduled and we haven't saved in the last 5 seconds
       // let's simply save
 
-      if (this.saveTimeoutHandle !== null) {
+      if (this.isSaveScheduled()) {
         // Alright, let's clear the old handle
         clearTimeout(this.saveTimeoutHandle);
         this.saveTimeoutHandle = null;
       }
       this.lastSave = Date.now();
       this.save();
-    } else if (this.saveTimeoutHandle === null) {
+    } else if (!this.isSaveScheduled()) {
       // If we have no save scheduled, let's schedule one
       this.saveTimeoutHandle = setTimeout(
         this.scheduleSave.bind(this),
@@ -60,6 +60,10 @@ export default class File {
       );
     }
     // If we have save scheduled, let's simply ignore this save trigger
+  }
+
+  public isSaveScheduled(): boolean {
+    return this.saveTimeoutHandle !== null;
   }
 
   /**

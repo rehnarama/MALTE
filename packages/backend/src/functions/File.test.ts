@@ -43,17 +43,21 @@ describe("File", function() {
         saveCount++;
       };
 
-      const MAX_SAVE_TIME = 10;
-      const f = new File("filename", MAX_SAVE_TIME);
+      const f = new File("filename", 5);
       f.scheduleSave();
       f.scheduleSave();
 
       assert.equal(saveCount, 1);
 
-      setTimeout(() => {
-        assert.equal(saveCount, 2);
-        done();
-      }, MAX_SAVE_TIME * 5);
+      function saveChecker(): void {
+        if (!f.isSaveScheduled()) {
+          assert.equal(saveCount, 2);
+          done();
+        } else {
+          setImmediate(saveChecker);
+        }
+      }
+      saveChecker();
     });
 
     it("Should only save twice if triggering many times close to each other", (done: MochaDone) => {
@@ -62,8 +66,7 @@ describe("File", function() {
         saveCount++;
       };
 
-      const MAX_SAVE_TIME = 10;
-      const f = new File("filename", MAX_SAVE_TIME);
+      const f = new File("filename", 5);
       f.scheduleSave();
       f.scheduleSave();
       f.scheduleSave();
@@ -75,10 +78,15 @@ describe("File", function() {
 
       assert.equal(saveCount, 1);
 
-      setTimeout(() => {
-        assert.equal(saveCount, 2);
-        done();
-      }, MAX_SAVE_TIME * 5);
+      function saveChecker(): void {
+        if (!f.isSaveScheduled()) {
+          assert.equal(saveCount, 2);
+          done();
+        } else {
+          setImmediate(saveChecker);
+        }
+      }
+      saveChecker();
     });
   });
 });
