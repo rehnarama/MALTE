@@ -1,16 +1,15 @@
 import React, { useRef, useState } from "react";
 import { ControlledEditor as MonacoEditor } from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
-import mapOperations, {
-  printInternalOperations
-} from "../functions/MapOperations";
 import RGA from "rga/dist/RGA";
 import Socket from "../functions/Socket";
+import File from "../functions/File";
 
 const CodeEditor: React.FC = () => {
   const editorRef: React.MutableRefObject<
     editorType.ICodeEditor | undefined
   > = useRef();
+  const filesRef: React.MutableRefObject<File[]> = useRef([]);
   const [value, setValue] = useState("");
 
   const handleEditorDidMount = (
@@ -20,20 +19,14 @@ const CodeEditor: React.FC = () => {
     console.log("Editor has loaded!");
     editorRef.current = editor;
 
-    const socket = Socket.getInstance().getSocket();
-    socket.on("open-buffer", (data: { path: string; content: RGA }) => {
-      setValue(RGA.fromRGA(data.content).toString());
-    });
-    socket.emit("join-buffer", { path: "tmp.js" });
-
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
-      currentModel.onDidChangeContent(
-        (event: editorType.IModelContentChangedEvent) => {
-          const op = event.changes[0];
-          printInternalOperations(mapOperations(op));
-        }
-      );
+      const socket = Socket.getInstance().getSocket();
+      socket.on("open-buffer", (data: { path: string; content: RGA }) => {
+        const file = new File(data.path, data.content, currentModel);
+        filesRef.current.push(file);
+      });
+      socket.emit("join-buffer", { path: "tmp.js" });
     } else {
       console.error("No current model in Monaco editorDidMount");
     }

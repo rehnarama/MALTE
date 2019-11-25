@@ -1,0 +1,51 @@
+import RGA from "rga/dist/RGA";
+import { editor as editorType } from "monaco-editor";
+import mapOperations, { printInternalOperations } from "./MapOperations";
+import { InternalOperation, Operation } from "malte-common/dist/Operations";
+
+export default class File {
+  private _path: string;
+  get path() {
+    return this._path;
+  }
+  private rga: RGA;
+  private _model: editorType.ITextModel;
+  get model() {
+    return this._model;
+  }
+
+  constructor(path: string, content: RGA, model: editorType.ITextModel ) {
+    this._path = path;
+    this.rga = RGA.fromRGA(content);
+    this._model = model;
+    model.setValue(this.toString());
+
+    this.model.onDidChangeContent(
+      (event: editorType.IModelContentChangedEvent) => {
+        const op = event.changes[0];
+        const internalOps = mapOperations(op);
+        this.applyOperations(internalOps);
+      }
+    );
+  }
+
+  private internalToRGA(op: InternalOperation) {
+    if (op.type === Operation.Insert) {
+      return this.rga.createInsertPos(op.position, op.character);
+    } else {
+      return this.rga.createRemovePos(op.position);
+    }
+  }
+
+  private applyOperations(ops: InternalOperation[]) {
+    printInternalOperations(ops);
+    for (const op of ops) {
+      const rgaOp = this.internalToRGA(op);
+      this.rga.applyOperation(rgaOp);
+    }
+  }
+
+  public toString(): string {
+    return this.rga.toString();
+  }
+}
