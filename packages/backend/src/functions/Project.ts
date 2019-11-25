@@ -82,6 +82,13 @@ export default class Project {
       file.leave(socket);
     });
 
+    socket.on("disconnect", () => {
+      const index = this.sockets.findIndex(s => s.id === socket.id);
+      if (index) {
+        this.sockets.splice(index, 1);
+      }
+    });
+
     return true;
   }
 }

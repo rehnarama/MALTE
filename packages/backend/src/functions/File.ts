@@ -41,6 +41,10 @@ export default class File {
       return false;
     }
     this.sockets.push(socket);
+
+    socket.on("disconnect", () => {
+      this.leave(socket);
+    });
     return true;
   }
 
