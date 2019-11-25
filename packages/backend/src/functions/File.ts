@@ -1,12 +1,14 @@
-import { promises as fs } from "fs";
+import fs from "fs";
 import RGA from "rga/dist/RGA";
+import RGAInsert from "rga/dist/RGAInsert";
+import RGARemove from "rga/dist/RGARemove";
 
 export default class File {
   private _path: string;
   get path(): string {
     return this._path;
   }
-  private file: fs.FileHandle;
+  private file: fs.promises.FileHandle;
   private rga: RGA;
 
   private sockets: SocketIO.Socket[] = [];
@@ -19,13 +21,19 @@ export default class File {
    * Initialize the file defined in the constructor path.
    */
   public async initialize(): Promise<void> {
-    console.log("Initializing file");
-    await fs.writeFile(this.path, 'console.log("hello world")', {
-      encoding: "utf8"
-    });
-    const fileContent: string = await fs.readFile(this.path, {
-      encoding: "utf8"
-    });
+    //await fs.writeFile(this.path, 'console.log("hello world")', {
+    //  encoding: "utf8"
+    //});
+    let fileContent = "";
+    if (fs.existsSync(this.path)) {
+      fileContent = await fs.promises.readFile(this.path, {
+        encoding: "utf8"
+      });
+    } else {
+      await fs.promises.writeFile(this.path, "", {
+        encoding: "utf8"
+      });
+    }
     this.rga = RGA.fromString(fileContent);
   }
 
@@ -41,6 +49,11 @@ export default class File {
       return false;
     }
     this.sockets.push(socket);
+
+    socket.on(
+      "buffer-operation",
+      (data: { path: string; operation: RGAInsert | RGARemove }) => {}
+    );
 
     socket.on("disconnect", () => {
       this.leave(socket);
