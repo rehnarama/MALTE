@@ -1,5 +1,6 @@
 import * as pty from "node-pty";
 import socketio from "socket.io";
+import TerminalSize from "malte-common/dist/Terminal";
 
 /**
  * Create a pseudo-terminal and pipe the std-out/in to
@@ -23,6 +24,13 @@ class Terminal {
 
     socket.on("pty-data", data => {
       this.terminal.write(data);
+    });
+
+    socket.on("resize-pty", (data: TerminalSize) => {
+      if (!data?.columns || !data?.rows) {
+        return;
+      }
+      this.terminal.resize(data.columns, data.rows);
     });
 
     socket.on("disconnect", () => {
