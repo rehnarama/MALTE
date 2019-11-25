@@ -23,7 +23,7 @@ const Tree: React.SFC<Props> = props => {
         onSelect(node);
       }
     },
-    [node]
+    [node, onToggle, onSelect]
   );
 
   const content = (
