@@ -166,4 +166,25 @@ export default class RGA {
     }
     return str;
   }
+
+  /**
+   * Converts a string into an RGA
+   * @param s string to convert
+   */
+  public static fromString(s: string): RGA {
+    const rga: RGA = new RGA();
+    for (let i = s.length - 1; i >= 0; i--) {
+      const insert = rga.createInsertPos(0, s[i]);
+      rga.insert(insert);
+    }
+    return rga;
+  }
+
+  public static fromRGA(rga: RGA): RGA {
+    const newRga = new RGA();
+    newRga.head = rga.head;
+    newRga.nodeMap = rga.nodeMap;
+    newRga.clock = rga.clock;
+    return newRga;
+  }
 }
