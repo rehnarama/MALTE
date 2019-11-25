@@ -14,9 +14,9 @@ describe("Project", function() {
       File.prototype.join = (): boolean => {
         return true;
       };
-      prototypes["File.leave"] = File.prototype.join;
+      prototypes["File.leave"] = File.prototype.leave;
       File.prototype.leave = (): void => {};
-      prototypes["File.initialize"] = File.prototype.join;
+      prototypes["File.initialize"] = File.prototype.initialize;
       File.prototype.initialize = async (): Promise<void> => {
         return;
       };
