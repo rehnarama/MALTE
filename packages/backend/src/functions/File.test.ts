@@ -53,7 +53,7 @@ describe("File", function() {
       setTimeout(() => {
         assert.equal(saveCount, 2);
         done();
-      }, MAX_SAVE_TIME * 2);
+      }, MAX_SAVE_TIME * 5);
     });
 
     it("Should only save twice if triggering many times close to each other", (done: MochaDone) => {
@@ -78,7 +78,7 @@ describe("File", function() {
       setTimeout(() => {
         assert.equal(saveCount, 2);
         done();
-      }, MAX_SAVE_TIME * 2);
+      }, MAX_SAVE_TIME * 5);
     });
   });
 });
