@@ -24,6 +24,13 @@ jobs:
         npm run build
       env:
         CI: true
+    - name: npm install and build rga
+      working-directory: packages/rga
+      run: |
+        npm ci
+        npm run build
+      env:
+        CI: true
     - name: npm install, build, and test
       working-directory: packages/backend
       run: |

@@ -59,7 +59,10 @@ async function start(): Promise<void> {
   const io = socketio(server, { origins });
   io.on("connection", async socket => {
     console.log(`Socket with id ${socket.id} connected`);
+
     new Terminal(socket, projectRoot);
+    project.join(socket);
+
     // send file tree on request from client
     socket.on("refresh-file-tree", async () => {
       socket.emit("file-tree", await fsTree(projectRoot));
