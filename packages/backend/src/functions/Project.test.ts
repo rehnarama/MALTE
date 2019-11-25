@@ -2,17 +2,21 @@ import "mocha";
 import { assert } from "chai";
 import Project from "./Project";
 import MockSocketUnTyped from "socket.io-mock";
-import { Socket } from "socket.io";
 import File from "./File";
 import RGA from "rga/dist/RGA";
+
+const prototypes = {};
 
 describe("Project", function() {
   describe("Buffer API", function() {
     this.beforeEach(() => {
-      File.prototype.join = (socket: Socket): boolean => {
+      prototypes["File.join"] = File.prototype.join;
+      File.prototype.join = (): boolean => {
         return true;
       };
-      File.prototype.leave = (socket: Socket): void => {};
+      prototypes["File.leave"] = File.prototype.join;
+      File.prototype.leave = (): void => {};
+      prototypes["File.initialize"] = File.prototype.join;
       File.prototype.initialize = async (): Promise<void> => {
         return;
       };
@@ -45,7 +49,7 @@ describe("Project", function() {
     });
 
     it("should allow a client to leave a buffer", (done: MochaDone) => {
-      File.prototype.leave = (socket: Socket): void => {
+      File.prototype.leave = (): void => {
         assert(true);
         done();
       };
@@ -68,6 +72,12 @@ describe("Project", function() {
       const secondJoin = project.join(socket);
       assert.isTrue(firstJoin);
       assert.isFalse(secondJoin);
+    });
+
+    this.afterEach(() => {
+      File.prototype.join = prototypes["File.join"];
+      File.prototype.leave = prototypes["File.leave"];
+      File.prototype.initialize = prototypes["File.initialize"];
     });
   });
 });
