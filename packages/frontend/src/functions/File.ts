@@ -2,6 +2,7 @@ import RGA from "rga/dist/RGA";
 import { editor as editorType } from "monaco-editor";
 import mapOperations, { printInternalOperations } from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
+import Socket from "./Socket";
 
 export default class File {
   private _path: string;
@@ -14,7 +15,7 @@ export default class File {
     return this._model;
   }
 
-  constructor(path: string, content: RGA, model: editorType.ITextModel ) {
+  constructor(path: string, content: RGA, model: editorType.ITextModel) {
     this._path = path;
     this.rga = RGA.fromRGA(content);
     this._model = model;
@@ -24,7 +25,7 @@ export default class File {
       (event: editorType.IModelContentChangedEvent) => {
         const op = event.changes[0];
         const internalOps = mapOperations(op);
-        this.applyOperations(internalOps);
+        this.applyLocalOperations(internalOps);
       }
     );
   }
@@ -37,11 +38,13 @@ export default class File {
     }
   }
 
-  private applyOperations(ops: InternalOperation[]) {
+  private applyLocalOperations(ops: InternalOperation[]) {
     printInternalOperations(ops);
     for (const op of ops) {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
+      const socket = Socket.getInstance().getSocket();
+      socket.emit("buffer-operation", { path: this.path, operation: op });
     }
   }
 

@@ -63,6 +63,7 @@ export default class File {
 
   public applyOperation(op: RGAInsert | RGARemove, caller: Socket): void {
     this.rga.applyOperation(op);
+    console.log("Applied operation: " + op);
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
         s.emit("buffer-operation", { path: this.path, operation: op });
