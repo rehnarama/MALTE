@@ -153,6 +153,18 @@ export default class RGA {
   }
 
   /**
+   * Applies either an insert or a remove to the RGA
+   * @param op operation to perform
+   */
+  public applyOperation(op: RGAInsert | RGARemove): void {
+    if (op instanceof RGAInsert) {
+      this.insert(op);
+    } else {
+      this.remove(op);
+    }
+  }
+
+  /**
    * Converts the RGA to a plain old string
    */
   public toString() {
