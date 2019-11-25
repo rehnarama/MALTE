@@ -37,11 +37,16 @@ class SideBar extends React.Component<{}, State> {
   };
 
   onToggle = (node: TreeNode) => {
+    console.log("toggle");
     const isToggled = this.state.toggledKeys[node.path] === true;
     const newToggledKeys = Object.assign({}, this.state.toggledKeys, {
       [node.path]: !isToggled
     });
     this.setState({ toggledKeys: newToggledKeys });
+  };
+
+  onHover = (node: TreeNode) => {
+    console.log("hover", node);
   };
 
   render() {
@@ -55,6 +60,7 @@ class SideBar extends React.Component<{}, State> {
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
+            onHover={this.onHover}
           />
         ) : (
           <p>Loading...</p>
