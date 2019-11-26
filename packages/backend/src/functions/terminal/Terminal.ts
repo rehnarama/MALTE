@@ -2,6 +2,8 @@ import * as pty from "node-pty";
 import socketio from "socket.io";
 import TerminalSize from "malte-common/dist/Terminal";
 
+const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
+
 /**
  * Create a pseudo-terminal and pipe the std-out/in to
  * a socket.
@@ -12,7 +14,7 @@ class Terminal {
   private terminal: pty.IPty;
 
   constructor(socket: socketio.Socket, homeDirectory?: string) {
-    this.terminal = pty.spawn("bash", [], {
+    this.terminal = pty.spawn(SHELL, [], {
       name: "xterm-color",
       env: process.env,
       cwd: homeDirectory ? homeDirectory : process.env.HOME

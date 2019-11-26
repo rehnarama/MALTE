@@ -1,14 +1,17 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { ControlledEditor as MonacoEditor } from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
 import mapOperations, {
   printInternalOperations
 } from "../functions/MapOperations";
+import RGA from "rga/dist/RGA";
+import Socket from "../functions/Socket";
 
 const CodeEditor: React.FC = () => {
   const editorRef: React.MutableRefObject<
     editorType.ICodeEditor | undefined
   > = useRef();
+  const [value, setValue] = useState("");
 
   const handleEditorDidMount = (
     valueGetter: Function,
@@ -17,9 +20,14 @@ const CodeEditor: React.FC = () => {
     console.log("Editor has loaded!");
     editorRef.current = editor;
 
+    const socket = Socket.getInstance().getSocket();
+    socket.on("open-buffer", (data: { path: string; content: RGA }) => {
+      setValue(RGA.fromRGA(data.content).toString());
+    });
+    socket.emit("join-buffer", { path: "tmp.js" });
+
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
-      // Set the EOL of the editor model to LineFeed
       currentModel.onDidChangeContent(
         (event: editorType.IModelContentChangedEvent) => {
           const op = event.changes[0];
@@ -41,6 +49,7 @@ const CodeEditor: React.FC = () => {
   return (
     <MonacoEditor
       language="javascript"
+      value={value}
       editorDidMount={handleEditorDidMount}
       onChange={handleEditorChange}
     />

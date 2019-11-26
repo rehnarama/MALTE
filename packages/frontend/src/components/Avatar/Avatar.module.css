@@ -1,0 +1,14 @@
+.circle {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  background-color: #f44336;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+}
+.initials {
+  text-align: center;
+  line-height: 48px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: white;
+}

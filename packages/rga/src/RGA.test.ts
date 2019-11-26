@@ -249,4 +249,34 @@ describe("RGA", function() {
       }
     });
   });
+
+  describe("String to RGA", function() {
+    it("should create an empty RGA with an empty string", () => {
+      const s = "";
+      const rga = RGA.fromString(s);
+
+      assert.equal(rga.toString(), s);
+    });
+    
+    it("should create a single character RGA", () => {
+      const s = "a";
+      const rga = RGA.fromString(s);
+
+      assert.equal(rga.toString(), s);
+    });
+    
+    it("should create a multiple character RGA", () => {
+      const s = "abcde";
+      const rga = RGA.fromString(s);
+
+      assert.equal(rga.toString(), s);
+    });
+    
+    it("should create a multiple line RGA", () => {
+      const s = "abcde\nabcde\nabcde";
+      const rga = RGA.fromString(s);
+
+      assert.equal(rga.toString(), s);
+    });
+  });
 });
