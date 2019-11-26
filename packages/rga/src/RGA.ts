@@ -3,6 +3,10 @@ import RGAIdentifier from "./RGAIdentifier";
 import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
+export interface RGAJSON {
+  nodes: RGANode[]
+};
+
 /**
  * The RGA structure is a CRDT that allows for collaborative editing.
  * More info here: https://pages.lip6.fr/Marc.Shapiro/papers/rgasplit-group2016-11.pdf
@@ -192,11 +196,25 @@ export default class RGA {
     return rga;
   }
 
-  public static fromRGA(rga: RGA): RGA {
+  public static fromRGAJSON(rgaJSON: RGAJSON): RGA {
     const newRga = new RGA();
-    newRga.head = rga.head;
-    newRga.nodeMap = rga.nodeMap;
-    newRga.clock = rga.clock;
+    for(let i = rgaJSON.nodes.length - 1; i >= 0; i--) {
+      const node = rgaJSON.nodes[i];
+      node.next = newRga.head.next;
+      newRga.head.next = node;
+    }
     return newRga;
+  }
+
+  public toRGAJSON(): RGAJSON {
+    const nodes: RGANode[] = [];
+    let cursor = this.head.next;
+    while (cursor !== null) {
+      const nextCursor = cursor.next;
+      cursor.next = null;
+      nodes.push(cursor);
+      cursor = nextCursor;
+    }
+    return {nodes}; 
   }
 }
