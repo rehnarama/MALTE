@@ -5,6 +5,7 @@ import "xterm/css/xterm.css";
 import Socket from "../functions/Socket";
 import TerminalSize from "malte-common/dist/Terminal";
 import ReactResizeDetector from "react-resize-detector";
+import classes from "./Terminal.module.css";
 
 let lastSizeSent: TerminalSize | null = null;
 let socket: Socket;
@@ -33,6 +34,7 @@ const Terminal: React.FC = () => {
 
   function resizeTerminal() {
     const dim = fitAddon.proposeDimensions();
+    console.log(dim);
     if (
       !lastSizeSent ||
       dim.cols !== lastSizeSent.columns ||
@@ -54,8 +56,9 @@ const Terminal: React.FC = () => {
   }
 
   return (
-    <div ref={terminalRef}>
+    <div className={classes.container}>
       <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
+      <div ref={terminalRef} className={classes.terminal} />
     </div>
   );
 };

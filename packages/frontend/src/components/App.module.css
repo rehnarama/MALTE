@@ -10,6 +10,7 @@
   border: 2px solid;
   resize: vertical;
   grid-area: texteditor;
+  height: 50vh;
 }
 .terminal {
   overflow: auto;
