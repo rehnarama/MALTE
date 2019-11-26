@@ -1,6 +1,6 @@
 import RGA, { RGAJSON } from "rga/dist/RGA";
 import { editor as editorType } from "monaco-editor";
-import mapOperations, { printInternalOperations } from "./MapOperations";
+import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
 
@@ -39,10 +39,10 @@ export default class File {
   }
 
   private applyLocalOperations(ops: InternalOperation[]) {
-    printInternalOperations(ops);
     for (const op of ops) {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
+      console.log(this.rga.toString());
       const socket = Socket.getInstance().getSocket();
       socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
     }

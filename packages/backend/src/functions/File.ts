@@ -32,7 +32,7 @@ export default class File {
         encoding: "utf8"
       });
     }
-    this.rga = RGA.fromString("fileContent");
+    this.rga = RGA.fromString(fileContent);
   }
 
   /**

@@ -3,7 +3,7 @@ import { assert } from "chai";
 import Project from "./Project";
 import MockSocketUnTyped from "socket.io-mock";
 import File from "./File";
-import RGA from "rga/dist/RGA";
+import RGA, { RGAJSON } from "rga/dist/RGA";
 
 const prototypes = {};
 
@@ -20,6 +20,17 @@ describe("Project", function() {
       File.prototype.initialize = async (): Promise<void> => {
         return;
       };
+      prototypes["File.getContent"] = File.prototype.getContent;
+      File.prototype.getContent = (): RGAJSON => {
+        return {nodes: []};
+      };
+    });
+    
+    this.afterEach(() => {
+      File.prototype.join = prototypes["File.join"];
+      File.prototype.leave = prototypes["File.leave"];
+      File.prototype.initialize = prototypes["File.initialize"];
+      File.prototype.getContent = prototypes["File.getContent"];
     });
 
     it("should allow a client to join a project", () => {
@@ -39,7 +50,7 @@ describe("Project", function() {
 
       socket.socketClient.on(
         "open-buffer",
-        (data: { path: string; content: RGA }) => {
+        (data: { path: string; content: RGAJSON }) => {
           assert.equal(data.path, filePath);
           done();
         }
@@ -72,12 +83,6 @@ describe("Project", function() {
       const secondJoin = project.join(socket);
       assert.isTrue(firstJoin);
       assert.isFalse(secondJoin);
-    });
-
-    this.afterEach(() => {
-      File.prototype.join = prototypes["File.join"];
-      File.prototype.leave = prototypes["File.leave"];
-      File.prototype.initialize = prototypes["File.initialize"];
     });
   });
 });

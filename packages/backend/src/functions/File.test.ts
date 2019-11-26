@@ -26,13 +26,13 @@ describe("File", function() {
   it("should initialize with existing file", async () => {
     const file = new File("fake/dir/file.js");
     await file.initialize();
-    assert.equal(file.getContent().toString(), 'console.log("Hello World");');
+    assert.equal(file["rga"].toString(), 'console.log("Hello World");');
   });
 
   it("should initialize with non-existing file", async () => {
     const file = new File("fake/dir/nope.js");
     await file.initialize();
-    assert.equal(file.getContent().toString(), "");
+    assert.equal(file["rga"].toString(), "");
     assert(fs.existsSync("fake/dir/nope.js"));
   });
 
