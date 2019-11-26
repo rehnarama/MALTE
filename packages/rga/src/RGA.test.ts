@@ -392,6 +392,21 @@ describe("RGA", function() {
         newCursor = newCursor.next;
         oldCursor = oldCursor.next;
       }
-      });
+    });
+
+    it("should convert id to RGAIdentifier", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      if (newRGA["head"]["next"] && oldRGA["head"]["next"]) {
+        assert.instanceOf(newRGA["head"]["next"].id, RGAIdentifier);
+        newRGA["head"]["next"].id.compareTo(oldRGA["head"]["next"].id);
+      } else {
+        assert(false);
+      }
+    });
   });
 });
