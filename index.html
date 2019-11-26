@@ -5,6 +5,44 @@
     <meta charset="utf-8" />
 
     <title>MALTE - Multiple Access Live Text Editor</title>
+    <script>
+      async function getInfo() {
+        const response = await fetch(
+          "https://9o3h9uvkwl.execute-api.eu-north-1.amazonaws.com/default/ghInfo"
+        );
+        if (response.ok) {
+          const node = window.document.querySelector("#gh-stats");
+          const info = await response.json();
+          node.innerHTML = `
+            <h3>Quick Stats!</h3>
+            <p>In the last seven days...</p>
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Opened</th>
+                  <th>Closed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Issues</th>
+                  <td>${info.issueInfo.opened}</td>
+                  <td>${info.issueInfo.closed}</td>
+                </tr>
+                <tr>
+                  <th>Pull Requests</th>
+                  <td>${info.pullInfo.opened}</td>
+                  <td>${info.pullInfo.closed}</td>
+                </tr>
+              </tbody>
+            </table>
+          `
+        }
+      }
+      getInfo();
+    </script>
+
   </head>
 
   <body>
@@ -33,6 +71,8 @@
     <div>
       <h2>Agile Project Board</h2>
       <p>We use a SCRUM-esque process. You can thus follow our progress at our <a href="https://github.com/rehnarama/MALTE/projects/1">board</a>.</p>
+      <div id="gh-stats">
+      </div>
     </div>
     <div>
       <h2>Progress Report</h2>
