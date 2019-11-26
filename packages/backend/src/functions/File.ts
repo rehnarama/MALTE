@@ -11,13 +11,17 @@ export default class File {
   get path(): string {
     return this._path;
   }
-  private file: fs.promises.FileHandle;
   private rga: RGA;
 
   private sockets: Socket[] = [];
 
-  constructor(path: string) {
+  private lastSave = 0;
+  private maxSaveRate: number;
+  private saveTimeoutHandle: NodeJS.Timeout | null = null;
+
+  constructor(path: string, maxSaveRate = 5000) {
     this._path = path;
+    this.maxSaveRate = maxSaveRate;
   }
 
   /**
@@ -35,6 +39,48 @@ export default class File {
       });
     }
     this.rga = RGA.fromString(fileContent);
+  }
+
+  /**
+   * Schedules a save. The save will occur in the next `maxSaveRate` milliseconds
+   * as defined in the constructor
+   */
+  public scheduleSave(): void {
+    const deltaTime = Date.now() - this.lastSave;
+
+    if (deltaTime >= this.maxSaveRate) {
+      // If no save is scheduled and we haven't saved in the last 5 seconds
+      // let's simply save
+
+      if (this.isSaveScheduled()) {
+        // Alright, let's clear the old handle
+        clearTimeout(this.saveTimeoutHandle);
+        this.saveTimeoutHandle = null;
+      }
+      this.lastSave = Date.now();
+      this.save();
+    } else if (!this.isSaveScheduled()) {
+      // If we have no save scheduled, let's schedule one
+      this.saveTimeoutHandle = setTimeout(
+        this.scheduleSave.bind(this),
+        Math.max(this.maxSaveRate - deltaTime, 0)
+      );
+    }
+    // If we have save scheduled, let's simply ignore this save trigger
+  }
+
+  public isSaveScheduled(): boolean {
+    return this.saveTimeoutHandle !== null;
+  }
+
+  /**
+   * Forces a save
+   */
+  public async save(): Promise<void> {
+    await fs.promises.writeFile(this.path, this.rga.toString(), {
+      encoding: "utf8"
+    });
+    console.log("Saved!");
   }
 
   /**
@@ -66,6 +112,8 @@ export default class File {
   public applyOperation(op: RGAOperationJSON, caller: Socket): void {
     const rgaOp = rgaOperationFromJSON(op);
     this.rga.applyOperation(rgaOp);
+    this.scheduleSave();
+
     console.log("Current RGA: " + this.rga.toString());
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
