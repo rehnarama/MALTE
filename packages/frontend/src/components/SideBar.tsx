@@ -65,21 +65,21 @@ class SideBar extends React.Component<{}, State> {
     }
   }
 
-  onCreateFolder = (node: TreeNode) => {
-    console.log("sidebar create folder: ", node.path, "a new folder");
+  onCreateFolder = (node: TreeNode, name: string) => {
+    console.log("sidebar create folder: ", node.path, name);
     this.socket.emit("file/operation", {
       operation: Operation.mkdir,
       dir: node.path,
-      name: "a_new_folder"
+      name: name
     });
   }
 
-  onCreateFile = (node: TreeNode) => {
-    console.log("sidebar create file: ", node.path, "a new file");
+  onCreateFile = (node: TreeNode, name: string) => {
+    console.log("sidebar create file: ", node.path,  name);
     this.socket.emit("file/operation", {
       operation: Operation.touch,
       dir: node.path,
-      name: "a_new_file"
+      name: name
     });
   }
 

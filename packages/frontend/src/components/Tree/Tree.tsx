@@ -4,6 +4,7 @@ import classes from "./Tree.module.css";
 import filesvg from "./file.svg";
 import foldersvg from "./folder.svg";
 import deletesvg from "./delete.svg";
+//import editsvg from "./edit.svg";
 
 interface TreeProps {
   node: TreeNode;
@@ -13,8 +14,8 @@ interface TreeProps {
   onSelect?: (node: TreeNode) => void;
   onToggle?: (node: TreeNode) => void;
   onDelete?: (node: TreeNode, parent: TreeNode) => void;
-  onCreateFile?: (node: TreeNode) => void;
-  onCreateFolder?: (node: TreeNode) => void;
+  onCreateFile?: (node: TreeNode, name: string) => void;
+  onCreateFolder?: (node: TreeNode, name: string) => void;
 }
 
 interface IconsProps {
@@ -31,11 +32,10 @@ const Icons: React.SFC<IconsProps> = props => {
 
   const deleteNode: React.MouseEventHandler = e => {
     e.stopPropagation();
-    if(parent) {
-    if (onDelete) {
-      onDelete(node, parent);
-    }
-
+    if (parent) {
+      if (onDelete) {
+        onDelete(node, parent);
+      }
     }
   };
 
@@ -56,12 +56,13 @@ const Icons: React.SFC<IconsProps> = props => {
   if (node.type === "directory") {
     elems.push(<img key="file" src={filesvg} onClick={createFile} />);
     elems.push(<img key="folder" src={foldersvg} onClick={createFolder} />);
-    if (node.children && node.children.length === 0) {
+    if (node.children && node.children.length === 0 && parent) {
       elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
     }
   } else {
     elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
   }
+  //elems.push(<img key="edit" src={editsvg} onClick={editNode} />);
   return <>{elems}</>;
 };
 
@@ -77,9 +78,11 @@ const Tree: React.SFC<TreeProps> = props => {
     onCreateFile,
     onCreateFolder
   } = props;
+
   const isToggled = toggledKeys[node.path] === true;
 
   const [isHover, setIsHover] = React.useState(false);
+  const [isCreating, setIsCreating] = React.useState("");
 
   const onClick = React.useCallback<React.MouseEventHandler>(
     e => {
@@ -101,6 +104,39 @@ const Tree: React.SFC<TreeProps> = props => {
     setIsHover(false);
   };
 
+  const onCreateInternalFile = () => {
+    setIsCreating("file");
+  };
+  
+  const onCreateInternalFolder = () => {
+    setIsCreating("folder");
+  };
+
+  const [fileName, setFileName] = React.useState("");
+
+  const handleFileNameChange = React.useCallback<React.ChangeEventHandler<HTMLInputElement>>(e => {
+    setFileName(e.currentTarget.value);
+  }, [])
+
+  const handleKeyDown = React.useCallback<React.KeyboardEventHandler>(
+    e => {
+      if (e.key === "Enter" && isCreating === "file" && onCreateFile) {
+        setIsCreating("");
+        setFileName("");
+        onCreateFile(node, fileName);
+      }
+      else if (e.key === "Enter" && isCreating === "folder" && onCreateFolder) {
+        setIsCreating("");
+        setFileName("");
+        onCreateFolder(node, fileName);
+      }
+      else if(e.key === "Escape") {
+        setIsCreating("");
+      }
+    },
+    [fileName]
+  );
+
   const content = (
     <li>
       <p
@@ -116,14 +152,16 @@ const Tree: React.SFC<TreeProps> = props => {
             node={node}
             parent={parent}
             onDelete={onDelete}
-            onCreateFile={onCreateFile}
-            onCreateFolder={onCreateFolder}
+            onCreateFile={onCreateInternalFile}
+            onCreateFolder={onCreateInternalFolder}
           ></Icons>
         )}
       </p>
-      {node.children && isToggled && (
-        <ul className={classes.list}>
-          {node.children.map(child => (
+      <ul className={classes.list}>
+        {isCreating && <input type="text" autoFocus onBlur={() => {setIsCreating("")}} onKeyDown={handleKeyDown} onChange={handleFileNameChange} value={fileName}/>}
+        {node.children &&
+          isToggled &&
+          node.children.map(child => (
             <Tree
               key={child.path}
               node={child}
@@ -136,8 +174,7 @@ const Tree: React.SFC<TreeProps> = props => {
               onCreateFolder={onCreateFolder}
             />
           ))}
-        </ul>
-      )}
+      </ul>
     </li>
   );
   if (root) {
