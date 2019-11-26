@@ -108,11 +108,11 @@ export default class RGA {
   }
 
   /**
-   * Creates a removal at the given position
+   * Creates a removal at the given position, zero based indexing
    * @param position The position of the node to remove
    */
   public createRemovePos(position: number) {
-    return this.createRemove(this.findNodePos(position).id);
+    return this.createRemove(this.findNodePos(position+1).id);
   }
 
   /**

@@ -81,7 +81,7 @@ describe("RGA", function() {
 
     const reference = rga.findNodePos(2);
     const removal = rga.createRemove(reference.id);
-    const removalPos = rga.createRemovePos(2);
+    const removalPos = rga.createRemovePos(1);
 
     assert.deepEqual(removal.reference, reference.id);
     assert.deepEqual(removalPos.reference, reference.id);
@@ -94,7 +94,7 @@ describe("RGA", function() {
     rga.insert(rga.createInsertPos(1, "b"));
     rga.insert(rga.createInsertPos(2, "c"));
 
-    const removal = rga.createRemovePos(2);
+    const removal = rga.createRemovePos(1);
     rga.remove(removal);
 
     assert.equal(rga.toString(), "ac");
@@ -136,8 +136,8 @@ describe("RGA", function() {
       rgaB.insert(op2);
       rgaB.insert(op3);
 
-      const op4a = rgaA.remove(rgaA.createRemovePos(2));
-      const op4b = rgaB.remove(rgaB.createRemovePos(2));
+      const op4a = rgaA.remove(rgaA.createRemovePos(1));
+      const op4b = rgaB.remove(rgaB.createRemovePos(1));
 
       rgaA.remove(op4b);
       rgaB.remove(op4a);
@@ -158,8 +158,8 @@ describe("RGA", function() {
       rgaB.insert(op2);
       rgaB.insert(op3);
 
-      const op4a = rgaA.remove(rgaA.createRemovePos(1));
-      const op4b = rgaB.remove(rgaB.createRemovePos(3));
+      const op4a = rgaA.remove(rgaA.createRemovePos(0));
+      const op4b = rgaB.remove(rgaB.createRemovePos(2));
 
       rgaA.remove(op4b);
       rgaB.remove(op4a);
