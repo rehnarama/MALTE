@@ -1,4 +1,4 @@
-import RGA from "rga/dist/RGA";
+import RGA, { RGAJSON } from "rga/dist/RGA";
 import { editor as editorType } from "monaco-editor";
 import mapOperations, { printInternalOperations } from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
@@ -15,9 +15,9 @@ export default class File {
     return this._model;
   }
 
-  constructor(path: string, content: RGA, model: editorType.ITextModel) {
+  constructor(path: string, content: RGAJSON, model: editorType.ITextModel) {
     this._path = path;
-    this.rga = RGA.fromRGA(content);
+    this.rga = RGA.fromRGAJSON(content);
     this._model = model;
     model.setValue(this.toString());
 
@@ -44,7 +44,7 @@ export default class File {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
       const socket = Socket.getInstance().getSocket();
-      socket.emit("buffer-operation", { path: this.path, operation: op });
+      socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
     }
   }
 

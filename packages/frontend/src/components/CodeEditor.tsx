@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ControlledEditor as MonacoEditor } from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
-import RGA from "rga/dist/RGA";
+import { RGAJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
 import File from "../functions/File";
 
@@ -22,7 +22,7 @@ const CodeEditor: React.FC = () => {
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
       const socket = Socket.getInstance().getSocket();
-      socket.on("open-buffer", (data: { path: string; content: RGA }) => {
+      socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
         const file = new File(data.path, data.content, currentModel);
         filesRef.current.push(file);
       });

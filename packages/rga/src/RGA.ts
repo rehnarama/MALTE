@@ -7,6 +7,20 @@ export interface RGAJSON {
   nodes: RGANode[]
 };
 
+export interface RGAOperationJSON {
+  reference: RGAIdentifier;
+  id?: RGAIdentifier;
+  content?: string;
+}
+
+export function rgaOperationFromJSON(op: RGAOperationJSON): RGAInsert | RGARemove {
+  if (op.content && op.id) {
+    return new RGAInsert(op.reference, op.id, op.content);
+  } else {
+    return new RGARemove(op.reference);
+  }
+}
+
 /**
  * The RGA structure is a CRDT that allows for collaborative editing.
  * More info here: https://pages.lip6.fr/Marc.Shapiro/papers/rgasplit-group2016-11.pdf

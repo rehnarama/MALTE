@@ -1,5 +1,5 @@
 import fs from "fs";
-import RGA from "rga/dist/RGA";
+import RGA, { RGAJSON, RGAOperationJSON, rgaOperationFromJSON } from "rga/dist/RGA";
 import RGAInsert from "rga/dist/RGAInsert";
 import RGARemove from "rga/dist/RGARemove";
 import { Socket } from "socket.io";
@@ -32,14 +32,14 @@ export default class File {
         encoding: "utf8"
       });
     }
-    this.rga = RGA.fromString(fileContent);
+    this.rga = RGA.fromString("fileContent");
   }
 
   /**
    * Get the content of the file.
    */
-  public getContent(): RGA {
-    return this.rga;
+  public getContent(): RGAJSON {
+    return this.rga.toRGAJSON();
   }
 
   public join(socket: Socket): boolean {
@@ -61,12 +61,13 @@ export default class File {
     }
   }
 
-  public applyOperation(op: RGAInsert | RGARemove, caller: Socket): void {
-    this.rga.applyOperation(op);
-    console.log("Applied operation: " + op);
+  public applyOperation(op: RGAOperationJSON, caller: Socket): void {
+    const rgaOp = rgaOperationFromJSON(op);
+    this.rga.applyOperation(rgaOp);
+    console.log("Current RGA: " + this.rga.toString());
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
-        s.emit("buffer-operation", { path: this.path, operation: op });
+        s.emit("buffer-operation", { path: this.path, operation: rgaOp });
       }
     }
   }
