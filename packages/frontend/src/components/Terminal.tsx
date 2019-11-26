@@ -31,8 +31,7 @@ const Terminal: React.FC = () => {
     }
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function resizeTerminal(width: number, height: number) {
+  function resizeTerminal() {
     const dim = fitAddon.proposeDimensions();
     if (
       !lastSizeSent ||
