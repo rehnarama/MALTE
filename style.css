@@ -1,0 +1,23 @@
+* {
+  box-sizing: border-box;
+}
+html {
+  font-family: "Open Sans", sans-serif;
+}
+
+body {
+  padding: 10px;
+}
+
+header, section {
+  max-width: 1000px;
+  margin: auto;
+}
+
+table, th, td {
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-collapse: collapse;
+}
+td, th {
+  padding: 8px;
+}
