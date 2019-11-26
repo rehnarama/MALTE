@@ -6,10 +6,8 @@ import Socket from "../functions/Socket";
 import File from "../functions/File";
 
 const CodeEditor: React.FC = () => {
-  const editorRef: React.MutableRefObject<
-    editorType.ICodeEditor | undefined
-  > = useRef();
-  const filesRef: React.MutableRefObject<File[]> = useRef([]);
+  const editorRef = useRef<editorType.ICodeEditor | undefined>();
+  const filesRef = useRef<File[]>([]);
 
   const handleEditorDidMount = (
     valueGetter: Function,

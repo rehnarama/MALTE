@@ -1,4 +1,4 @@
-import fs from "fs";
+import { promises as fs } from "fs";
 import RGA, {
   RGAJSON,
   RGAOperationJSON,
@@ -29,16 +29,25 @@ export default class File {
    */
   public async initialize(): Promise<void> {
     let fileContent = "";
-    if (fs.existsSync(this.path)) {
-      fileContent = await fs.promises.readFile(this.path, {
+    if (await this.fileExists()) {
+      fileContent = await fs.readFile(this.path, {
         encoding: "utf8"
       });
     } else {
-      await fs.promises.writeFile(this.path, "", {
+      await fs.writeFile(this.path, "", {
         encoding: "utf8"
       });
     }
     this.rga = RGA.fromString(fileContent);
+  }
+
+  private async fileExists(): Promise<boolean> {
+    try {
+      await fs.stat(this.path);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -77,10 +86,9 @@ export default class File {
    * Forces a save
    */
   public async save(): Promise<void> {
-    await fs.promises.writeFile(this.path, this.rga.toString(), {
+    await fs.writeFile(this.path, this.rga.toString(), {
       encoding: "utf8"
     });
-    console.log("Saved!");
   }
 
   /**
@@ -114,7 +122,6 @@ export default class File {
     this.rga.applyOperation(rgaOp);
     this.scheduleSave();
 
-    console.log("Current RGA: " + this.rga.toString());
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
         s.emit("buffer-operation", { path: this.path, operation: rgaOp });
