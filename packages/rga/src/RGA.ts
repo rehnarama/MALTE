@@ -202,6 +202,7 @@ export default class RGA {
       const node = rgaJSON.nodes[i];
       node.next = newRga.head.next;
       newRga.head.next = node;
+      newRga.setToNodeMap(node);
     }
     newRga.clock = rgaJSON.nodes.length;
     return newRga;

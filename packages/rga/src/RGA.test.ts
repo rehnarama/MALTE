@@ -301,6 +301,16 @@ describe("RGA", function() {
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
     
+    it("should store nodes in nodemap", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(oldRGA["nodeMap"].size, newRGA["nodeMap"].size);
+    });
+    
     it("should parse multiple node RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
