@@ -3,7 +3,7 @@ import { assert } from "chai";
 import Project from "./Project";
 import MockSocketUnTyped from "socket.io-mock";
 import File from "./File";
-import RGA, { RGAJSON } from "rga/dist/RGA";
+import { RGAJSON } from "rga/dist/RGA";
 
 const prototypes = {};
 
@@ -22,10 +22,10 @@ describe("Project", function() {
       };
       prototypes["File.getContent"] = File.prototype.getContent;
       File.prototype.getContent = (): RGAJSON => {
-        return {nodes: []};
+        return { nodes: [] };
       };
     });
-    
+
     this.afterEach(() => {
       File.prototype.join = prototypes["File.join"];
       File.prototype.leave = prototypes["File.leave"];
