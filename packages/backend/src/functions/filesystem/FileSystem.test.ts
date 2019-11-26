@@ -6,7 +6,6 @@ import { promises as fs } from "fs";
 import path, { sep } from "path";
 import FileSystem from "./FileSystem";
 import MockedSocket from "socket.io-mock";
-import { FileOperation, Operation } from "malte-common/dist/FileSystem";
 
 const assert = chai.assert;
 chai.use(chaiAsPromised);
