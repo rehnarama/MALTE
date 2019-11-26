@@ -70,7 +70,9 @@ export default class RGA {
     let cursor: RGANode | null = this.head;
     while (count < position && cursor.next !== null) {
       cursor = cursor.next;
-      count += cursor.content.length;
+      if (!cursor.tombstone) {
+        count += cursor.content.length;
+      }
     }
 
     if (cursor === null) {
