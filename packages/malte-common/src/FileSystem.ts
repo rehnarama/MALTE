@@ -7,6 +7,6 @@ export enum Operation {
 
 export interface FileOperation {
     operation: Operation;
-    path: string;
+    dir?: string;
     name?: string;
 }

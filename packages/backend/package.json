@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
     "build": "tsc",
-    "test": "mocha -r ts-node/register src/**/*.test.ts --exit",
+    "test": "mocha -r ts-node/register \"src/**/*.test.ts\" --exit",
     "lint": "eslint --ext .ts src/",
     "lint-fix": "eslint --fix --ext .ts src/"
   },
