@@ -1,7 +1,9 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
+import FileOperation, { Operation } from "malte-common/dist/FileSystem";
 import Tree from "./Tree";
 import Socket from "../functions/Socket";
+import { pathToFileURL } from "url";
 
 interface State {
   data?: TreeNode;
@@ -9,11 +11,13 @@ interface State {
 }
 
 class SideBar extends React.Component<{}, State> {
+  private socket: SocketIOClient.Socket;
+
   constructor(props: {}) {
     super(props);
-    const socket = Socket.getInstance().getSocket();
+    this.socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
-    socket.on("file-tree", this.onFileTree);
+    this.socket.on("file-tree", this.onFileTree);
   }
 
   onFileTree = (data: TreeNode) => {
@@ -21,15 +25,11 @@ class SideBar extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    Socket.getInstance()
-      .getSocket()
-      .emit("refresh-file-tree");
+    this.socket.emit("refresh-file-tree");
   }
 
   componentWillUnmount() {
-    Socket.getInstance()
-      .getSocket()
-      .removeListener("file-tree", this.onFileTree);
+    this.socket.removeListener("file-tree", this.onFileTree);
   }
 
   onSelect = (node: TreeNode) => {
@@ -45,9 +45,43 @@ class SideBar extends React.Component<{}, State> {
     this.setState({ toggledKeys: newToggledKeys });
   };
 
-  onHover = (node: TreeNode) => {
-    console.log("hover", node);
-  };
+  onDelete = (node: TreeNode, parent?: TreeNode) => {
+    if (parent) {
+      if (node && node.type === "directory") {
+        console.log("sidebar delete folder: ", parent.path, node.name);
+        this.socket.emit("file/operation", {
+          operation: Operation.rm,
+          dir: parent.path,
+          name: node.name
+        });
+      } else if (node && node.type === "file") {
+        console.log("sidebar delete file: ", parent.path, node.name);
+        this.socket.emit("file/operation", {
+          operation: Operation.rm,
+          dir: parent.path,
+          name: node.name
+        });
+      }
+    }
+  }
+
+  onCreateFolder = (node: TreeNode) => {
+    console.log("sidebar create folder: ", node.path, "a new folder");
+    this.socket.emit("file/operation", {
+      operation: Operation.mkdir,
+      dir: node.path,
+      name: "a_new_folder"
+    });
+  }
+
+  onCreateFile = (node: TreeNode) => {
+    console.log("sidebar create file: ", node.path, "a new file");
+    this.socket.emit("file/operation", {
+      operation: Operation.touch,
+      dir: node.path,
+      name: "a_new_file"
+    });
+  }
 
   render() {
     return (
@@ -60,7 +94,9 @@ class SideBar extends React.Component<{}, State> {
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
-            onHover={this.onHover}
+            onDelete={this.onDelete}
+            onCreateFolder={this.onCreateFolder}
+            onCreateFile={this.onCreateFile}
           />
         ) : (
           <p>Loading...</p>

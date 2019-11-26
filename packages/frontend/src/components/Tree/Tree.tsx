@@ -7,57 +7,76 @@ import deletesvg from "./delete.svg";
 
 interface TreeProps {
   node: TreeNode;
+  parent?: TreeNode;
   root?: boolean;
   toggledKeys: { [key: string]: boolean };
   onSelect?: (node: TreeNode) => void;
   onToggle?: (node: TreeNode) => void;
+  onDelete?: (node: TreeNode, parent: TreeNode) => void;
+  onCreateFile?: (node: TreeNode) => void;
+  onCreateFolder?: (node: TreeNode) => void;
 }
 
 interface IconsProps {
   node: TreeNode;
+  parent?: TreeNode;
+  onDelete?: (node: TreeNode, parent: TreeNode) => void;
+  onCreateFile?: (node: TreeNode) => void;
+  onCreateFolder?: (node: TreeNode) => void;
 }
 
 const Icons: React.SFC<IconsProps> = props => {
-  const { node } = props;
+  const { node, parent, onCreateFile, onDelete, onCreateFolder } = props;
   const elems: React.ReactNode[] = [];
 
   const deleteNode: React.MouseEventHandler = e => {
     e.stopPropagation();
-    if (node.type === "directory") {
-      console.log("delete dir: ", node.path);
-    } else if (node.type === "file") {
-      console.log("delete file: ", node.path);
+    if(parent) {
+    if (onDelete) {
+      onDelete(node, parent);
+    }
+
     }
   };
 
   const createFolder: React.MouseEventHandler = e => {
     e.stopPropagation();
-    console.log("createFolder: ");
+    if (onCreateFolder) {
+      onCreateFolder(node);
+    }
   };
 
   const createFile: React.MouseEventHandler = e => {
     e.stopPropagation();
-    console.log("createFile: ");
+    if (onCreateFile) {
+      onCreateFile(node);
+    }
   };
 
   if (node.type === "directory") {
     elems.push(<img key="file" src={filesvg} onClick={createFile} />);
     elems.push(<img key="folder" src={foldersvg} onClick={createFolder} />);
     if (node.children && node.children.length === 0) {
-      elems.push(
-        <img key="delete" src={deletesvg} onClick={deleteNode} />
-      );
+      elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
     }
   } else {
-    elems.push(
-      <img key="delete" src={deletesvg} onClick={deleteNode} />
-    );
+    elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
   }
   return <>{elems}</>;
 };
 
 const Tree: React.SFC<TreeProps> = props => {
-  const { node, root, toggledKeys, onSelect, onToggle } = props;
+  const {
+    node,
+    parent,
+    root,
+    toggledKeys,
+    onSelect,
+    onToggle,
+    onDelete,
+    onCreateFile,
+    onCreateFolder
+  } = props;
   const isToggled = toggledKeys[node.path] === true;
 
   const [isHover, setIsHover] = React.useState(false);
@@ -92,7 +111,15 @@ const Tree: React.SFC<TreeProps> = props => {
         {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
         {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
         {node.name}
-        {isHover && <Icons node={node}></Icons>}
+        {isHover && (
+          <Icons
+            node={node}
+            parent={parent}
+            onDelete={onDelete}
+            onCreateFile={onCreateFile}
+            onCreateFolder={onCreateFolder}
+          ></Icons>
+        )}
       </p>
       {node.children && isToggled && (
         <ul className={classes.list}>
@@ -100,9 +127,13 @@ const Tree: React.SFC<TreeProps> = props => {
             <Tree
               key={child.path}
               node={child}
+              parent={node}
               toggledKeys={toggledKeys}
               onSelect={onSelect}
               onToggle={onToggle}
+              onDelete={onDelete}
+              onCreateFile={onCreateFile}
+              onCreateFolder={onCreateFolder}
             />
           ))}
         </ul>
