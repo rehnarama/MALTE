@@ -1,6 +1,6 @@
 import * as pty from "node-pty";
 import socketio from "socket.io";
-import os from "os";
+import TerminalSize from "malte-common/dist/Terminal";
 
 const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
 
@@ -26,6 +26,13 @@ class Terminal {
 
     socket.on("pty-data", data => {
       this.terminal.write(data);
+    });
+
+    socket.on("pty-resize", (data: TerminalSize) => {
+      if (!data?.columns || !data?.rows) {
+        return;
+      }
+      this.terminal.resize(data.columns, data.rows);
     });
 
     socket.on("disconnect", () => {
