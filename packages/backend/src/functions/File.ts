@@ -1,7 +1,9 @@
 import fs from "fs";
-import RGA, { RGAJSON, RGAOperationJSON, rgaOperationFromJSON } from "rga/dist/RGA";
-import RGAInsert from "rga/dist/RGAInsert";
-import RGARemove from "rga/dist/RGARemove";
+import RGA, {
+  RGAJSON,
+  RGAOperationJSON,
+  rgaOperationFromJSON
+} from "rga/dist/RGA";
 import { Socket } from "socket.io";
 
 export default class File {

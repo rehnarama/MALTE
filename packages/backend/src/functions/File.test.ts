@@ -4,7 +4,6 @@ import MockSocketUnTyped from "socket.io-mock";
 import fsMock from "mock-fs";
 import File from "./File";
 import fs from "fs";
-import RGA from "rga/dist/RGA";
 import RGAInsert from "rga/dist/RGAInsert";
 import RGARemove from "rga/dist/RGARemove";
 

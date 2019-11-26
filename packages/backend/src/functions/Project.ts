@@ -55,7 +55,7 @@ export default class Project {
     return f;
   }
 
-  private absolutePath(filePath: string) {
+  private absolutePath(filePath: string): string {
     return path.join(this.path, filePath);
   }
 
@@ -90,7 +90,9 @@ export default class Project {
     socket.on(
       "buffer-operation",
       async (data: { path: string; operation: RGAOperationJSON }) => {
-        const file = this.files.find(f => f.path === this.absolutePath(data.path));
+        const file = this.files.find(
+          f => f.path === this.absolutePath(data.path)
+        );
         if (file) {
           file.applyOperation(data.operation, socket);
         }
