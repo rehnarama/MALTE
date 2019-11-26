@@ -15,9 +15,13 @@ export interface RGAOperationJSON {
 
 export function rgaOperationFromJSON(op: RGAOperationJSON): RGAInsert | RGARemove {
   if (op.content && op.id) {
-    return new RGAInsert(op.reference, op.id, op.content);
+    return new RGAInsert(
+      new RGAIdentifier(op.reference.sid, op.reference.sum), 
+      new RGAIdentifier(op.id.sid, op.id.sum), 
+      op.content
+    );
   } else {
-    return new RGARemove(op.reference);
+    return new RGARemove(new RGAIdentifier(op.reference.sid, op.reference.sum));
   }
 }
 
