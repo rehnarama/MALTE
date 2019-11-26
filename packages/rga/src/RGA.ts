@@ -212,10 +212,9 @@ export default class RGA {
     const nodes: RGANode[] = [];
     let cursor = this.head.next;
     while (cursor !== null) {
-      const nextCursor = cursor.next;
-      cursor.next = null;
-      nodes.push(cursor);
-      cursor = nextCursor;
+      const node = cursor.copy();
+      nodes.push(node);
+      cursor = cursor.next;
     }
     return {nodes}; 
   }

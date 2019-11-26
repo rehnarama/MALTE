@@ -408,5 +408,16 @@ describe("RGA", function() {
         assert(false);
       }
     });
+
+    it("should not change the original structure", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const insert2 = oldRGA.createInsertPos(1, "b");
+      oldRGA.insert(insert2);
+      const rgaJSON = oldRGA.toRGAJSON();
+      
+      assert.equal(oldRGA.toString(), "ab");
+    });
   });
 });
