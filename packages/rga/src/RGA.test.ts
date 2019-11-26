@@ -350,5 +350,38 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
+    
+    it("should update clock on parse", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(newRGA["clock"], 5);
+    });
+
+    it("should keep ID info", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      let newCursor = newRGA["head"]["next"];
+      let oldCursor = oldRGA["head"]["next"];
+      while (newCursor && oldCursor) {
+        assert.equal(newCursor.id.sid, oldCursor.id.sid);
+        assert.equal(newCursor.id.sum, oldCursor.id.sum);
+        newCursor = newCursor.next;
+        oldCursor = oldCursor.next;
+      }
+      });
   });
 });

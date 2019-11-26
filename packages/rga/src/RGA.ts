@@ -203,6 +203,7 @@ export default class RGA {
       node.next = newRga.head.next;
       newRga.head.next = node;
     }
+    newRga.clock = rgaJSON.nodes.length;
     return newRga;
   }
 
