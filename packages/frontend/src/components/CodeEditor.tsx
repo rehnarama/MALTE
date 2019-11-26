@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { ControlledEditor as MonacoEditor } from "@monaco-editor/react";
+import React, { useRef } from "react";
+import MonacoEditor from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
 import { RGAJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
@@ -10,7 +10,6 @@ const CodeEditor: React.FC = () => {
     editorType.ICodeEditor | undefined
   > = useRef();
   const filesRef: React.MutableRefObject<File[]> = useRef([]);
-  const [value, setValue] = useState("");
 
   const handleEditorDidMount = (
     valueGetter: Function,
@@ -21,6 +20,7 @@ const CodeEditor: React.FC = () => {
 
     const currentModel: editorType.IEditorModel | null = editor.getModel();
     if (currentModel) {
+      currentModel.pushEOL(0);
       const socket = Socket.getInstance().getSocket();
       socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
         const file = new File(data.path, data.content, currentModel);
@@ -32,20 +32,8 @@ const CodeEditor: React.FC = () => {
     }
   };
 
-  const handleEditorChange = (
-    _: editorType.IModelContentChangedEvent,
-    value: string | undefined
-  ): string | undefined => {
-    return value ? value.replace("\r\n", "\n") : undefined;
-  };
-
   return (
-    <MonacoEditor
-      language="javascript"
-      value={value}
-      editorDidMount={handleEditorDidMount}
-      onChange={handleEditorChange}
-    />
+    <MonacoEditor language="javascript" editorDidMount={handleEditorDidMount} />
   );
 };
 
