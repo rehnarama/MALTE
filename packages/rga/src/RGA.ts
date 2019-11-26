@@ -201,6 +201,7 @@ export default class RGA {
     for(let i = rgaJSON.nodes.length - 1; i >= 0; i--) {
       const node = rgaJSON.nodes[i];
       node.next = newRga.head.next;
+      node.id = new RGAIdentifier(node.id.sid, node.id.sum);
       newRga.head.next = node;
       newRga.setToNodeMap(node);
     }
