@@ -24,8 +24,10 @@ class FileSystem {
     if (data?.operation === undefined || data?.name === undefined) {
       return;
     }
-    if (data?.dir === undefined) {
+    if (data?.dir === undefined || data.dir === this.projectRoot) {
       data.dir = "./";
+    } else {
+      data.dir = data.dir.replace(this.projectRoot, "");
     }
     if (data.operation === Operation.mkdir) {
       this.createDirectory(data.dir, data.name);
@@ -34,7 +36,7 @@ class FileSystem {
     } else if (data.operation === Operation.touch) {
       this.createFile(data.dir, data.name);
     } else if (data.operation === Operation.mv) {
-      this.move(data.dir, data.name, data.newDir, data.newName);
+      this.move(data.dir, data.name, data.newName, data.newDir);
     }
   }
 
@@ -119,6 +121,7 @@ class FileSystem {
     if (newName === undefined) {
       newName = name;
     }
+
     try {
       await fs.rename(
         path.join(this.projectRoot, dir, name),
