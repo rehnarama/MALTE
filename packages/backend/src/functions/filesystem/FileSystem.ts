@@ -51,7 +51,7 @@ class FileSystem {
     pass = true
   ): Promise<boolean> {
     try {
-      fs.mkdir(path.join(this.projectRoot, dir, name), { recursive: pass });
+      await fs.mkdir(path.join(this.projectRoot, dir, name), { recursive: pass });
       return true;
     } catch (err) {
       return false;
@@ -75,7 +75,7 @@ class FileSystem {
         path.join(this.projectRoot, dir, name),
         overwrite ? "w" : "a"
       );
-      fd.close();
+      await fd.close();
       return true;
     } catch (err) {
       return false;
@@ -89,7 +89,7 @@ class FileSystem {
    */
   public async remove(dir: string, name: string): Promise<boolean> {
     try {
-      fs.rmdir(path.join(this.projectRoot, dir, name), { recursive: true });
+      await fs.rmdir(path.join(this.projectRoot, dir, name), { recursive: true });
       return true;
     } catch (err) {
       return false;
@@ -116,7 +116,7 @@ class FileSystem {
       newName = name;
     }
     try {
-      fs.rename(
+      await fs.rename(
         path.join(this.projectRoot, dir, name),
         path.join(this.projectRoot, newDir, newName)
       );
