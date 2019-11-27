@@ -1,9 +1,8 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
-import FileOperation, { Operation } from "malte-common/dist/FileSystem";
+import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "./Tree";
 import Socket from "../functions/Socket";
-import { pathToFileURL } from "url";
 
 interface State {
   data?: TreeNode;

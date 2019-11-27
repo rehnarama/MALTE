@@ -34,7 +34,6 @@ const Terminal: React.FC = () => {
 
   function resizeTerminal() {
     const dim = fitAddon.proposeDimensions();
-    console.log(dim);
     if (
       !lastSizeSent ||
       dim.cols !== lastSizeSent.columns ||
