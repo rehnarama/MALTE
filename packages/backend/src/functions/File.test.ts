@@ -74,18 +74,18 @@ describe("File", function() {
     });
   });
 
-  describe("::triggerSave()", () => {
-    let saveProt: typeof File.prototype.save;
+  describe("::scheduleSave()", () => {
+    let saveProt: typeof File.prototype["save"];
     beforeEach(() => {
-      saveProt = File.prototype.save;
+      saveProt = File.prototype["save"];
     });
     afterEach(() => {
-      File.prototype.save = saveProt;
+      File.prototype["save"] = saveProt;
     });
 
     it("Should save when no save has happened before", () => {
       let saveCount = 0;
-      File.prototype.save = async (): Promise<void> => {
+      File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
       };
 
@@ -97,7 +97,7 @@ describe("File", function() {
 
     it("Should only save once if triggering save twice short after each other", () => {
       let saveCount = 0;
-      File.prototype.save = async (): Promise<void> => {
+      File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
       };
 
@@ -108,11 +108,15 @@ describe("File", function() {
       assert.equal(saveCount, 1);
     });
 
-    it("Should save twice if triggering close to each other after a short while", function(done: MochaDone) {
-      this.timeout(11000);
+    async function wait(ms: number): Promise<void> {
+      return new Promise(resolve => {
+        setTimeout(resolve, ms);
+      });
+    }
 
+    it("Should save twice if triggering close to each other after a short while", async function() {
       let saveCount = 0;
-      File.prototype.save = async (): Promise<void> => {
+      File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
       };
 
@@ -122,20 +126,16 @@ describe("File", function() {
 
       assert.equal(saveCount, 1);
 
-      function saveChecker(): void {
-        if (!f.isSaveScheduled()) {
-          assert.equal(saveCount, 2);
-          done();
-        } else {
-          setImmediate(saveChecker);
-        }
+      while (f.isSaveScheduled()) {
+        await wait(2);
       }
-      saveChecker();
+
+      assert.equal(saveCount, 2);
     });
 
-    it("Should only save twice if triggering many times close to each other", (done: MochaDone) => {
+    it("Should only save twice if triggering many times close to each other", async () => {
       let saveCount = 0;
-      File.prototype.save = async (): Promise<void> => {
+      File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
       };
 
@@ -151,15 +151,11 @@ describe("File", function() {
 
       assert.equal(saveCount, 1);
 
-      function saveChecker(): void {
-        if (!f.isSaveScheduled()) {
-          assert.equal(saveCount, 2);
-          done();
-        } else {
-          setImmediate(saveChecker);
-        }
+      while (f.isSaveScheduled()) {
+        await wait(2);
       }
-      saveChecker();
+
+      assert.equal(saveCount, 2);
     });
   });
 });
