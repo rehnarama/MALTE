@@ -33,7 +33,11 @@ class SideBar extends React.Component<{}, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    // Here we should open the selected file in the CodeEditor
+    Socket.getInstance()
+      .getSocket()
+      .emit("join-buffer", {
+        path: node.path
+      });
   };
 
   onToggle = (node: TreeNode) => {
