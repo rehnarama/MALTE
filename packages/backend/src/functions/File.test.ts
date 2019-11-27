@@ -114,7 +114,7 @@ describe("File", function() {
       });
     }
 
-    it.only("Should save twice if triggering close to each other after a short while", async function() {
+    it("Should save twice if triggering close to each other after a short while", async function() {
       let saveCount = 0;
       File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
@@ -133,7 +133,7 @@ describe("File", function() {
       assert.equal(saveCount, 2);
     });
 
-    it.only("Should only save twice if triggering many times close to each other", async () => {
+    it("Should only save twice if triggering many times close to each other", async () => {
       let saveCount = 0;
       File.prototype["save"] = async (): Promise<void> => {
         saveCount++;
