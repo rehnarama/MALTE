@@ -11,6 +11,7 @@ import cors from "cors";
 import Terminal from "./functions/terminal/Terminal";
 import path from "path";
 import GitHub from "./functions/oauth/GitHub";
+import { FileSystem } from "./functions/filesystem";
 
 const PORT = Number.parseInt(process.env.PORT) || 4000;
 let frontendUrl = "http://localhost:3000";
@@ -92,6 +93,7 @@ async function start(): Promise<void> {
     console.log(`Socket with id ${socket.id} connected`);
 
     new Terminal(socket, projectRoot);
+    new FileSystem(socket, projectRoot);
     project.join(socket);
 
     // send file tree on request from client
