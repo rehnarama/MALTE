@@ -57,16 +57,31 @@ const Icons: React.SFC<IconsProps> = props => {
   };
 
   if (node.type === "directory") {
-    elems.push(<img key="file" src={filesvg} onClick={createFile} alt="Create File" />);
-    elems.push(<img key="folder" src={foldersvg} onClick={createFolder} alt="Create Folder" />);
+    elems.push(
+      <img key="file" src={filesvg} onClick={createFile} alt="Create File" />
+    );
+    elems.push(
+      <img
+        key="folder"
+        src={foldersvg}
+        onClick={createFolder}
+        alt="Create Folder"
+      />
+    );
     if (node.children && node.children.length === 0 && parent !== undefined) {
-      elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} alt="Delete" />);
+      elems.push(
+        <img key="delete" src={deletesvg} onClick={deleteNode} alt="Delete" />
+      );
     }
   } else {
-    elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} alt="Delete" />);
+    elems.push(
+      <img key="delete" src={deletesvg} onClick={deleteNode} alt="Delete" />
+    );
   }
   if (parent) {
-    elems.push(<img key="edit" src={editsvg} onClick={editNode} alt="Rename" />);
+    elems.push(
+      <img key="edit" src={editsvg} onClick={editNode} alt="Rename" />
+    );
   }
 
   return <>{elems}</>;
@@ -143,7 +158,16 @@ const Tree: React.SFC<TreeProps> = props => {
         setFileName("");
       }
     },
-    [fileName, node, parent, onEdit, isCreating, isEditing, onCreateFile, onCreateFolder]
+    [
+      fileName,
+      node,
+      parent,
+      onEdit,
+      isCreating,
+      isEditing,
+      onCreateFile,
+      onCreateFolder
+    ]
   );
 
   const deleteNode = () => {
