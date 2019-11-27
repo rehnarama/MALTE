@@ -33,11 +33,10 @@ class SideBar extends React.Component<{}, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    console.log("select", node);
+    // Here we should open the selected file in the CodeEditor
   };
 
   onToggle = (node: TreeNode) => {
-    console.log("toggle");
     const isToggled = this.state.toggledKeys[node.path] === true;
     const newToggledKeys = Object.assign({}, this.state.toggledKeys, {
       [node.path]: !isToggled
@@ -45,43 +44,38 @@ class SideBar extends React.Component<{}, State> {
     this.setState({ toggledKeys: newToggledKeys });
   };
 
-  onDelete = (node: TreeNode, parent?: TreeNode) => {
-    if (parent) {
-      if (node && node.type === "directory") {
-        console.log("sidebar delete folder: ", parent.path, node.name);
-        this.socket.emit("file/operation", {
-          operation: Operation.rm,
-          dir: parent.path,
-          name: node.name
-        });
-      } else if (node && node.type === "file") {
-        console.log("sidebar delete file: ", parent.path, node.name);
-        this.socket.emit("file/operation", {
-          operation: Operation.rm,
-          dir: parent.path,
-          name: node.name
-        });
-      }
-    }
-  }
+  onDelete = (node: TreeNode, parent: TreeNode) => {
+      this.socket.emit("file/operation", {
+        operation: Operation.rm,
+        dir: parent.path,
+        name: node.name
+      });
+  };
 
   onCreateFolder = (node: TreeNode, name: string) => {
-    console.log("sidebar create folder: ", node.path, name);
     this.socket.emit("file/operation", {
       operation: Operation.mkdir,
       dir: node.path,
       name: name
     });
-  }
+  };
 
   onCreateFile = (node: TreeNode, name: string) => {
-    console.log("sidebar create file: ", node.path,  name);
     this.socket.emit("file/operation", {
       operation: Operation.touch,
       dir: node.path,
       name: name
     });
-  }
+  };
+
+  onEdit = (node: TreeNode, parent: TreeNode, name: string) => {
+    this.socket.emit("file/operation", {
+      operation: Operation.mv,
+      dir: parent.path,
+      name: node.name,
+      newName: name
+    });
+  };
 
   render() {
     return (
@@ -97,6 +91,7 @@ class SideBar extends React.Component<{}, State> {
             onDelete={this.onDelete}
             onCreateFolder={this.onCreateFolder}
             onCreateFile={this.onCreateFile}
+            onEdit={this.onEdit}
           />
         ) : (
           <p>Loading...</p>

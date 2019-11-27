@@ -4,7 +4,73 @@ import classes from "./Tree.module.css";
 import filesvg from "./file.svg";
 import foldersvg from "./folder.svg";
 import deletesvg from "./delete.svg";
-//import editsvg from "./edit.svg";
+import editsvg from "./edit.svg";
+
+interface IconsProps {
+  node: TreeNode;
+  parent?: TreeNode;
+  onDelete?: () => void;
+  onCreateFile?: () => void;
+  onCreateFolder?: () => void;
+  onEdit?: () => void;
+}
+
+const Icons: React.SFC<IconsProps> = props => {
+  const {
+    node,
+    parent,
+    onCreateFile,
+    onCreateFolder,
+    onDelete,
+    onEdit
+  } = props;
+
+  const elems: React.ReactNode[] = [];
+
+  // Detect if an icon is clicked and call the correspoding function in Tree component
+  const deleteNode: React.MouseEventHandler = e => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete();
+    }
+  };
+
+  const createFolder: React.MouseEventHandler = e => {
+    e.stopPropagation();
+    if (onCreateFolder) {
+      onCreateFolder();
+    }
+  };
+
+  const createFile: React.MouseEventHandler = e => {
+    e.stopPropagation();
+    if (onCreateFile) {
+      onCreateFile();
+    }
+  };
+
+  const editNode: React.MouseEventHandler = e => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit();
+    }
+  };
+
+  if (node.type === "directory") {
+    elems.push(<img key="file" src={filesvg} onClick={createFile} />);
+    elems.push(<img key="folder" src={foldersvg} onClick={createFolder} />);
+    if (node.children && node.children.length === 0 && parent !== undefined) {
+      elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
+    }
+  } else {
+    elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
+  }
+  if (parent) {
+    elems.push(<img key="edit" src={editsvg} onClick={editNode} />);
+  }
+
+  return <>{elems}</>;
+};
 
 interface TreeProps {
   node: TreeNode;
@@ -16,55 +82,8 @@ interface TreeProps {
   onDelete?: (node: TreeNode, parent: TreeNode) => void;
   onCreateFile?: (node: TreeNode, name: string) => void;
   onCreateFolder?: (node: TreeNode, name: string) => void;
+  onEdit?: (node: TreeNode, parent: TreeNode, name: string) => void;
 }
-
-interface IconsProps {
-  node: TreeNode;
-  parent?: TreeNode;
-  onDelete?: (node: TreeNode, parent: TreeNode) => void;
-  onCreateFile?: (node: TreeNode) => void;
-  onCreateFolder?: (node: TreeNode) => void;
-}
-
-const Icons: React.SFC<IconsProps> = props => {
-  const { node, parent, onCreateFile, onDelete, onCreateFolder } = props;
-  const elems: React.ReactNode[] = [];
-
-  const deleteNode: React.MouseEventHandler = e => {
-    e.stopPropagation();
-    if (parent) {
-      if (onDelete) {
-        onDelete(node, parent);
-      }
-    }
-  };
-
-  const createFolder: React.MouseEventHandler = e => {
-    e.stopPropagation();
-    if (onCreateFolder) {
-      onCreateFolder(node);
-    }
-  };
-
-  const createFile: React.MouseEventHandler = e => {
-    e.stopPropagation();
-    if (onCreateFile) {
-      onCreateFile(node);
-    }
-  };
-
-  if (node.type === "directory") {
-    elems.push(<img key="file" src={filesvg} onClick={createFile} />);
-    elems.push(<img key="folder" src={foldersvg} onClick={createFolder} />);
-    if (node.children && node.children.length === 0 && parent) {
-      elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
-    }
-  } else {
-    elems.push(<img key="delete" src={deletesvg} onClick={deleteNode} />);
-  }
-  //elems.push(<img key="edit" src={editsvg} onClick={editNode} />);
-  return <>{elems}</>;
-};
 
 const Tree: React.SFC<TreeProps> = props => {
   const {
@@ -76,13 +95,15 @@ const Tree: React.SFC<TreeProps> = props => {
     onToggle,
     onDelete,
     onCreateFile,
-    onCreateFolder
+    onCreateFolder,
+    onEdit
   } = props;
 
   const isToggled = toggledKeys[node.path] === true;
-
   const [isHover, setIsHover] = React.useState(false);
   const [isCreating, setIsCreating] = React.useState("");
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [fileName, setFileName] = React.useState("");
 
   const onClick = React.useCallback<React.MouseEventHandler>(
     e => {
@@ -96,69 +117,86 @@ const Tree: React.SFC<TreeProps> = props => {
     [node]
   );
 
-  const onMouseEnter = () => {
-    setIsHover(true);
-  };
-
-  const onMouseLeave = () => {
-    setIsHover(false);
-  };
-
-  const onCreateInternalFile = () => {
-    setIsCreating("file");
-  };
-  
-  const onCreateInternalFolder = () => {
-    setIsCreating("folder");
-  };
-
-  const [fileName, setFileName] = React.useState("");
-
-  const handleFileNameChange = React.useCallback<React.ChangeEventHandler<HTMLInputElement>>(e => {
+  const handleFileNameChange = React.useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >(e => {
     setFileName(e.currentTarget.value);
-  }, [])
+  }, []);
 
   const handleKeyDown = React.useCallback<React.KeyboardEventHandler>(
     e => {
-      if (e.key === "Enter" && isCreating === "file" && onCreateFile) {
-        setIsCreating("");
+      if (e.key === "Enter") {
+        if (isCreating === "file" && onCreateFile) {
+          setIsCreating("");
+          onCreateFile(node, fileName);
+        } else if (isCreating === "folder" && onCreateFolder) {
+          setIsCreating("");
+          onCreateFolder(node, fileName);
+        } else if (isEditing && onEdit && parent !== undefined) {
+          setIsEditing(false);
+          onEdit(node, parent, fileName);
+        }
         setFileName("");
-        onCreateFile(node, fileName);
-      }
-      else if (e.key === "Enter" && isCreating === "folder" && onCreateFolder) {
+      } else if (e.key === "Escape") {
         setIsCreating("");
+        setIsEditing(false);
         setFileName("");
-        onCreateFolder(node, fileName);
-      }
-      else if(e.key === "Escape") {
-        setIsCreating("");
       }
     },
     [fileName]
   );
 
+  const deleteNode = () => {
+    if (parent !== undefined && onDelete) {
+      onDelete(node, parent);
+    }
+  };
+
   const content = (
     <li>
       <p
         onClick={onClick}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
       >
         {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
         {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
-        {node.name}
+        {isEditing ? (
+          <input
+            type="text"
+            autoFocus
+            onBlur={() => setIsEditing(false)}
+            onKeyDown={handleKeyDown}
+            onChange={handleFileNameChange}
+            placeholder={node.name}
+            value={fileName}
+          />
+        ) : (
+          node.name
+        )}
+
         {isHover && (
           <Icons
             node={node}
             parent={parent}
-            onDelete={onDelete}
-            onCreateFile={onCreateInternalFile}
-            onCreateFolder={onCreateInternalFolder}
+            onDelete={deleteNode}
+            onCreateFile={() => setIsCreating("file")}
+            onCreateFolder={() => setIsCreating("folder")}
+            onEdit={() => setIsEditing(true)}
           ></Icons>
         )}
       </p>
       <ul className={classes.list}>
-        {isCreating && <input type="text" autoFocus onBlur={() => {setIsCreating("")}} onKeyDown={handleKeyDown} onChange={handleFileNameChange} value={fileName}/>}
+        {isCreating && (
+          <input
+            type="text"
+            autoFocus
+            onBlur={() => setIsCreating("")}
+            onKeyDown={handleKeyDown}
+            onChange={handleFileNameChange}
+            value={fileName}
+          />
+        )}
         {node.children &&
           isToggled &&
           node.children.map(child => (
@@ -172,6 +210,7 @@ const Tree: React.SFC<TreeProps> = props => {
               onDelete={onDelete}
               onCreateFile={onCreateFile}
               onCreateFolder={onCreateFolder}
+              onEdit={onEdit}
             />
           ))}
       </ul>
