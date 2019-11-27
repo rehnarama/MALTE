@@ -50,7 +50,6 @@ export default class File {
       .getSocket()
       .on("buffer-operation", (data: BufferOperationData) => {
         if (data.path === this.path) {
-          console.log(data.operation);
           const operation = rgaOperationFromJSON(data.operation);
           if ("content" in operation) {
             this.rga.insert(operation);
