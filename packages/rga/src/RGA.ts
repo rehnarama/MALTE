@@ -3,6 +3,28 @@ import RGAIdentifier from "./RGAIdentifier";
 import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
+export interface RGAJSON {
+  nodes: RGANode[]
+};
+
+export interface RGAOperationJSON {
+  reference: RGAIdentifier;
+  id?: RGAIdentifier;
+  content?: string;
+}
+
+export function rgaOperationFromJSON(op: RGAOperationJSON): RGAInsert | RGARemove {
+  if (op.content && op.id) {
+    return new RGAInsert(
+      new RGAIdentifier(op.reference.sid, op.reference.sum), 
+      new RGAIdentifier(op.id.sid, op.id.sum), 
+      op.content
+    );
+  } else {
+    return new RGARemove(new RGAIdentifier(op.reference.sid, op.reference.sum));
+  }
+}
+
 /**
  * The RGA structure is a CRDT that allows for collaborative editing.
  * More info here: https://pages.lip6.fr/Marc.Shapiro/papers/rgasplit-group2016-11.pdf
@@ -48,7 +70,9 @@ export default class RGA {
     let cursor: RGANode | null = this.head;
     while (count < position && cursor.next !== null) {
       cursor = cursor.next;
-      count += cursor.content.length;
+      if (!cursor.tombstone) {
+        count += cursor.content.length;
+      }
     }
 
     if (cursor === null) {
@@ -86,11 +110,11 @@ export default class RGA {
   }
 
   /**
-   * Creates a removal at the given position
+   * Creates a removal at the given position, zero based indexing
    * @param position The position of the node to remove
    */
   public createRemovePos(position: number) {
-    return this.createRemove(this.findNodePos(position).id);
+    return this.createRemove(this.findNodePos(position + 1).id);
   }
 
   /**
@@ -153,6 +177,18 @@ export default class RGA {
   }
 
   /**
+   * Applies either an insert or a remove to the RGA
+   * @param op operation to perform
+   */
+  public applyOperation(op: RGAInsert | RGARemove): void {
+    if (op instanceof RGAInsert) {
+      this.insert(op);
+    } else {
+      this.remove(op);
+    }
+  }
+
+  /**
    * Converts the RGA to a plain old string
    */
   public toString() {
@@ -180,11 +216,27 @@ export default class RGA {
     return rga;
   }
 
-  public static fromRGA(rga: RGA): RGA {
+  public static fromRGAJSON(rgaJSON: RGAJSON): RGA {
     const newRga = new RGA();
-    newRga.head = rga.head;
-    newRga.nodeMap = rga.nodeMap;
-    newRga.clock = rga.clock;
+    for(let i = rgaJSON.nodes.length - 1; i >= 0; i--) {
+      const node = rgaJSON.nodes[i];
+      node.next = newRga.head.next;
+      node.id = new RGAIdentifier(node.id.sid, node.id.sum);
+      newRga.head.next = node;
+      newRga.setToNodeMap(node);
+    }
+    newRga.clock = rgaJSON.nodes.length;
     return newRga;
+  }
+
+  public toRGAJSON(): RGAJSON {
+    const nodes: RGANode[] = [];
+    let cursor = this.head.next;
+    while (cursor !== null) {
+      const node = cursor.copy();
+      nodes.push(node);
+      cursor = cursor.next;
+    }
+    return {nodes}; 
   }
 }

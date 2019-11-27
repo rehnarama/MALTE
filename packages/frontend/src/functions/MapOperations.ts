@@ -23,7 +23,7 @@ function mapInsertOperation(
   op: editor.IModelContentChange
 ): InternalOperation[] {
   const newOps: InternalOperation[] = [];
-  const text = op.text.replace("\r\n", "\n");
+  const text = op.text;
   for (let i = 0; i < text.length; i++) {
     newOps.push({
       type: Operation.Insert,

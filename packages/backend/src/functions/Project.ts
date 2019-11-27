@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import chokidar from "chokidar";
 import File from "./File";
+import { RGAOperationJSON } from "rga/dist/RGA";
 
 export default class Project {
   private path: string;
@@ -33,7 +34,7 @@ export default class Project {
   }
 
   private async createFile(fileName: string): Promise<File> {
-    const f = new File(path.join(this.path, fileName));
+    const f = new File(this.absolutePath(fileName));
     await f.initialize();
     this.files.push(f);
     return f;
@@ -42,16 +43,20 @@ export default class Project {
   /**
    * Get a file from the project. If the file isn't open or doesn't exist
    * it is created.
-   * @param filePath path of file
+   * @param filePath relative path of file to project
    */
   private async getFile(filePath: string): Promise<File> {
     let f: File = this.files.find(f => {
-      return f.path == path.join(this.path, filePath);
+      return f.path == this.absolutePath(filePath);
     });
     if (f === undefined) {
       f = await this.createFile(filePath);
     }
     return f;
+  }
+
+  private absolutePath(filePath: string): string {
+    return path.join(this.path, filePath);
   }
 
   /**
@@ -81,6 +86,18 @@ export default class Project {
       const file = await this.getFile(path);
       file.leave(socket);
     });
+
+    socket.on(
+      "buffer-operation",
+      async (data: { path: string; operation: RGAOperationJSON }) => {
+        const file = this.files.find(
+          f => f.path === this.absolutePath(data.path)
+        );
+        if (file) {
+          file.applyOperation(data.operation, socket);
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
       const index = this.sockets.findIndex(s => s.id === socket.id);

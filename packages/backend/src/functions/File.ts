@@ -1,15 +1,19 @@
 import { promises as fs } from "fs";
-import RGA from "rga/dist/RGA";
+import RGA, {
+  RGAJSON,
+  RGAOperationJSON,
+  rgaOperationFromJSON
+} from "rga/dist/RGA";
+import { Socket } from "socket.io";
 
 export default class File {
   private _path: string;
   get path(): string {
     return this._path;
   }
-
   private rga: RGA;
 
-  private sockets: SocketIO.Socket[] = [];
+  private sockets: Socket[] = [];
 
   private lastSave = 0;
   private maxSaveRate: number;
@@ -24,14 +28,26 @@ export default class File {
    * Initialize the file defined in the constructor path.
    */
   public async initialize(): Promise<void> {
-    console.log("Initializing file");
-    await fs.writeFile(this.path, 'console.log("hello world")', {
-      encoding: "utf8"
-    });
-    const fileContent: string = await fs.readFile(this.path, {
-      encoding: "utf8"
-    });
+    let fileContent = "";
+    if (await this.fileExists()) {
+      fileContent = await fs.readFile(this.path, {
+        encoding: "utf8"
+      });
+    } else {
+      await fs.writeFile(this.path, "", {
+        encoding: "utf8"
+      });
+    }
     this.rga = RGA.fromString(fileContent);
+  }
+
+  private async fileExists(): Promise<boolean> {
+    try {
+      await fs.stat(this.path);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -70,17 +86,19 @@ export default class File {
    * Forces a save
    */
   public async save(): Promise<void> {
-    await fs.writeFile(this.path, this.rga.toString(), { encoding: "utf8" });
+    await fs.writeFile(this.path, this.rga.toString(), {
+      encoding: "utf8"
+    });
   }
 
   /**
    * Get the content of the file.
    */
-  public getContent(): RGA {
-    return this.rga;
+  public getContent(): RGAJSON {
+    return this.rga.toRGAJSON();
   }
 
-  public join(socket: SocketIO.Socket): boolean {
+  public join(socket: Socket): boolean {
     if (this.sockets.some(s => s.id === socket.id)) {
       return false;
     }
@@ -92,10 +110,22 @@ export default class File {
     return true;
   }
 
-  public leave(socket: SocketIO.Socket): void {
+  public leave(socket: Socket): void {
     const i = this.sockets.findIndex(s => s.id === socket.id);
     if (i > -1) {
       this.sockets.splice(i, 1);
+    }
+  }
+
+  public applyOperation(op: RGAOperationJSON, caller: Socket): void {
+    const rgaOp = rgaOperationFromJSON(op);
+    this.rga.applyOperation(rgaOp);
+    this.scheduleSave();
+
+    for (const s of this.sockets) {
+      if (s.id !== caller.id) {
+        s.emit("buffer-operation", { path: this.path, operation: rgaOp });
+      }
     }
   }
 }
