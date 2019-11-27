@@ -1,5 +1,5 @@
 import RGA, { RGAJSON } from "rga/dist/RGA";
-import { editor as editorType } from "monaco-editor";
+import { editor as editorType, IDisposable } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
@@ -15,13 +15,15 @@ export default class File {
     return this._model;
   }
 
+  private contentChangedListener: IDisposable;
+
   constructor(path: string, content: RGAJSON, model: editorType.ITextModel) {
     this._path = path;
     this.rga = RGA.fromRGAJSON(content);
     this._model = model;
     model.setValue(this.toString());
 
-    this.model.onDidChangeContent(
+    this.contentChangedListener = this.model.onDidChangeContent(
       (event: editorType.IModelContentChangedEvent) => {
         const op = event.changes[0];
         const internalOps = mapOperations(op);
@@ -46,6 +48,12 @@ export default class File {
       const socket = Socket.getInstance().getSocket();
       socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
     }
+  }
+
+  public close() {
+    const socket = Socket.getInstance().getSocket();
+    socket.emit("leave-buffer", { path: this.path });
+    this.contentChangedListener.dispose();
   }
 
   public toString(): string {

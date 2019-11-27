@@ -33,7 +33,11 @@ class SideBar extends React.Component<{}, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    console.log("select", node);
+    Socket.getInstance()
+      .getSocket()
+      .emit("join-buffer", {
+        path: node.path
+      });
   };
 
   onToggle = (node: TreeNode) => {
