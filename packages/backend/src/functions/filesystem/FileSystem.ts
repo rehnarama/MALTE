@@ -21,10 +21,10 @@ class FileSystem {
   }
 
   private parseData(data: FileOperation): void {
-    if (data?.operation === undefined || data.name === undefined) {
+    if (data?.operation === undefined || data?.name === undefined) {
       return;
     }
-    if (data.dir === undefined) {
+    if (data?.dir === undefined) {
       data.dir = "./";
     }
     if (data.operation === Operation.mkdir) {
