@@ -60,32 +60,33 @@ export default class File {
     if (deltaTime >= this.maxSaveRate) {
       // If no save is scheduled and we haven't saved in the last 5 seconds
       // let's simply save
-
-      if (this.isSaveScheduled()) {
-        // Alright, let's clear the old handle
-        clearTimeout(this.saveTimeoutHandle);
-        this.saveTimeoutHandle = null;
-      }
-      this.lastSave = Date.now();
-      this.save();
+      this.triggerSave();
     } else if (!this.isSaveScheduled()) {
       // If we have no save scheduled, let's schedule one
+      const waitTime = Math.max(this.maxSaveRate - deltaTime, 0);
       this.saveTimeoutHandle = setTimeout(
-        this.scheduleSave.bind(this),
-        Math.max(this.maxSaveRate - deltaTime, 0)
+        this.triggerSave.bind(this),
+        waitTime
       );
     }
     // If we have save scheduled, let's simply ignore this save trigger
+  }
+
+  private triggerSave(): void {
+    if (this.isSaveScheduled()) {
+      // Alright, let's clear the old handle
+      clearTimeout(this.saveTimeoutHandle);
+      this.saveTimeoutHandle = null;
+    }
+    this.lastSave = Date.now();
+    this.save();
   }
 
   public isSaveScheduled(): boolean {
     return this.saveTimeoutHandle !== null;
   }
 
-  /**
-   * Forces a save
-   */
-  public async save(): Promise<void> {
+  private async save(): Promise<void> {
     await fs.writeFile(this.path, this.rga.toString(), {
       encoding: "utf8"
     });
