@@ -26,6 +26,8 @@ class FileSystem {
     }
     if (data?.dir === undefined) {
       data.dir = "./";
+    } else {
+      data.dir = data.dir.replace(this.projectRoot, "");
     }
     if (data.operation === Operation.mkdir) {
       this.createDirectory(data.dir, data.name);
