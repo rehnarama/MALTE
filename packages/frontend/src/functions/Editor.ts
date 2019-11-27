@@ -15,20 +15,15 @@ export default class Editor {
   }
 
   public initialize() {
-    const currentModel: editorType.IEditorModel | null = this.editor.getModel();
-    if (currentModel) {
-      const socket = Socket.getInstance().getSocket();
-      socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
-        this.openNewBuffer(data.path, data.content);
-      });
-      socket.emit("join-buffer", { path: "tmp.js" });
-    } else {
-      console.error("No current model in Monaco editorDidMount");
-    }
+    const socket = Socket.getInstance().getSocket();
+    socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
+      this.openNewBuffer(data.path, data.content);
+    });
+    socket.emit("join-buffer", { path: "tmp.js" });
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
-    const newModel = this.editorNamespace.createModel("");
+    const newModel = this.editorNamespace.createModel("", "javascript");
     newModel.pushEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);

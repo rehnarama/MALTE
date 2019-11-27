@@ -42,7 +42,6 @@ export default class File {
     for (const op of ops) {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
-      console.log(this.rga.toString());
       const socket = Socket.getInstance().getSocket();
       socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
     }

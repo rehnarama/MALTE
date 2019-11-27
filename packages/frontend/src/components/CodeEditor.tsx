@@ -9,6 +9,7 @@ const CodeEditor: React.FC = () => {
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     console.log("Editor has loaded!");
     const e = new Editor(editor);
+    e.initialize();
     editorRef.current = e;
   };
 
