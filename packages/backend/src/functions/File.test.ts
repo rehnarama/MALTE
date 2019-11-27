@@ -16,6 +16,8 @@ class MockSocket extends MockSocketUnTyped {
 }
 
 describe("File", function() {
+  this.timeout(11000);
+
   describe("Initialization and socket", function() {
     this.beforeEach(() => {
       fsMock({
