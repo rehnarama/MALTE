@@ -1,25 +1,23 @@
 <!DOCTYPE html>
 
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
 
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="utf-8" />
 
-    <title>MALTE - Multiple Access Live Text Editor</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <script>
-      async function getInfo() {
-        const response = await fetch(
-          "https://9o3h9uvkwl.execute-api.eu-north-1.amazonaws.com/default/ghInfo"
-        );
-        if (response.ok) {
-          const node = window.document.querySelector("#gh-stats");
-          const info = await response.json();
-          node.innerHTML = `
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" rel="stylesheet" />
+
+  <title>MALTE - Multiple Access Live Text Editor</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <script>
+    async function getInfo() {
+      const response = await fetch(
+        "https://9o3h9uvkwl.execute-api.eu-north-1.amazonaws.com/default/ghInfo"
+      );
+      if (response.ok) {
+        const node = window.document.querySelector("#gh-stats");
+        const info = await response.json();
+        node.innerHTML = `
             <h3>Quick Stats!</h3>
             <p>In the last seven days...</p>
             <table>
@@ -44,123 +42,129 @@
               </tbody>
             </table>
           `;
-        }
       }
-      getInfo();
-    </script>
-  </head>
+    }
+    getInfo();
+  </script>
+</head>
 
-  <body>
-    <article>
-      <header>
-        <h1>MALTE - Multiple Access Live Text Editor</h1>
-        <p>
-          An in-browser collaborative coding environment, in which one can edit
-          and compile code a server using an built-in shell.
-        </p>
-        <a href="sketch/login.png">
-          <img src="sketch/login.png" width="300" alt="login" />
-        </a>
-        <a href="sketch/editor.png">
-          <img width="300" src="sketch/editor.png" alt="login" />
-        </a>
-      </header>
-      <hr />
-      <section>
-        <h2>Try it out</h2>
-        <p>
-          Current version reflecting our GitHub master-branch can be found
-          <a href="https://malte-uu.herokuapp.com/">here</a>.
-        </p>
-      </section>
-      <section>
-        <h2>Progress Report</h2>
-        <p>Progress Report 1 (See Project Specification)</p>
-        <p>
-          <a href="reports/progress-report-2.pdf">Progress Report 2</a>
-          <b>(Updated 2019-11-26)</b>
-        </p>
-      </section>
-      <section>
-        <h2>Project Specification</h2>
-        <p><b>Updated 2019-11-14</b></p>
-        <p>
-          An up-to-date specification can be found
-          <a href="reports/PES.pdf">here</a>.
-        </p>
-      </section>
-      <section>
-        <h2>Project Report</h2>
-        <p><b>Updated 2019-11-26</b></p>
-        <p>
-          An up-to-date report can be found
-          <a href="reports/draft-report.pdf">here</a>.
-        </p>
-      </section>
-      <section>
-        <h2>Software Repository</h2>
-        <p>
-          A private Github repository can be found
-          <a href="https://github.com/rehnarama/MALTE">here</a>. If you don't
-          have access, contact the current project leader.
-        </p>
-      </section>
-      <section>
-        <h2>Agile Project Board</h2>
-        <p>
-          We use a SCRUM-esque process. You can thus follow our progress at our
-          <a href="https://github.com/rehnarama/MALTE/projects/1">board</a>.
-        </p>
-        <div id="gh-stats"></div>
-      </section>
-      <section>
-        <h2>Project Members</h2>
-        <table style="text-align: center;">
-          <tr>
-            <th>Name</th>
-            <th>E-mail</th>
-            <th>This Sprint's Project Leader</th>
-          </tr>
-          <tr>
-            <td>Jonas Norlinder</td>
-            <td>jonas.norlinder.4597@student.uu.se</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Joel Westerlund</td>
-            <td>jowe3751@student.uu.se</td>
-            <td>&larr;</td>
-          </tr>
-          <tr>
-            <td>Adam Inersjö</td>
-            <td>adam.inersjo.2778@student.uu.se</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Michael Rehn</td>
-            <td>michael.rehn.2439@student.uu.se</td>
-            <td></td>
-          </tr>
-        </table>
+<body>
+  <article>
+    <header>
+      <h1>MALTE - Multiple Access Live Text Editor</h1>
+      <p>
+        An in-browser collaborative coding environment, in which one can edit
+        and compile code a server using an built-in shell.
+      </p>
+      <a href="sketch/login.png">
+        <img src="sketch/login.png" width="300" alt="login" />
+      </a>
+      <a href="sketch/editor.png">
+        <img width="300" src="sketch/editor.png" alt="login" />
+      </a>
+    </header>
+    <hr />
+    <section>
+      <h2>Try it out</h2>
+      <p>
+        Current version reflecting our GitHub master-branch can be found
+        <a href="https://malte-uu.herokuapp.com/">here</a>.
+      </p>
+    </section>
+    <section>
+      <h2>Progress Report</h2>
+      <p>Progress Report 1 (See Project Specification)</p>
+      <p>
+        <a href="reports/progress-report-2.pdf">Progress Report 2</a>
+        <b>(Updated 2019-11-26)</b>
+      </p>
+    </section>
+    <section>
+      <h2>Releases</h2>
+      <p>All releases can be found <a href="https://github.com/rehnarama/MALTE/releases">here</a>. All releases gets
+        automatically published on <a href="https://hub.docker.com/repository/docker/rehnarama/malte-uu">Docker Hub</a>,
+        which allows the end-user to easily start a new docker image by executing `docker run -p 4000:4000
+        rehnarama/malte-uu:latest`.</p>
+      <p><a href="https://github.com/rehnarama/MALTE/archive/v0.1.0.zip">Sprint 2 deliverable</a></p>
+    </section>
+    <section>
+      <h2>Project Specification</h2>
+      <p><b>Updated 2019-11-14</b></p>
+      <p>
+        An up-to-date specification can be found
+        <a href="reports/PES.pdf">here</a>.
+      </p>
+    </section>
+    <section>
+      <h2>Project Report</h2>
+      <p><b>Updated 2019-11-26</b></p>
+      <p>
+        An up-to-date report can be found
+        <a href="reports/draft-report.pdf">here</a>.
+      </p>
+    </section>
+    <section>
+      <h2>Software Repository</h2>
+      <p>
+        A Github repository can be found
+        <a href="https://github.com/rehnarama/MALTE">here</a>.
+      </p>
+    </section>
+    <section>
+      <h2>Agile Project Board</h2>
+      <p>
+        We use a SCRUM-esque process. You can thus follow our progress at our
+        <a href="https://github.com/rehnarama/MALTE/projects/1">board</a>.
+      </p>
+      <div id="gh-stats"></div>
+    </section>
+    <section>
+      <h2>Project Members</h2>
+      <table style="text-align: center;">
+        <tr>
+          <th>Name</th>
+          <th>E-mail</th>
+          <th>This Sprint's Project Leader</th>
+        </tr>
+        <tr>
+          <td>Jonas Norlinder</td>
+          <td>jonas.norlinder.4597@student.uu.se</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Joel Westerlund</td>
+          <td>jowe3751@student.uu.se</td>
+          <td>&larr;</td>
+        </tr>
+        <tr>
+          <td>Adam Inersjö</td>
+          <td>adam.inersjo.2778@student.uu.se</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Michael Rehn</td>
+          <td>michael.rehn.2439@student.uu.se</td>
+          <td></td>
+        </tr>
+      </table>
 
-        <p>
-          <i
-            >We have decided to use a rotating scheme, where we change the
-            project leader each sprint.</i
-          >
-        </p>
+      <p>
+        <i>We have decided to use a rotating scheme, where we change the
+          project leader each sprint.</i>
+      </p>
 
-        <table>
-          <tr>
-            <td><img src="gang/gang.jpg" alt="gang" /></td>
-            <td><img src="gang/adam.jpg" alt="remote-gang" /></td>
-          </tr>
-          <tr>
-            <td>Michael, Jonas, Joel</td>
-            <td>Adam</td>
-          </tr>
-        </table>
-      </section>
-    </article>
-  </body>
+      <table>
+        <tr>
+          <td><img src="gang/gang.jpg" alt="gang" /></td>
+          <td><img src="gang/adam.jpg" alt="remote-gang" /></td>
+        </tr>
+        <tr>
+          <td>Michael, Jonas, Joel</td>
+          <td>Adam</td>
+        </tr>
+      </table>
+    </section>
+  </article>
+</body>
+
 </html>
