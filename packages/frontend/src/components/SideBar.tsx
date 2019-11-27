@@ -45,11 +45,11 @@ class SideBar extends React.Component<{}, State> {
   };
 
   onDelete = (node: TreeNode, parent: TreeNode) => {
-      this.socket.emit("file/operation", {
-        operation: Operation.rm,
-        dir: parent.path,
-        name: node.name
-      });
+    this.socket.emit("file/operation", {
+      operation: Operation.rm,
+      dir: parent.path,
+      name: node.name
+    });
   };
 
   onCreateFolder = (node: TreeNode, name: string) => {
