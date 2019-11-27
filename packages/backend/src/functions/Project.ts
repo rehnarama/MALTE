@@ -46,11 +46,13 @@ export default class Project {
    * @param filePath relative path of file to project
    */
   private async getFile(filePath: string): Promise<File> {
+    const normalizedPath = filePath.replace(this.path, "");
+
     let f: File = this.files.find(f => {
-      return f.path == this.absolutePath(filePath);
+      return f.path == this.absolutePath(normalizedPath);
     });
     if (f === undefined) {
-      f = await this.createFile(filePath);
+      f = await this.createFile(normalizedPath);
     }
     return f;
   }
@@ -82,7 +84,8 @@ export default class Project {
     });
 
     socket.on("leave-buffer", async (data: { path: string }) => {
-      const path: string = data.path;
+      const normalizedPath = data.path.replace(this.path, "");
+      const path: string = normalizedPath;
       const file = await this.getFile(path);
       file.leave(socket);
     });
@@ -90,8 +93,9 @@ export default class Project {
     socket.on(
       "buffer-operation",
       async (data: { path: string; operation: RGAOperationJSON }) => {
+        const normalizedPath = data.path.replace(this.path, "");
         const file = this.files.find(
-          f => f.path === this.absolutePath(data.path)
+          f => f.path === this.absolutePath(normalizedPath)
         );
         if (file) {
           file.applyOperation(data.operation, socket);
