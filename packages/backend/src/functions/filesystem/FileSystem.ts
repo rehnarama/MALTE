@@ -51,7 +51,9 @@ class FileSystem {
     pass = true
   ): Promise<boolean> {
     try {
-      await fs.mkdir(path.join(this.projectRoot, dir, name), { recursive: pass });
+      await fs.mkdir(path.join(this.projectRoot, dir, name), {
+        recursive: pass
+      });
       return true;
     } catch (err) {
       return false;
@@ -89,7 +91,9 @@ class FileSystem {
    */
   public async remove(dir: string, name: string): Promise<boolean> {
     try {
-      await fs.rmdir(path.join(this.projectRoot, dir, name), { recursive: true });
+      await fs.rmdir(path.join(this.projectRoot, dir, name), {
+        recursive: true
+      });
       return true;
     } catch (err) {
       return false;
