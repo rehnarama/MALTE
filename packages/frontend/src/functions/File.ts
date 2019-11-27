@@ -7,8 +7,6 @@ import { editor as editorType, IDisposable } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
-import RGARemove from "rga/dist/RGARemove";
-import RGAInsert from "rga/dist/RGAInsert";
 
 interface BufferOperationData {
   path: string;
