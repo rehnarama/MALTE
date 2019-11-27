@@ -16,8 +16,6 @@ class MockSocket extends MockSocketUnTyped {
 }
 
 describe("File", function() {
-  this.timeout(11000);
-
   describe("Initialization and socket", function() {
     this.beforeEach(() => {
       fsMock({
@@ -110,7 +108,9 @@ describe("File", function() {
       assert.equal(saveCount, 1);
     });
 
-    it("Should save twice if triggering close to each other after a short while", (done: MochaDone) => {
+    it("Should save twice if triggering close to each other after a short while", function(done: MochaDone) {
+      this.timeout(11000);
+
       let saveCount = 0;
       File.prototype.save = async (): Promise<void> => {
         saveCount++;
