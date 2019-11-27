@@ -15,4 +15,14 @@ export default class RGANode {
     this.content = content;
     this.tombstone = false;
   }
+
+  /**
+   * Creates a new RGANode with next as null
+   */
+  public copy(): RGANode {
+    const id = new RGAIdentifier(this.id.sid, this.id.sum);
+    const node = new RGANode(id, this.content);
+    node.tombstone = this.tombstone;
+    return node;
+  }
 }

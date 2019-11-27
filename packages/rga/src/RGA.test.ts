@@ -81,7 +81,7 @@ describe("RGA", function() {
 
     const reference = rga.findNodePos(2);
     const removal = rga.createRemove(reference.id);
-    const removalPos = rga.createRemovePos(2);
+    const removalPos = rga.createRemovePos(1);
 
     assert.deepEqual(removal.reference, reference.id);
     assert.deepEqual(removalPos.reference, reference.id);
@@ -94,7 +94,7 @@ describe("RGA", function() {
     rga.insert(rga.createInsertPos(1, "b"));
     rga.insert(rga.createInsertPos(2, "c"));
 
-    const removal = rga.createRemovePos(2);
+    const removal = rga.createRemovePos(1);
     rga.remove(removal);
 
     assert.equal(rga.toString(), "ac");
@@ -136,8 +136,8 @@ describe("RGA", function() {
       rgaB.insert(op2);
       rgaB.insert(op3);
 
-      const op4a = rgaA.remove(rgaA.createRemovePos(2));
-      const op4b = rgaB.remove(rgaB.createRemovePos(2));
+      const op4a = rgaA.remove(rgaA.createRemovePos(1));
+      const op4b = rgaB.remove(rgaB.createRemovePos(1));
 
       rgaA.remove(op4b);
       rgaB.remove(op4a);
@@ -158,8 +158,8 @@ describe("RGA", function() {
       rgaB.insert(op2);
       rgaB.insert(op3);
 
-      const op4a = rgaA.remove(rgaA.createRemovePos(1));
-      const op4b = rgaB.remove(rgaB.createRemovePos(3));
+      const op4a = rgaA.remove(rgaA.createRemovePos(0));
+      const op4b = rgaB.remove(rgaB.createRemovePos(2));
 
       rgaA.remove(op4b);
       rgaB.remove(op4a);
@@ -277,6 +277,147 @@ describe("RGA", function() {
       const rga = RGA.fromString(s);
 
       assert.equal(rga.toString(), s);
+    });
+  });
+  
+  describe("to/fromRGAJSON", function() {
+    it("should parse an empty RGA", () => {
+      const oldRGA = new RGA();
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(rgaJSON.nodes.length, 0);
+      assert.equal(oldRGA.toString(), newRGA.toString());
+    });
+    
+    it("should parse a single node RGA", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(rgaJSON.nodes.length, 1);
+      assert.equal(oldRGA.toString(), newRGA.toString());
+    });
+    
+    it("should store nodes in nodemap", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(oldRGA["nodeMap"].size, newRGA["nodeMap"].size);
+    });
+    
+    it("should parse multiple node RGA", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(rgaJSON.nodes.length, 5);
+      assert.equal(oldRGA.toString(), newRGA.toString());
+    });
+    
+    it("should parse deleted nodes in RGA", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const remove = oldRGA.createRemovePos(1);
+      oldRGA.remove(remove);
+
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(rgaJSON.nodes.length, 5);
+      assert.equal(oldRGA.toString(), newRGA.toString());
+    });
+    
+    it("should parse all deleted nodes in RGA", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      for (let i = 0; i < 5; i++) {
+        const remove = oldRGA.createRemovePos(0);
+        oldRGA.remove(remove);
+      }
+
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(rgaJSON.nodes.length, 5);
+      assert.equal(oldRGA.toString(), newRGA.toString());
+    });
+    
+    it("should update clock on parse", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      assert.equal(newRGA["clock"], 5);
+    });
+
+    it("should keep ID info", () => {
+      const oldRGA = new RGA();
+      const letters = ["a", "b", "c", "d", "e"];
+      for (let i = 0; i < 5; i++) {
+        const insert = oldRGA.createInsertPos(i, letters[i]);
+        oldRGA.insert(insert);
+      }
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      let newCursor = newRGA["head"]["next"];
+      let oldCursor = oldRGA["head"]["next"];
+      while (newCursor && oldCursor) {
+        assert.equal(newCursor.id.sid, oldCursor.id.sid);
+        assert.equal(newCursor.id.sum, oldCursor.id.sum);
+        newCursor = newCursor.next;
+        oldCursor = oldCursor.next;
+      }
+    });
+
+    it("should convert id to RGAIdentifier", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const rgaJSON = oldRGA.toRGAJSON();
+      const newRGA = RGA.fromRGAJSON(rgaJSON);
+
+      if (newRGA["head"]["next"] && oldRGA["head"]["next"]) {
+        assert.instanceOf(newRGA["head"]["next"].id, RGAIdentifier);
+        newRGA["head"]["next"].id.compareTo(oldRGA["head"]["next"].id);
+      } else {
+        assert(false);
+      }
+    });
+
+    it("should not change the original structure", () => {
+      const oldRGA = new RGA();
+      const insert = oldRGA.createInsertPos(0, "a");
+      oldRGA.insert(insert);
+      const insert2 = oldRGA.createInsertPos(1, "b");
+      oldRGA.insert(insert2);
+      const rgaJSON = oldRGA.toRGAJSON();
+      
+      assert.equal(oldRGA.toString(), "ab");
     });
   });
 });

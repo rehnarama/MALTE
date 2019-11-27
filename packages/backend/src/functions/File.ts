@@ -1,42 +1,105 @@
 import { promises as fs } from "fs";
-import RGA from "rga/dist/RGA";
+import RGA, {
+  RGAJSON,
+  RGAOperationJSON,
+  rgaOperationFromJSON
+} from "rga/dist/RGA";
+import { Socket } from "socket.io";
 
 export default class File {
   private _path: string;
   get path(): string {
     return this._path;
   }
-  private file: fs.FileHandle;
   private rga: RGA;
 
-  private sockets: SocketIO.Socket[] = [];
+  private sockets: Socket[] = [];
 
-  constructor(path: string) {
+  private lastSave = 0;
+  private maxSaveRate: number;
+  private saveTimeoutHandle: NodeJS.Timeout | null = null;
+
+  constructor(path: string, maxSaveRate = 5000) {
     this._path = path;
+    this.maxSaveRate = maxSaveRate;
   }
 
   /**
    * Initialize the file defined in the constructor path.
    */
   public async initialize(): Promise<void> {
-    console.log("Initializing file");
-    await fs.writeFile(this.path, 'console.log("hello world")', {
-      encoding: "utf8"
-    });
-    const fileContent: string = await fs.readFile(this.path, {
-      encoding: "utf8"
-    });
+    let fileContent = "";
+    if (await this.fileExists()) {
+      fileContent = await fs.readFile(this.path, {
+        encoding: "utf8"
+      });
+    } else {
+      await fs.writeFile(this.path, "", {
+        encoding: "utf8"
+      });
+    }
     this.rga = RGA.fromString(fileContent);
+  }
+
+  private async fileExists(): Promise<boolean> {
+    try {
+      await fs.stat(this.path);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /**
+   * Schedules a save. The save will occur in the next `maxSaveRate` milliseconds
+   * as defined in the constructor
+   */
+  public scheduleSave(): void {
+    const deltaTime = Date.now() - this.lastSave;
+
+    if (deltaTime >= this.maxSaveRate) {
+      // If no save is scheduled and we haven't saved in the last 5 seconds
+      // let's simply save
+      this.triggerSave();
+    } else if (!this.isSaveScheduled()) {
+      // If we have no save scheduled, let's schedule one
+      const waitTime = Math.max(this.maxSaveRate - deltaTime, 0);
+      this.saveTimeoutHandle = setTimeout(
+        this.triggerSave.bind(this),
+        waitTime
+      );
+    }
+    // If we have save scheduled, let's simply ignore this save trigger
+  }
+
+  private triggerSave(): void {
+    if (this.isSaveScheduled()) {
+      // Alright, let's clear the old handle
+      clearTimeout(this.saveTimeoutHandle);
+      this.saveTimeoutHandle = null;
+    }
+    this.lastSave = Date.now();
+    this.save();
+  }
+
+  public isSaveScheduled(): boolean {
+    return this.saveTimeoutHandle !== null;
+  }
+
+  private async save(): Promise<void> {
+    await fs.writeFile(this.path, this.rga.toString(), {
+      encoding: "utf8"
+    });
   }
 
   /**
    * Get the content of the file.
    */
-  public getContent(): RGA {
-    return this.rga;
+  public getContent(): RGAJSON {
+    return this.rga.toRGAJSON();
   }
 
-  public join(socket: SocketIO.Socket): boolean {
+  public join(socket: Socket): boolean {
     if (this.sockets.some(s => s.id === socket.id)) {
       return false;
     }
@@ -48,10 +111,22 @@ export default class File {
     return true;
   }
 
-  public leave(socket: SocketIO.Socket): void {
+  public leave(socket: Socket): void {
     const i = this.sockets.findIndex(s => s.id === socket.id);
     if (i > -1) {
       this.sockets.splice(i, 1);
+    }
+  }
+
+  public applyOperation(op: RGAOperationJSON, caller: Socket): void {
+    const rgaOp = rgaOperationFromJSON(op);
+    this.rga.applyOperation(rgaOp);
+    this.scheduleSave();
+
+    for (const s of this.sockets) {
+      if (s.id !== caller.id) {
+        s.emit("buffer-operation", { path: this.path, operation: rgaOp });
+      }
     }
   }
 }
