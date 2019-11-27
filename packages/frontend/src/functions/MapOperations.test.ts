@@ -1,4 +1,5 @@
-import mapOperations, { Operation } from "./MapOperations";
+import mapOperations from "./MapOperations";
+import { Operation } from "malte-common/dist/Operations";
 import { IRange } from "monaco-editor";
 
 function range(
