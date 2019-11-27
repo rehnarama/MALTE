@@ -1,15 +1,12 @@
 import io from "socket.io-client";
+import { getBackendUrl } from "./Environment";
 
 class Socket {
   private static instance: Socket;
   private s: SocketIOClient.Socket;
 
   private constructor() {
-    let backendUrl = "http://localhost:4000";
-    if (process.env.REACT_APP_BACKEND_URL) {
-      backendUrl = process.env.REACT_APP_BACKEND_URL;
-    }
-    this.s = io(backendUrl);
+    this.s = io(getBackendUrl());
   }
 
   static getInstance(): Socket {

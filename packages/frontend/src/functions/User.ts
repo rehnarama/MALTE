@@ -1,4 +1,5 @@
 import { User as UserData } from "malte-common/dist/oauth/GitHub";
+import { getBackendUrl } from "../functions/Environment";
 
 export default class User {
   private static user: UserData | null = null;
@@ -10,15 +11,11 @@ export default class User {
   public static async fetchUser(): Promise<
     "success" | "unauthorized" | string
   > {
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL ||
-        "http://localhost:4000"}/oauth/github/user`,
-      {
-        method: "GET",
-        credentials: "include",
-        mode: "cors"
-      }
-    );
+    const res = await fetch(`${getBackendUrl()}/oauth/github/user`, {
+      method: "GET",
+      credentials: "include",
+      mode: "cors"
+    });
     if (res.ok) {
       const user = (await res.json()) as UserData;
       User.user = user;
@@ -37,7 +34,7 @@ export default class User {
    */
   public static async authenticate(): Promise<boolean> {
     const w = window.open(
-      `${process.env.REACT_APP_BACKEND_URL}/oauth/github/auth`,
+      `${getBackendUrl()}/oauth/github/auth`,
       "Login with GitHub",
       "chrome=yes,centerscreen,width=800,height=800"
     );
