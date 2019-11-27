@@ -10,7 +10,7 @@ export interface Props {
 const Avatar: React.SFC<Props> = props => {
   const { url, name } = props;
   if (url && url.length > 0) {
-    return <img className={classes.circle} src={url} />;
+    return <img className={classes.circle} src={url} alt="Avatar" />;
   } else if (name && name.length >= 1) {
     return (
       <div className={classes.circle}>
