@@ -1,5 +1,6 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
+import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "./Tree";
 import Socket from "../functions/Socket";
 
@@ -9,11 +10,13 @@ interface State {
 }
 
 class SideBar extends React.Component<{}, State> {
+  private socket: SocketIOClient.Socket;
+
   constructor(props: {}) {
     super(props);
-    const socket = Socket.getInstance().getSocket();
+    this.socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
-    socket.on("file-tree", this.onFileTree);
+    this.socket.on("file-tree", this.onFileTree);
   }
 
   onFileTree = (data: TreeNode) => {
@@ -21,19 +24,19 @@ class SideBar extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    Socket.getInstance()
-      .getSocket()
-      .emit("refresh-file-tree");
+    this.socket.emit("refresh-file-tree");
   }
 
   componentWillUnmount() {
-    Socket.getInstance()
-      .getSocket()
-      .removeListener("file-tree", this.onFileTree);
+    this.socket.removeListener("file-tree", this.onFileTree);
   }
 
   onSelect = (node: TreeNode) => {
-    console.log("select", node);
+    Socket.getInstance()
+      .getSocket()
+      .emit("join-buffer", {
+        path: node.path
+      });
   };
 
   onToggle = (node: TreeNode) => {
@@ -42,6 +45,39 @@ class SideBar extends React.Component<{}, State> {
       [node.path]: !isToggled
     });
     this.setState({ toggledKeys: newToggledKeys });
+  };
+
+  onDelete = (node: TreeNode, parent: TreeNode) => {
+    this.socket.emit("file/operation", {
+      operation: Operation.rm,
+      dir: parent.path,
+      name: node.name
+    });
+  };
+
+  onCreateFolder = (node: TreeNode, name: string) => {
+    this.socket.emit("file/operation", {
+      operation: Operation.mkdir,
+      dir: node.path,
+      name: name
+    });
+  };
+
+  onCreateFile = (node: TreeNode, name: string) => {
+    this.socket.emit("file/operation", {
+      operation: Operation.touch,
+      dir: node.path,
+      name: name
+    });
+  };
+
+  onEdit = (node: TreeNode, parent: TreeNode, name: string) => {
+    this.socket.emit("file/operation", {
+      operation: Operation.mv,
+      dir: parent.path,
+      name: node.name,
+      newName: name
+    });
   };
 
   render() {
@@ -55,6 +91,10 @@ class SideBar extends React.Component<{}, State> {
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
+            onDelete={this.onDelete}
+            onCreateFolder={this.onCreateFolder}
+            onCreateFile={this.onCreateFile}
+            onEdit={this.onEdit}
           />
         ) : (
           <p>Loading...</p>

@@ -6,7 +6,7 @@ import Socket from "../functions/Socket";
 
 export default class Editor {
   private editor: editorType.ICodeEditor;
-  private files: File[] = [];
+  private files: File | undefined;
   private editorNamespace: typeof editorType;
 
   constructor(editor: editorType.ICodeEditor) {
@@ -17,6 +17,10 @@ export default class Editor {
   public initialize() {
     const socket = Socket.getInstance().getSocket();
     socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
+      if (this.files !== undefined) {
+        // Close previously open file
+        this.files.close();
+      }
       this.openNewBuffer(data.path, data.content);
     });
     socket.emit("join-buffer", { path: "tmp.js" });
@@ -27,7 +31,7 @@ export default class Editor {
     newModel.pushEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
-    this.files.push(file);
+    this.files = file;
 
     this.editor.setModel(newModel);
   }
