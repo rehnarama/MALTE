@@ -83,6 +83,7 @@ export default class File {
     const socket = Socket.getInstance().getSocket();
     socket.emit("leave-buffer", { path: this.path });
     this.contentChangedListener.dispose();
+    this.model.dispose();
   }
 
   public toString(): string {
