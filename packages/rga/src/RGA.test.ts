@@ -445,5 +445,44 @@ describe("RGA", function() {
 
       assert.equal(pos, -1);
     });
+
+
+    it("should return correct position in simple case with no tombstones", () => {
+      const rga = new RGA();
+      let insert1: RGAInsert;
+      let insert2: RGAInsert;
+      let insert3: RGAInsert;
+      rga.insert(insert1 = rga.createInsertPos(0, "a"));
+      rga.insert(insert2 = rga.createInsertPos(1, "b"));
+      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+
+      const pos1 = rga.findPos(insert1.id);
+      const pos2 = rga.findPos(insert2.id);
+      const pos3 = rga.findPos(insert3.id);
+
+      assert.equal(pos1, 0);
+      assert.equal(pos2, 1);
+      assert.equal(pos3, 2);
+    });
+
+    it("should return correct position in corner case with tombstones", () => {
+      const rga = new RGA();
+      let insert1: RGAInsert;
+      let insert2: RGAInsert;
+      let insert3: RGAInsert;
+      rga.insert(insert1 = rga.createInsertPos(0, "a"));
+      rga.insert(insert2 = rga.createInsertPos(1, "b"));
+      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+      rga.remove(rga.createRemove(insert2.id));
+
+      const pos1 = rga.findPos(insert1.id);
+      const pos2 = rga.findPos(insert2.id);
+      const pos3 = rga.findPos(insert3.id);
+
+      assert.equal(pos1, 0);
+      assert.equal(pos2, -1);
+      assert.equal(pos3, 1);
+    });
+
   });
 });
