@@ -420,4 +420,19 @@ describe("RGA", function() {
       assert.equal(oldRGA.toString(), "ab");
     });
   });
+
+  describe("::findPos(id)", () => {
+    it("should return -1 if not found", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "a"));
+      rga.insert(rga.createInsertPos(1, "b"));
+      rga.insert(rga.createInsertPos(2, "c"));
+
+      const insert = rga.createInsertPos(2, "x");
+
+      const pos = rga.findPos(insert.id);
+
+      assert.equal(pos, -1);
+    });
+  });
 });

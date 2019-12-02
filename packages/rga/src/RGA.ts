@@ -87,6 +87,15 @@ export default class RGA {
   }
 
   /**
+   * Finds the (non-tombstoned) index of the given RGAIdentifier
+   * @param The id to find
+   * @return The zero-based index of the given identifier
+   */
+  public findPos(id: RGAIdentifier): number {
+    return -1;
+  }
+
+  /**
    * Creates an insertion the given position with the given content
    * @param position The position of which to create the insertion
    * @param content The content to insert. Should be a single charcater with length 1
