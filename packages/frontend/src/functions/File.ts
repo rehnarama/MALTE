@@ -39,8 +39,8 @@ export default class File {
         if (this.applyingRemote) {
           return;
         }
-        const op = event.changes[0];
-        const internalOps = mapOperations(op);
+
+        const internalOps = event.changes.map(op => mapOperations(op)).flat();
         this.applyLocalOperations(internalOps);
         model.setEOL(
           Monaco.getInstance().getEditorNamespace().EndOfLineSequence.LF
