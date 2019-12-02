@@ -42,6 +42,9 @@ export default class File {
         const op = event.changes[0];
         const internalOps = mapOperations(op);
         this.applyLocalOperations(internalOps);
+        model.setEOL(
+          Monaco.getInstance().getEditorNamespace().EndOfLineSequence.LF
+        );
       }
     );
 
