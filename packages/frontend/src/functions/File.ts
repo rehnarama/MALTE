@@ -64,7 +64,8 @@ export default class File {
             const range = Range.fromPositions(position);
             edit = {
               range,
-              text: operation.content
+              text: operation.content,
+              forceMoveMarkers: true
             };
           } else {
             // We have to create edit before applying RGA operation
