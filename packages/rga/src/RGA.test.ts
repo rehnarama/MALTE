@@ -422,6 +422,17 @@ describe("RGA", function() {
   });
 
   describe("::findPos(id)", () => {
+    it("should return -1 if null id", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "a"));
+      rga.insert(rga.createInsertPos(1, "b"));
+      rga.insert(rga.createInsertPos(2, "c"));
+
+      const pos = rga.findPos(RGAIdentifier.NullIdentifier);
+
+      assert.equal(pos, -1);
+    });
+
     it("should return -1 if not found", () => {
       const rga = new RGA();
       rga.insert(rga.createInsertPos(0, "a"));
