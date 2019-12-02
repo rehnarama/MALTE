@@ -7,6 +7,7 @@ import { editor as editorType, IDisposable } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
+import Monaco from "../functions/Monaco";
 
 interface BufferOperationData {
   path: string;
@@ -49,14 +50,34 @@ export default class File {
       .on("buffer-operation", (data: BufferOperationData) => {
         if (data.path === this.path) {
           const operation = rgaOperationFromJSON(data.operation);
+          const Range = Monaco.getInstance().getMonacoNamespace().Range;
+          let edit: editorType.IIdentifiedSingleEditOperation;
           if ("content" in operation) {
             this.rga.insert(operation);
+
+            // Have to apply operation before creating edit
+            const index = this.rga.findPos(operation.id);
+            const position = model.getPositionAt(index);
+            const range = Range.fromPositions(position);
+            edit = {
+              range,
+              text: operation.content
+            };
           } else {
+            // We have to create edit before applying RGA operation
+            const index = this.rga.findPos(operation.reference);
+            const position = model.getPositionAt(index);
+            const nextPosition = model.getPositionAt(index + 1);
+            const range = Range.fromPositions(position, nextPosition);
+            edit = {
+              range,
+              text: null
+            };
+
             this.rga.remove(operation);
           }
-
           this.applyingRemote = true;
-          model.setValue(this.toString());
+          model.applyEdits([edit]);
           this.applyingRemote = false;
         }
       });
