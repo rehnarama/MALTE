@@ -13,7 +13,7 @@ ENV GH_CLIENT_SECRET=$GH_CLIENT_SECRET
 
 ENV DISTRO="bionic" 
 RUN apt-get update
-RUN apt-get install -y curl gnupg2 build-essential emacs nano less
+RUN apt-get install -y curl gnupg2 build-essential emacs nano less mongodb
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
     && curl -sL https://deb.nodesource.com/setup_12.x | bash \

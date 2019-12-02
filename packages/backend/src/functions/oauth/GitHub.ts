@@ -1,7 +1,11 @@
 import fetch from "node-fetch";
 import { Express, Handler } from "express";
+import { isUser } from "malte-common/dist/oauth/isUser";
 import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
 import uuidv4 from "uuid/v4";
+import Database from "../db/Database";
+import { AuthError } from "malte-common/dist/oauth/AuthError";
+import { updateUser } from "./updateUser";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -89,8 +93,18 @@ export default class GitHub {
       return res.json(await response.json());
     }
     const data = (await response.json()) as AccessTokenResponse;
+
     const at = data.access_token;
     this.userIdAccessTokenMap.set(userId, at);
+
+    const user = await this.getUser(userId);
+    if (isUser(user)) {
+      updateUser(user);
+    } else if (user === AuthError.auth_needed) {
+      return res.sendStatus(401);
+    } else {
+      return res.sendStatus(500);
+    }
 
     // All done! This should have been opened in a popup window, as such
     // we can now close it
@@ -117,21 +131,19 @@ export default class GitHub {
       return res.sendStatus(401);
     }
     const response = await this.getUser(userId);
-    if (response === "needs_auth") {
-      return res.sendStatus(401);
-    } else if (response === "unknown_error") {
-      return res.sendStatus(500);
-    } else {
+    if (isUser(response)) {
       return res.json(response);
+    } else if (response === AuthError.auth_needed) {
+      return res.sendStatus(401);
+    } else {
+      return res.sendStatus(500);
     }
   };
 
-  public async getUser(
-    userId: string
-  ): Promise<UserResponse | "needs_auth" | "unknown_error"> {
+  public async getUser(userId: string): Promise<UserResponse | AuthError> {
     const at = this.userIdAccessTokenMap.get(userId);
     if (!at) {
-      return "needs_auth";
+      return AuthError.auth_needed;
     }
 
     const response = await fetch("https://api.github.com/user", {
@@ -144,9 +156,9 @@ export default class GitHub {
     if (!response.ok) {
       this.userIdAccessTokenMap.delete(userId);
       if (response.status === 401) {
-        return "needs_auth";
+        return AuthError.auth_needed;
       } else {
-        return "unknown_error";
+        return AuthError.uknown;
       }
     }
 
