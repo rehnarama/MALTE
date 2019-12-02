@@ -1,7 +1,3 @@
-import { promises as fs } from "fs";
-import { sep } from "path";
-import os, { homedir } from "os";
-
 import express from "express";
 import cookieParser from "cookie-parser";
 import socketio from "socket.io";
@@ -9,39 +5,16 @@ import fsTree from "./functions/fsTree";
 import Project from "./functions/Project";
 import cors from "cors";
 import Terminal from "./functions/terminal/Terminal";
-import path from "path";
 import GitHub from "./functions/oauth/GitHub";
 import { FileSystem } from "./functions/filesystem";
+import { initializeWorkspaceInUserHome } from "./functions/workspace/initializeWorkspaceInUserHome";
+import { initializeRandomDirectory } from "./functions/workspace/initializeRandomDirectory";
+import { forceSsl } from "./functions/forceSsl/forceSsl";
 
 const PORT = Number.parseInt(process.env.PORT) || 4000;
 let frontendUrl = "http://localhost:3000";
 if (process.env.REACT_APP_FRONTEND_URL) {
   frontendUrl = process.env.REACT_APP_FRONTEND_URL;
-}
-
-async function initializeRandomDirectory(): Promise<string> {
-  const tmpDir = os.tmpdir();
-  const projectRoot = await fs.mkdtemp(`${tmpDir}${sep}`);
-  return projectRoot;
-}
-
-async function initializeWorkspaceInUserHome(): Promise<string> {
-  let projectRoot;
-  if (process.env.PROJECT_USERNAME) {
-    const dir = path.join(
-      homedir(),
-      "..",
-      process.env.PROJECT_USERNAME,
-      process.env.PROJECT_DIRECTORY
-    );
-    projectRoot = dir;
-    await fs.mkdir(dir, { recursive: true });
-  } else {
-    const dir = path.join(homedir(), process.env.PROJECT_DIRECTORY);
-    projectRoot = dir;
-    await fs.mkdir(dir, { recursive: true });
-  }
-  return projectRoot;
 }
 
 async function start(): Promise<void> {
@@ -57,7 +30,11 @@ async function start(): Promise<void> {
 
   const app = express();
   app.use(cookieParser());
-  app.use("/", express.static("public_frontend"));
+  if (process.env.NODE_ENV === "production") {
+    app.use("/", forceSsl, express.static("public_frontend"));
+  } else {
+    app.use("/", express.static("public_frontend"));
+  }
 
   const whitelist = [frontendUrl];
   const corsOptions = {
