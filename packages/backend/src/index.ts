@@ -10,6 +10,7 @@ import { FileSystem } from "./functions/filesystem";
 import { initializeWorkspaceInUserHome } from "./functions/workspace/initializeWorkspaceInUserHome";
 import { initializeRandomDirectory } from "./functions/workspace/initializeRandomDirectory";
 import { forceSsl } from "./functions/forceSsl/forceSsl";
+import Database from "./functions/db/Database";
 
 const PORT = Number.parseInt(process.env.PORT) || 4000;
 let frontendUrl = "http://localhost:3000";
@@ -18,6 +19,8 @@ if (process.env.REACT_APP_FRONTEND_URL) {
 }
 
 async function start(): Promise<void> {
+  await Database.getInstance().connect();
+
   let projectRoot;
   if (process.env.PROJECT_DIRECTORY) {
     projectRoot = await initializeWorkspaceInUserHome();

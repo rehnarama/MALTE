@@ -1,4 +1,5 @@
 Website: https://rehnarama.github.io/MALTE/index.html
+
 Live site reflecting master branch: https://malte-uu.herokuapp.com/
 # MALTE
 
@@ -22,6 +23,7 @@ Execute `npm run` in each folder. Depending on your setup, you may need to set e
 
 ### Backend
 
+- mongodb, use default port 27017
 - node.js >12.X
 - node-pty dependencies, see [here](https://github.com/microsoft/node-pty#dependencies)
 
@@ -53,6 +55,7 @@ in a background job/tab.
 
 ## Environment Variables (Backend)
 
+- `MONGODB_URI`: Url to MongoDB (default: `mongodb://localhost:27017/malte`)
 - `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000`). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`. N.B. that if no protocol is defined, http is assumed by most browsers.
 - `REACT_APP_FRONTEND_URL`: (default: `http://localhost:3000`). E.g.`REACT_APP_FRONTEND_URL=http://192.168.124.5:3000`. N.B. that if no protocol is defined, http is assumed by most browsers.
 - `GH_CLIENT_ID`: (no default). The GitHub OAuth app client id. This can be generated at [GitHub](https://github.com/settings/developers)

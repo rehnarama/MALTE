@@ -2,10 +2,14 @@
   "name": "malte-common",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build": "ttsc",
+    "build:watch": "ttsc --watch"
   },
   "dependencies": {
+    "ts-transformer-keys": "^0.4.1"
+  },
+  "devDependencies": {
+    "ttypescript": "^1.5.8",
     "typescript": "^3.7.2"
   }
 }
