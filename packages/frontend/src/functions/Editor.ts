@@ -4,6 +4,14 @@ import Monaco from "./Monaco";
 import { RGAJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
 
+const filetypes: { [index: string]: string } = {
+  js: "javascript",
+  java: "java",
+  c: "c",
+  cpp: "cpp",
+  hs: "haskell"
+};
+
 export default class Editor {
   private editor: editorType.ICodeEditor;
   private files: File | undefined;
@@ -29,7 +37,10 @@ export default class Editor {
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
-    const newModel = this.editorNamespace.createModel("", "javascript");
+    const extension = path.split(".").pop();
+    const language = extension ? filetypes[extension] : "javascript";
+    console.log(language);
+    const newModel = this.editorNamespace.createModel("", language);
     newModel.pushEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
