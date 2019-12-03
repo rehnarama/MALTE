@@ -2,16 +2,15 @@ import { User } from "./GitHub";
 
 export function isUser(arg: any): arg is User {
   return (
-    arg &&
-    arg.login &&
+    arg?.login &&
     typeof arg.login == "string" &&
-    arg.id &&
+    arg?.id &&
     typeof arg.id == "number" &&
-    arg.avatar_url &&
+    arg?.avatar_url &&
     typeof arg.avatar_url == "string" &&
-    arg.url &&
+    arg?.url &&
     typeof arg.url == "string" &&
-    arg.name &&
+    arg?.name &&
     typeof arg.name == "string"
   );
 }
