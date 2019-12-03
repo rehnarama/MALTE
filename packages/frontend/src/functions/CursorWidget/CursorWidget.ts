@@ -78,9 +78,9 @@ class CursorWidget implements monaco.editor.IContentWidget {
    * @param id  Where in the document (currently open in the file given in the
    * constructor) this cursor should be
    */
-  update(id: RGAIdentifier) {
+  updatePosition(id: RGAIdentifier) {
     this.calculatePosition(id);
-    this.bubbleWidget.update(this.position);
+    this.bubbleWidget.updatePosition(this.position);
     this.editor.layoutContentWidget(this);
     this.editor.layoutContentWidget(this.bubbleWidget);
   }
@@ -88,7 +88,7 @@ class CursorWidget implements monaco.editor.IContentWidget {
   /**
    * Adds this cursor to the editor
    */
-  add() {
+  addWidget() {
     this.editor.addContentWidget(this);
     this.editor.addContentWidget(this.bubbleWidget);
   }
@@ -96,7 +96,7 @@ class CursorWidget implements monaco.editor.IContentWidget {
   /**
    * Removes this cursor from the editor
    */
-  remove() {
+  removeWidget() {
     this.editor.removeContentWidget(this);
     this.editor.removeContentWidget(this.bubbleWidget);
   }

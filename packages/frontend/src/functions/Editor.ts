@@ -87,18 +87,18 @@ export default class Editor {
       let widget = this.widgets.get(userId);
       if (widget === undefined) {
         widget = new CursorWidget(this.editor, this.files, "abc123");
-        widget.add();
+        widget.addWidget();
       } else {
         this.widgets.delete(userId);
       }
       newWidgets.set(userId, widget);
 
-      widget.update(cursor.id);
+      widget.updatePosition(cursor.id);
     }
 
     // Clear cursors that weren't updated
     for (const widget of this.widgets.values()) {
-      widget.remove();
+      widget.removeWidget();
     }
 
     this.widgets = newWidgets;

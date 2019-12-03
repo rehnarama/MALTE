@@ -53,7 +53,7 @@ class BubbleWidget implements monaco.editor.IContentWidget {
    * Updates this widget with a new monaco position
    * @param position The position to update to
    */
-  update(position: monaco.IPosition) {
+  updatePosition(position: monaco.IPosition) {
     this.position = position;
   }
 }
