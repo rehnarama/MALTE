@@ -3,7 +3,7 @@ import RGA, {
   RGAOperationJSON,
   rgaOperationFromJSON
 } from "rga/dist/RGA";
-import { editor as editorType, IDisposable } from "monaco-editor";
+import { editor as editorType, IDisposable, IPosition } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
@@ -118,5 +118,9 @@ export default class File {
 
   public getIndex(id: RGAIdentifier): number {
     return this.rga.findPos(id);
+  }
+
+  public getPositionRGA(position: IPosition): RGAIdentifier {
+    return this.rga.findNodePos(this.model.getOffsetAt(position)).id;
   }
 }
