@@ -6,5 +6,4 @@ export interface User {
   avatar_url: string;
   url: string;
   name: string;
-  email: string;
 }
