@@ -4,8 +4,8 @@ import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
 export interface RGAJSON {
-  nodes: RGANode[]
-};
+  nodes: RGANode[];
+}
 
 export interface RGAOperationJSON {
   reference: RGAIdentifier;
@@ -13,11 +13,13 @@ export interface RGAOperationJSON {
   content?: string;
 }
 
-export function rgaOperationFromJSON(op: RGAOperationJSON): RGAInsert | RGARemove {
+export function rgaOperationFromJSON(
+  op: RGAOperationJSON
+): RGAInsert | RGARemove {
   if (op.content && op.id) {
     return new RGAInsert(
-      new RGAIdentifier(op.reference.sid, op.reference.sum), 
-      new RGAIdentifier(op.id.sid, op.id.sum), 
+      new RGAIdentifier(op.reference.sid, op.reference.sum),
+      new RGAIdentifier(op.id.sid, op.id.sum),
       op.content
     );
   } else {
@@ -84,6 +86,28 @@ export default class RGA {
     }
 
     return cursor;
+  }
+
+  /**
+   * Finds the (non-tombstoned) index of the given RGAIdentifier
+   * @param The id to find
+   * @return The zero-based index of the given identifier
+   */
+  public findPos(id: RGAIdentifier): number {
+    let position = -1;
+    let cursor: RGANode | null = this.head;
+    while (cursor !== null) {
+
+      if (!cursor.tombstone && cursor.id.compareTo(id) === 0) {
+        return position;
+      } else if (!cursor.tombstone) {
+        position++;
+      }
+
+      cursor = cursor.next;
+    }
+
+    return -1;
   }
 
   /**
@@ -218,7 +242,7 @@ export default class RGA {
 
   public static fromRGAJSON(rgaJSON: RGAJSON): RGA {
     const newRga = new RGA();
-    for(let i = rgaJSON.nodes.length - 1; i >= 0; i--) {
+    for (let i = rgaJSON.nodes.length - 1; i >= 0; i--) {
       const node = rgaJSON.nodes[i];
       node.next = newRga.head.next;
       node.id = new RGAIdentifier(node.id.sid, node.id.sum);
@@ -237,6 +261,6 @@ export default class RGA {
       nodes.push(node);
       cursor = cursor.next;
     }
-    return {nodes}; 
+    return { nodes };
   }
 }
