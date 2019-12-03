@@ -1,5 +1,6 @@
 import { User as UserData } from "malte-common/dist/oauth/GitHub";
 import { getBackendUrl } from "../functions/Environment";
+import Socket from "../functions/Socket";
 
 export default class User {
   private static user: UserData | null = null;
@@ -65,5 +66,16 @@ export default class User {
 
   public static getUser() {
     return User.user;
+  }
+
+  public static authenticateConnection() {
+    const regex = /(userId)=([^;]+)/g;
+    const userId = regex.exec(document.cookie);
+    if(userId && userId[2]) {
+    console.log(userId[2]);
+    Socket.getInstance()
+      .getSocket()
+      .emit("join-group", userId[2]);
+    } 
   }
 }
