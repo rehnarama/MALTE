@@ -19,6 +19,7 @@ class Database {
       useUnifiedTopology: true
     });
     this.db = client.db();
+    console.log("connected to ", Database.DB_URL);
     this.client = client;
   }
 
