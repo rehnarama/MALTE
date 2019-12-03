@@ -1,0 +1,6 @@
+.filename {
+  border: 2px solid;
+  display: inline-block;
+  padding: 3px;
+  background-color: white;
+}
