@@ -1,30 +1,11 @@
 import { socket, cleanup, serverSocket } from "./testutils/MockSocket";
 
-jest.mock("socket.io-client");
-import io from "socket.io-client";
-import {
-  MockModel,
-  mockEditorNamespace,
-  mockMonacoNamespace
-} from "./testutils/MockMonaco";
+import { MockModel } from "./testutils/MockMonaco";
 import File from "./File";
 import RGA from "rga/dist/RGA";
 import RGAInsert from "rga/dist/RGAInsert";
 import RGARemove from "rga/dist/RGARemove";
-import monaco, { editor as editorType } from "monaco-editor";
-
-import Monaco from "./Monaco";
-Monaco.getInstance = () => {
-  const m = new Monaco();
-  m["editor"] = (mockEditorNamespace as unknown) as typeof editorType;
-  m["monaco"] = (mockMonacoNamespace as unknown) as typeof monaco;
-  return m;
-};
-
-const ioMock = (io as unknown) as jest.Mock<SocketIOClient.Socket>;
-ioMock.mockImplementation((...args) => {
-  return socket;
-});
+import { editor as editorType } from "monaco-editor";
 
 describe("File", function() {
   afterEach(() => {

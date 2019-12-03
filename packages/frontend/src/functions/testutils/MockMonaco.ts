@@ -1,4 +1,4 @@
-import {
+import monaco, {
   editor as editorType,
   IDisposable,
   IRange,
@@ -214,4 +214,12 @@ export const mockICodeEditor = {
    * Gets the current model of the editor
    */
   getModel: () => mockICodeEditor.currentModel
+};
+
+import Monaco from "../Monaco";
+Monaco.getInstance = () => {
+  const m = new Monaco();
+  m["editor"] = (mockEditorNamespace as unknown) as typeof editorType;
+  m["monaco"] = (mockMonacoNamespace as unknown) as typeof monaco;
+  return m;
 };
