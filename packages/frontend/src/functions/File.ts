@@ -7,6 +7,7 @@ import { editor as editorType, IDisposable } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
+import RGAIdentifier from "rga/dist/RGAIdentifier";
 import Monaco from "../functions/Monaco";
 
 interface BufferOperationData {
@@ -113,5 +114,9 @@ export default class File {
 
   public toString(): string {
     return this.rga.toString();
+  }
+
+  public getIndex(id: RGAIdentifier): number {
+    return this.rga.findPos(id);
   }
 }
