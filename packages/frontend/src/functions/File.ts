@@ -33,6 +33,9 @@ export default class File {
     this.rga = RGA.fromRGAJSON(content);
     this._model = model;
     model.setValue(this.toString());
+    model.setEOL(
+      Monaco.getInstance().getEditorNamespace().EndOfLineSequence.LF
+    );
 
     this.contentChangedListener = this.model.onDidChangeContent(
       (event: editorType.IModelContentChangedEvent) => {
@@ -42,9 +45,6 @@ export default class File {
 
         const internalOps = event.changes.map(op => mapOperations(op)).flat();
         this.applyLocalOperations(internalOps);
-        model.setEOL(
-          Monaco.getInstance().getEditorNamespace().EndOfLineSequence.LF
-        );
       }
     );
 
