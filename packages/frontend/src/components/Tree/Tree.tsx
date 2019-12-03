@@ -223,20 +223,44 @@ const Tree: React.SFC<TreeProps> = props => {
         )}
         {node.children &&
           isToggled &&
-          node.children.map(child => (
-            <Tree
-              key={child.path}
-              node={child}
-              parent={node}
-              toggledKeys={toggledKeys}
-              onSelect={onSelect}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onCreateFile={onCreateFile}
-              onCreateFolder={onCreateFolder}
-              onEdit={onEdit}
-            />
-          ))}
+          node.children.map(child =>
+            child.type === "directory" ? (
+              <Tree
+                key={child.path}
+                node={child}
+                parent={node}
+                toggledKeys={toggledKeys}
+                onSelect={onSelect}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onCreateFile={onCreateFile}
+                onCreateFolder={onCreateFolder}
+                onEdit={onEdit}
+              />
+            ) : (
+              <></>
+            )
+          )}
+        {node.children &&
+          isToggled &&
+          node.children.map(child =>
+            child.type === "file" ? (
+              <Tree
+                key={child.path}
+                node={child}
+                parent={node}
+                toggledKeys={toggledKeys}
+                onSelect={onSelect}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onCreateFile={onCreateFile}
+                onCreateFolder={onCreateFolder}
+                onEdit={onEdit}
+              />
+            ) : (
+              <></>
+            )
+          )}
       </ul>
     </li>
   );
