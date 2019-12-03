@@ -24,7 +24,7 @@ class BubbleWidget implements monaco.editor.IContentWidget {
 
     this.domNode = document.createElement("div");
     this.domNode.className = `${classes.widget} ${classes.bubble}`;
-    this.domNode.innerHTML = userId;
+    this.domNode.innerHTML = `<p>${userId}</p>`;
     this.domNode.style.background = color;
     this.domNode.style.padding = "8px";
   }
