@@ -3,9 +3,9 @@ import { Express, Handler } from "express";
 import { isUser } from "malte-common/dist/oauth/isUser";
 import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
 import uuidv4 from "uuid/v4";
-import Database from "../db/Database";
 import { AuthError } from "malte-common/dist/oauth/AuthError";
 import { updateUser } from "./updateUser";
+import { filterUser } from "malte-common/dist/oauth/filterUser";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -99,7 +99,7 @@ export default class GitHub {
 
     const user = await this.getUser(userId);
     if (isUser(user)) {
-      updateUser(user);
+      updateUser(filterUser(user));
     } else if (user === AuthError.auth_needed) {
       return res.sendStatus(401);
     } else {
