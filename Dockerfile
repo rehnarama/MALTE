@@ -5,15 +5,17 @@ ARG REACT_APP_FRONTEND_URL
 ARG PROJECT_DIRECTORY
 ARG GH_CLIENT_ID
 ARG GH_CLIENT_SECRET
+ARG MONGODB_URI
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 ENV REACT_APP_FRONTEND_URL=$REACT_APP_FRONTEND_URL
 ENV PROJECT_DIRECTORY=$PROJECT_DIRECTORY
 ENV GH_CLIENT_ID=$GH_CLIENT_ID
 ENV GH_CLIENT_SECRET=$GH_CLIENT_SECRET
+ENV MONGODB_URI=$MONGODB_URI
 
 ENV DISTRO="bionic" 
 RUN apt-get update
-RUN apt-get install -y curl gnupg2 build-essential emacs nano less mongodb
+RUN apt-get install -y curl gnupg2 build-essential emacs nano less
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
     && curl -sL https://deb.nodesource.com/setup_12.x | bash \
@@ -22,7 +24,6 @@ RUN apt-get update
 
 RUN npm install -g npm@latest
 
-RUN systemctl enable mongodb.service
 RUN useradd -ms /bin/bash app_service
 
 EXPOSE 80

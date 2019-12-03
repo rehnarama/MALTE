@@ -2,7 +2,9 @@ import { MongoClient, Db } from "mongodb";
 
 class Database {
   private static instance: Database;
-  private static DB_URL = "mongodb://localhost:27017";
+  private static DB_URL = process.env.MONGODB_URI
+    ? process.env.MONGODB_URI
+    : "mongodb://localhost:27017/malte";
 
   private db: Db;
   private client: MongoClient;
@@ -16,7 +18,7 @@ class Database {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
-    this.db = client.db("malte");
+    this.db = client.db();
     this.client = client;
   }
 
