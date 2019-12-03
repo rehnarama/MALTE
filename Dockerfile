@@ -48,4 +48,4 @@ RUN cp -r build/* /home/app_service/backend/public_frontend
 
 WORKDIR /home/app_service/backend
 RUN npm ci
-CMD npm start
+CMD export NODE_ENV="production" && npm start
