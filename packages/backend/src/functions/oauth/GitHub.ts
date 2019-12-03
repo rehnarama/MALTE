@@ -100,7 +100,7 @@ export default class GitHub {
     const user = await this.getUser(userId);
     if (isUser(user)) {
       updateUser(filterUser(user));
-    } else if (user === AuthError.auth_needed) {
+    } else if (user === AuthError.AuthNeeded) {
       return res.sendStatus(401);
     } else {
       return res.sendStatus(500);
@@ -133,7 +133,7 @@ export default class GitHub {
     const response = await this.getUser(userId);
     if (isUser(response)) {
       return res.json(response);
-    } else if (response === AuthError.auth_needed) {
+    } else if (response === AuthError.AuthNeeded) {
       return res.sendStatus(401);
     } else {
       return res.sendStatus(500);
@@ -143,7 +143,7 @@ export default class GitHub {
   public async getUser(userId: string): Promise<UserResponse | AuthError> {
     const at = this.userIdAccessTokenMap.get(userId);
     if (!at) {
-      return AuthError.auth_needed;
+      return AuthError.AuthNeeded;
     }
 
     const response = await fetch("https://api.github.com/user", {
@@ -156,9 +156,9 @@ export default class GitHub {
     if (!response.ok) {
       this.userIdAccessTokenMap.delete(userId);
       if (response.status === 401) {
-        return AuthError.auth_needed;
+        return AuthError.AuthNeeded;
       } else {
-        return AuthError.uknown;
+        return AuthError.Unknown;
       }
     }
 
