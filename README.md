@@ -1,4 +1,5 @@
 Website: https://rehnarama.github.io/MALTE/index.html
+
 Live site reflecting master branch: https://malte-uu.herokuapp.com/
 # MALTE
 
@@ -22,6 +23,7 @@ Execute `npm run` in each folder. Depending on your setup, you may need to set e
 
 ### Backend
 
+- mongodb, use default port 27017
 - node.js >12.X
 - node-pty dependencies, see [here](https://github.com/microsoft/node-pty#dependencies)
 
