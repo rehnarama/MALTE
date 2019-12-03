@@ -22,6 +22,7 @@ RUN apt-get update
 
 RUN npm install -g npm@latest
 
+RUN systemctl enable mongodb.service
 RUN useradd -ms /bin/bash app_service
 
 EXPOSE 80
