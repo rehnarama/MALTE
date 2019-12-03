@@ -237,9 +237,7 @@ const Tree: React.SFC<TreeProps> = props => {
                 onCreateFolder={onCreateFolder}
                 onEdit={onEdit}
               />
-            ) : (
-              <></>
-            )
+            ) : null
           )}
         {node.children &&
           isToggled &&
@@ -257,9 +255,7 @@ const Tree: React.SFC<TreeProps> = props => {
                 onCreateFolder={onCreateFolder}
                 onEdit={onEdit}
               />
-            ) : (
-              <></>
-            )
+            ) : null
           )}
       </ul>
     </li>
