@@ -9,8 +9,6 @@ export function isUser(arg: any): arg is User {
     arg?.avatar_url &&
     typeof arg.avatar_url == "string" &&
     arg?.url &&
-    typeof arg.url == "string" &&
-    arg?.name &&
-    typeof arg.name == "string"
+    typeof arg.url == "string"
   );
 }

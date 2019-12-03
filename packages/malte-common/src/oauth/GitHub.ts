@@ -5,7 +5,6 @@ export interface User {
   id?: number;
   avatar_url?: string;
   url?: string;
-  name?: string;
 
   [propName: string]: string | number | undefined;
 }
