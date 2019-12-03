@@ -34,7 +34,7 @@ export default class Editor {
         this.files.close();
       }
       this.openNewBuffer(data.path, data.content);
-      const fileName = data.path.split("/").pop(); // possible to improve?
+      const fileName = data.path.split(/\/|\\/).pop(); // possible to improve?
       if (fileName) setFileName(fileName);
 
       // Changed buffer? Let's update cursors
