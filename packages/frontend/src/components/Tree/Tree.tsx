@@ -178,10 +178,11 @@ const Tree: React.SFC<TreeProps> = props => {
 
   const content = (
     <li>
-      <p
+      <div
         onClick={onClick}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
+        className={classes.item}
       >
         {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
         {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
@@ -209,7 +210,7 @@ const Tree: React.SFC<TreeProps> = props => {
             onEdit={() => setIsEditing(true)}
           ></Icons>
         )}
-      </p>
+      </div>
       <ul className={classes.list}>
         {isCreating && (
           <input

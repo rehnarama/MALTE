@@ -5,4 +5,8 @@
 .list .list {
   padding-left: 1em;
 }
-
+.item {
+  display: flex;
+  align-items: center;
+  min-height: 14px;
+}
