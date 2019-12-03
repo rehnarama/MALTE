@@ -66,3 +66,10 @@ export function cleanup() {
   CLIENT_LISTENERS = {};
   SERVER_LISTENERS = {};
 }
+
+
+jest.mock("socket.io-client");
+const ioMock = (io as unknown) as jest.Mock<SocketIOClient.Socket>;
+ioMock.mockImplementation((...args) => {
+  return socket;
+});
