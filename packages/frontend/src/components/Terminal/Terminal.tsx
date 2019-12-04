@@ -2,7 +2,7 @@ import * as React from "react";
 import { Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
-import Socket from "../functions/Socket";
+import Socket from "../../functions/Socket";
 import TerminalSize from "malte-common/dist/Terminal";
 import ReactResizeDetector from "react-resize-detector";
 import classes from "./Terminal.module.css";
