@@ -56,7 +56,7 @@ async function start(): Promise<void> {
   };
   app.use(cors(corsOptions));
 
-  new GitHub(app);
+  const gitHub = new GitHub(app);
 
   const server = app.listen(PORT, err => {
     if (err) {
@@ -78,14 +78,29 @@ async function start(): Promise<void> {
 
     // send file tree on request from client
     socket.on("refresh-file-tree", async () => {
-      socket.emit("file-tree", await fsTree(projectRoot));
+      if (socket.rooms["authenticated"]) {
+        socket.emit("file-tree", await fsTree(projectRoot));
+      }
+    });
+
+    // everyone must be able to request to join, otherwise noone can join
+    socket.on("join-group", async userId => {
+      const response = await gitHub.getUser(userId);
+      if (response === "needs_auth" || response === "unknown_error") {
+        console.log("Unknown user trying to connect");
+      } else {
+        console.log("User connected to auth group");
+        socket.join("authenticated");
+        // emit filetree here can be removed later when we have login in separate window
+        socket.emit("file-tree", await fsTree(projectRoot));
+      }
     });
   });
 
-  // send file tree when filesystem changes
+  // broadcast file tree when filesystem changes
   project.getWatcher().on("all", async () => {
     const tree = await fsTree(projectRoot);
-    io.sockets.emit("file-tree", tree);
+    io.to("authenticated").emit("file-tree", tree);
   });
 }
 
