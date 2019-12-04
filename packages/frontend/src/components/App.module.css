@@ -13,10 +13,12 @@
 
 .hresize {
   grid-area: hresize;
+  cursor: ew-resize;
 }
 
 .vresize {
   grid-area: vresize;
+  cursor: ns-resize;
 }
 
 .topBar {
