@@ -67,8 +67,13 @@ export default class Editor {
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
-    const newModel = this.editorNamespace.createModel("", "javascript");
-    newModel.pushEOL(this.editorNamespace.EndOfLineSequence.LF);
+    const Uri = Monaco.getInstance().getMonacoNamespace().Uri;
+    const newModel = this.editorNamespace.createModel(
+      "",
+      undefined,
+      Uri.file(path)
+    );
+    newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
     this.files = file;
