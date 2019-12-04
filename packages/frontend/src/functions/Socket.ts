@@ -25,8 +25,6 @@ class Socket {
       this.isAuthenticated = AuthenticationStatus.Failed;
       // Let's remove cookie, maybe that's why we failed
       document.cookie = "userId=;Max-Age=0;";
-      // Let's reload to force components to reload like login button
-      //window.location.reload(true);
     });
   }
 
