@@ -9,7 +9,6 @@ const CodeEditor: React.FC = () => {
   const [fileName, setFileName] = React.useState("");
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
-    console.log("Editor has loaded!");
     const e = new Editor(editor);
     e.initialize(setFileName);
     editorRef.current = e;
