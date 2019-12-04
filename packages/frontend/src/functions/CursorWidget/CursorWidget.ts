@@ -6,6 +6,7 @@ import BubbleWidget from "./BubbleWidget";
 import classes from "./Widget.module.css";
 
 const WIDGET_PREFIX = "cursor";
+const HOVER_TOLERANCE = 20;
 
 /**
  * A Monaco Content Widget that represents another persons cursor
@@ -20,6 +21,9 @@ class CursorWidget implements monaco.editor.IContentWidget {
   private position: monaco.IPosition = { column: 0, lineNumber: 0 };
 
   private bubbleWidget: BubbleWidget;
+  private bubbleWidgetAdded = false;
+
+  private mouseMoveListener: monaco.IDisposable | null = null;
 
   /**
    * @param editor  An instance of the monaco editor. The cursor will be drawn
@@ -68,7 +72,9 @@ class CursorWidget implements monaco.editor.IContentWidget {
   private calculatePosition(id: RGAIdentifier): void {
     const model = this.editor.getModel();
     if (model) {
-      const position = model.getPositionAt(this.file.getIndex(id));
+      // +1 since the cursor has an "extra" position in comparison to number of
+      // indices (i.e., cursor can both be BEFORE all text, and AFTER all text)
+      const position = model.getPositionAt(this.file.getIndex(id) + 1);
       this.position = position;
     }
   }
@@ -90,7 +96,52 @@ class CursorWidget implements monaco.editor.IContentWidget {
    */
   addWidget() {
     this.editor.addContentWidget(this);
-    this.editor.addContentWidget(this.bubbleWidget);
+    this.mouseMoveListener = this.editor.onMouseMove(e => {
+      const caretRect = this.getDomNode().getBoundingClientRect();
+      const bubbleRect = this.bubbleWidget.getDomNode().getBoundingClientRect();
+      const minDistanceCaret = this.getClosestDistance(
+        e.event.posx,
+        e.event.posy,
+        caretRect
+      );
+      const minDistanceBubble = this.getClosestDistance(
+        e.event.posx,
+        e.event.posy,
+        bubbleRect
+      );
+      const minDistance = Math.min(minDistanceCaret, minDistanceBubble);
+      const isHovering = minDistance < HOVER_TOLERANCE;
+
+      if (!this.bubbleWidgetAdded && isHovering) {
+        this.editor.addContentWidget(this.bubbleWidget);
+        this.bubbleWidgetAdded = true;
+      } else if (this.bubbleWidgetAdded && !isHovering) {
+        this.editor.removeContentWidget(this.bubbleWidget);
+        this.bubbleWidgetAdded = false;
+      }
+    });
+  }
+
+  private getClosestDistance(posX: number, posY: number, rect: DOMRect) {
+    if (
+      posX > rect.left &&
+      posX < rect.right &&
+      posY > rect.top &&
+      posY < rect.bottom
+    ) {
+      // We are inside rect, just return 0
+      return 0;
+    } else {
+      const deltaX = Math.min(
+        Math.abs(posX - rect.left),
+        Math.abs(posX - rect.right)
+      );
+      const deltaY = Math.min(
+        Math.abs(posY - rect.top),
+        Math.abs(posY - rect.bottom)
+      );
+      return Math.max(deltaX, deltaY);
+    }
   }
 
   /**
@@ -98,7 +149,12 @@ class CursorWidget implements monaco.editor.IContentWidget {
    */
   removeWidget() {
     this.editor.removeContentWidget(this);
-    this.editor.removeContentWidget(this.bubbleWidget);
+    if (this.bubbleWidgetAdded) {
+      this.editor.removeContentWidget(this.bubbleWidget);
+    }
+    if (this.mouseMoveListener) {
+      this.mouseMoveListener.dispose();
+    }
   }
 }
 

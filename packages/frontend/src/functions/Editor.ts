@@ -5,12 +5,7 @@ import { RGAJSON, RGAOperationJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
 import RGAIdentifier from "rga/dist/RGAIdentifier";
 import CursorWidget from "./CursorWidget/CursorWidget";
-
-interface RemoteCursor {
-  id: RGAIdentifier;
-  path: string;
-  userId: string;
-}
+import { CursorMovement, CursorList } from "malte-common/dist/Cursor";
 
 interface BufferOperationData {
   path: string;
@@ -23,6 +18,8 @@ export default class Editor {
   private editorNamespace: typeof editorType;
 
   private widgets = new Map<string, CursorWidget>();
+
+  private cursorList: CursorList = [];
 
   constructor(editor: editorType.ICodeEditor) {
     this.editor = editor;
@@ -40,30 +37,26 @@ export default class Editor {
       const fileName = data.path.split("/").pop(); // possible to improve?
       if (fileName) setFileName(fileName);
 
-      /**
-       * PROOF OF CONCEPT CODE CAN BE REMOVED WHEN WE ACTUALLY SEND CURSOR DATA
-       */
-      Socket.getInstance()
-        .getSocket()
-        .on("buffer-operation", (data: BufferOperationData) => {
-          if (this.files && data.path === this.files.path) {
-            const id = data.operation.id;
-            if (id) {
-              this.onCursors([
-                {
-                  id,
-                  userId: "Michael",
-                  path: this.files.path
-                }
-              ]);
-            }
-          }
-        });
-      /**
-       * END OF PROOF OF CONCEPT CODE
-       */
+      // Changed buffer? Let's update cursors
+      this.onCursors(this.cursorList);
     });
     socket.emit("join-buffer", { path: "tmp.js" });
+
+    socket.on("cursor/list", (data: CursorList) => {
+      this.cursorList = data.filter(c => c.userId !== socket.id);
+      this.onCursors(this.cursorList);
+    });
+
+    this.editor.onDidChangeCursorPosition(e => {
+      if (this.files) {
+        const rgaPosition = this.files.getPositionRGA(e.position);
+        const movement: CursorMovement = {
+          path: this.files.path,
+          id: rgaPosition
+        };
+        socket.emit("cursor/move", movement);
+      }
+    });
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
@@ -81,24 +74,28 @@ export default class Editor {
     this.editor.setModel(newModel);
   }
 
-  private onCursors(cursors: RemoteCursor[]): void {
+  private onCursors(cursors: CursorList): void {
     if (!this.files) {
       return;
     }
 
     const newWidgets = new Map<string, CursorWidget>();
     for (const cursor of cursors) {
+      if (cursor.path !== this.files.path) {
+        // We don't want this cursor in our editor!
+        continue;
+      }
       const userId = cursor.userId;
       let widget = this.widgets.get(userId);
       if (widget === undefined) {
-        widget = new CursorWidget(this.editor, this.files, "abc123");
+        widget = new CursorWidget(this.editor, this.files, cursor.userId);
         widget.addWidget();
       } else {
         this.widgets.delete(userId);
       }
       newWidgets.set(userId, widget);
 
-      widget.updatePosition(cursor.id);
+      widget.updatePosition(new RGAIdentifier(cursor.id.sid, cursor.id.sum));
     }
 
     // Clear cursors that weren't updated

@@ -3,12 +3,15 @@ import path from "path";
 import chokidar from "chokidar";
 import File from "./File";
 import { RGAOperationJSON } from "rga/dist/RGA";
+import { CursorList, CursorMovement } from "malte-common/dist/Cursor";
 
 export default class Project {
   private path: string;
   private watcher: chokidar.FSWatcher;
   private files: File[] = [];
   private sockets: SocketIO.Socket[] = [];
+
+  private cursorList: CursorList = [];
 
   constructor(path: string) {
     this.path = path;
@@ -103,13 +106,44 @@ export default class Project {
       }
     );
 
+    socket.on("cursor/move", (data: CursorMovement) =>
+      this.onCursorMove(socket, data)
+    );
+
     socket.on("disconnect", () => {
       const index = this.sockets.findIndex(s => s.id === socket.id);
       if (index) {
         this.sockets.splice(index, 1);
       }
+
+      this.cursorList = this.cursorList.filter(c => c.userId !== socket.id);
+      socket.server.emit("cursor/list", this.cursorList);
     });
 
     return true;
   }
+
+  onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
+    if (this.cursorList.some(c => c.userId === socket.id)) {
+      this.cursorList = this.cursorList.map(c => {
+        if (c.userId === socket.id) {
+          return {
+            ...c,
+            id: data.id,
+            path: data.path
+          };
+        } else {
+          return c;
+        }
+      });
+    } else {
+      this.cursorList.push({
+        userId: socket.id,
+        id: data.id,
+        path: data.path
+      });
+    }
+
+    socket.server.emit("cursor/list", this.cursorList);
+  };
 }
