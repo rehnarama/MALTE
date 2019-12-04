@@ -11,6 +11,7 @@ import { initializeWorkspaceInUserHome } from "./functions/workspace/initializeW
 import { initializeRandomDirectory } from "./functions/workspace/initializeRandomDirectory";
 import { forceSsl } from "./functions/forceSsl/forceSsl";
 import Database from "./functions/db/Database";
+import { AuthError } from "malte-common/dist/oauth/AuthError";
 
 const PORT = Number.parseInt(process.env.PORT) || 4000;
 let frontendUrl = "http://localhost:3000";
@@ -86,7 +87,7 @@ async function start(): Promise<void> {
     // everyone must be able to request to join, otherwise noone can join
     socket.on("join-group", async userId => {
       const response = await gitHub.getUser(userId);
-      if (response === "needs_auth" || response === "unknown_error") {
+      if (response === AuthError.AuthNeeded || response === AuthError.Unknown) {
         console.log("Unknown user trying to connect");
       } else {
         console.log("User connected to auth group");
