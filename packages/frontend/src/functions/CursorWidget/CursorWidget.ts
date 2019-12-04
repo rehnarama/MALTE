@@ -76,7 +76,6 @@ class CursorWidget implements monaco.editor.IContentWidget {
       // indices (i.e., cursor can both be BEFORE all text, and AFTER all text)
       const position = model.getPositionAt(this.file.getIndex(id) + 1);
       this.position = position;
-      console.log(this.file.getIndex(id), this.position);
     }
   }
 
@@ -110,7 +109,6 @@ class CursorWidget implements monaco.editor.IContentWidget {
         e.event.posy,
         bubbleRect
       );
-      console.log(minDistanceBubble);
       const minDistance = Math.min(minDistanceCaret, minDistanceBubble);
       const isHovering = minDistance < HOVER_TOLERANCE;
 

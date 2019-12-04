@@ -106,29 +106,9 @@ export default class Project {
       }
     );
 
-    socket.on("cursor/move", (data: CursorMovement) => {
-      if (this.cursorList.some(c => c.userId === socket.id)) {
-        this.cursorList = this.cursorList.map(c => {
-          if (c.userId === socket.id) {
-            return {
-              ...c,
-              id: data.id,
-              path: data.path
-            };
-          } else {
-            return c;
-          }
-        });
-      } else {
-        this.cursorList.push({
-          userId: socket.id,
-          id: data.id,
-          path: data.path
-        });
-      }
-
-      socket.server.emit("cursor/list", this.cursorList);
-    });
+    socket.on("cursor/move", (data: CursorMovement) =>
+      this.onCursorMove(socket, data)
+    );
 
     socket.on("disconnect", () => {
       const index = this.sockets.findIndex(s => s.id === socket.id);
@@ -142,4 +122,28 @@ export default class Project {
 
     return true;
   }
+
+  onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
+    if (this.cursorList.some(c => c.userId === socket.id)) {
+      this.cursorList = this.cursorList.map(c => {
+        if (c.userId === socket.id) {
+          return {
+            ...c,
+            id: data.id,
+            path: data.path
+          };
+        } else {
+          return c;
+        }
+      });
+    } else {
+      this.cursorList.push({
+        userId: socket.id,
+        id: data.id,
+        path: data.path
+      });
+    }
+
+    socket.server.emit("cursor/list", this.cursorList);
+  };
 }
