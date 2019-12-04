@@ -40,7 +40,6 @@ export default class Editor {
       // Changed buffer? Let's update cursors
       this.onCursors(this.cursorList);
     });
-    socket.emit("join-buffer", { path: "tmp.js" });
 
     socket.on("cursor/list", (data: CursorList) => {
       this.cursorList = data.filter(c => c.userId !== socket.id);
