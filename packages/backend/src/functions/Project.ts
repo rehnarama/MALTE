@@ -4,6 +4,8 @@ import chokidar from "chokidar";
 import File from "./File";
 import { RGAOperationJSON } from "rga/dist/RGA";
 import { CursorList, CursorMovement } from "malte-common/dist/Cursor";
+import { User, UserList } from "malte-common/dist/UserList";
+import SocketServer from "./socketServer/SocketServer";
 
 export default class Project {
   private path: string;
@@ -74,8 +76,10 @@ export default class Project {
       // You can't join twice
       return false;
     }
+    console.log("yä");
 
     this.sockets.push(socket);
+    this.broadcastUserList();
 
     socket.on("join-buffer", async (data: { path: string }) => {
       if (socket.rooms["authenticated"]) {
@@ -122,10 +126,34 @@ export default class Project {
 
       this.cursorList = this.cursorList.filter(c => c.userId !== socket.id);
       socket.server.emit("cursor/list", this.cursorList);
+
+      this.broadcastUserList();
     });
 
     return true;
   }
+
+  broadcastUserList = (): void => {
+    const socketServer = SocketServer.getInstance();
+    const users: User[] = this.sockets
+      .map(s => {
+        const ghUser = socketServer.getUser(s.id);
+        if (ghUser) {
+          const user: User = {
+            name: ghUser.login,
+            avatarUrl: ghUser.avatar_url,
+            id: ghUser.id
+          };
+          return user;
+        } else {
+          return null;
+        }
+      })
+      .filter(s => s !== null);
+    const userList: UserList = { users };
+
+    socketServer.server.emit("user/list", userList);
+  };
 
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
     if (this.cursorList.some(c => c.userId === socket.id)) {
