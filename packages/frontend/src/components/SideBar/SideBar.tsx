@@ -16,7 +16,7 @@ interface Props {
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
-  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 8)
+  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 7)
   : "development build";
 
 class SideBar extends React.Component<Props, State> {
