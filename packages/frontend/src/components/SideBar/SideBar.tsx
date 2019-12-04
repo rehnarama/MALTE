@@ -1,9 +1,9 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
-import Tree from "./Tree";
-import Socket from "../functions/Socket";
-import useFilename from "../hooks/useFilename";
+import Tree from "../Tree";
+import Socket from "../../functions/Socket";
+import useFilename from "../../hooks/useFilename";
 import classes from "./SideBar.module.css";
 
 interface State {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
-  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 8)
+  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 7)
   : "development build";
 
 class SideBar extends React.Component<Props, State> {
