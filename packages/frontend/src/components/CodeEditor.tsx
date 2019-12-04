@@ -2,22 +2,34 @@ import React, { useRef } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
 import Editor from "../functions/Editor";
-import classes from "./CodeEditor.module.css";
+import ReactResizeDetector from "react-resize-detector";
 
 const CodeEditor: React.FC = () => {
+  const [width, setWidth] = React.useState<number | undefined>();
+  const [height, setHeight] = React.useState<number | undefined>();
+
   const editorRef = useRef<Editor | undefined>();
-  const [fileName, setFileName] = React.useState("");
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     const e = new Editor(editor);
-    e.initialize(setFileName);
+    e.initialize();
     editorRef.current = e;
   };
 
+  function resizeTerminal(width: number, height: number) {
+    setWidth(width);
+    setHeight(height);
+  }
+
   return (
     <>
-      <div className={classes.filename}>{fileName}</div>
-      <MonacoEditor editorDidMount={handler} />
+      <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
+      <MonacoEditor
+        width={width}
+        height={height}
+        language="javascript"
+        editorDidMount={handler}
+      />
     </>
   );
 };
