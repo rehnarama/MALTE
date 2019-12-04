@@ -4,6 +4,7 @@ import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "./Tree";
 import Socket from "../functions/Socket";
 import useFilename from "../hooks/useFilename";
+import classes from "./SideBar.module.css";
 
 interface State {
   data?: TreeNode;
@@ -13,6 +14,10 @@ interface State {
 interface Props {
   selectedFile: string;
 }
+
+const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
+  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 8)
+  : "development build";
 
 class SideBar extends React.Component<Props, State> {
   private socket: SocketIOClient.Socket;
@@ -87,7 +92,7 @@ class SideBar extends React.Component<Props, State> {
 
   render() {
     return (
-      <div>
+      <div className={classes.sideBar}>
         <p>Files</p>
         {this.state.data ? (
           <Tree
@@ -105,6 +110,7 @@ class SideBar extends React.Component<Props, State> {
         ) : (
           <p>Loading...</p>
         )}
+        <p className={classes.commitId}>Build: {COMMIT_ID}</p>
       </div>
     );
   }
