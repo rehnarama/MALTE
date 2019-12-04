@@ -17,7 +17,6 @@
     "monaco-editor": "^0.18.1",
     "prop-types": "^15.7.2",
     "react": "^16.11.0",
-    "react-cookie": "^4.0.1",
     "react-dom": "^16.11.0",
     "react-draggable": "^4.1.0",
     "react-resize-detector": "^4.2.1",

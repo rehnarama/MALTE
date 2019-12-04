@@ -5,18 +5,9 @@ import { Button } from "@material-ui/core";
 import githubLogo from "./githubLogo.svg";
 import dog from "./dog.jpg";
 
-interface Props {
-  updateAuthenticatedStatus: () => void;
-}
-
-const Login: React.FC<Props> = (props: Props) => {
-  const { updateAuthenticatedStatus } = props;
-
+const Login: React.FC = () => {
   async function authenticate() {
-    const authenticated = await User.authenticate();
-    if (authenticated) {
-      updateAuthenticatedStatus();
-    }
+    await User.authenticate();
   }
   return (
     <div className={classes.container}>
