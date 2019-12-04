@@ -33,8 +33,6 @@
     "sidebar hresize vresize"
     "sidebar hresize terminal";
   background-color: coral;
-  /* grid-gap: 8px; */
-  /* padding: 8px; */
   height: 100vh;
 }
 
