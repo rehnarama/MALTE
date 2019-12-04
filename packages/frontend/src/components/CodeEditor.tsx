@@ -17,7 +17,7 @@ const CodeEditor: React.FC = () => {
   return (
     <>
       <div className={classes.filename}>{fileName}</div>
-      <MonacoEditor language="javascript" editorDidMount={handler} />
+      <MonacoEditor editorDidMount={handler} />
     </>
   );
 };
