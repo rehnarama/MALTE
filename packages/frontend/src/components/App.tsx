@@ -28,7 +28,7 @@ const App: React.FC = () => {
       }}
     >
       <div className={classes.topBar}>
-        <TopBar currentFile="en fil.js"/>
+        <TopBar />
       </div>
       <div className={classes.sidebar}>
         <SideBar />

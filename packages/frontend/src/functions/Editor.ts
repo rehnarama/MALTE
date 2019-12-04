@@ -29,7 +29,7 @@ export default class Editor {
     this.editorNamespace = Monaco.getInstance().getEditorNamespace();
   }
 
-  public initialize(setFileName: React.Dispatch<React.SetStateAction<string>>) {
+  public initialize() {
     const socket = Socket.getInstance().getSocket();
     socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
       if (this.files !== undefined) {
@@ -37,8 +37,6 @@ export default class Editor {
         this.files.close();
       }
       this.openNewBuffer(data.path, data.content);
-      const fileName = data.path.split("/").pop(); // possible to improve?
-      if (fileName) setFileName(fileName);
 
       /**
        * PROOF OF CONCEPT CODE CAN BE REMOVED WHEN WE ACTUALLY SEND CURSOR DATA

@@ -10,16 +10,14 @@ const CodeEditor: React.FC = () => {
   const [height, setHeight] = React.useState<number | undefined>();
 
   const editorRef = useRef<Editor | undefined>();
-  const [fileName, setFileName] = React.useState("");
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     const e = new Editor(editor);
-    e.initialize(setFileName);
+    e.initialize();
     editorRef.current = e;
   };
 
   function resizeTerminal(width: number, height: number) {
-    /* console.log(width, height); */
     setWidth(width);
     setHeight(height);
   }
