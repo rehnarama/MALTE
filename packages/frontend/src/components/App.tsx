@@ -20,36 +20,36 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
-      <TopBar />
-      <div
-        className={classes.gridContainer}
-        style={{
-          gridTemplateColumns: `${hsplit}px min-content auto`,
-          gridTemplateRows: `auto min-content ${vsplit}px`
-        }}
-      >
-        <div className={classes.sidebar}>
-          <SideBar />
-        </div>
-        <div className={classes.hresize}>
-          <DraggableCore onDrag={onHDrag}>
-            <div style={{ width: "5px", height: "100%", background: "#AAA" }} />
-          </DraggableCore>
-        </div>
-        <div className={classes.texteditor}>
-          <CodeEditor />
-        </div>
-        <div className={classes.vresize}>
-          <DraggableCore onDrag={onVDrag}>
-            <div style={{ height: "5px", width: "100%", background: "#AAA" }} />
-          </DraggableCore>
-        </div>
-        <div className={classes.terminal}>
-          <Terminal />
-        </div>
+    <div
+      className={classes.gridContainer}
+      style={{
+        gridTemplateColumns: `${hsplit}px min-content auto`,
+        gridTemplateRows: `min-content auto min-content ${vsplit}px`
+      }}
+    >
+      <div className={classes.topBar}>
+        <TopBar currentFile="en fil.js"/>
       </div>
-    </>
+      <div className={classes.sidebar}>
+        <SideBar />
+      </div>
+      <div className={classes.hresize}>
+        <DraggableCore onDrag={onHDrag}>
+          <div style={{ width: "5px", height: "100%", background: "#AAA" }} />
+        </DraggableCore>
+      </div>
+      <div className={classes.texteditor}>
+        <CodeEditor />
+      </div>
+      <div className={classes.vresize}>
+        <DraggableCore onDrag={onVDrag}>
+          <div style={{ height: "5px", width: "100%", background: "#AAA" }} />
+        </DraggableCore>
+      </div>
+      <div className={classes.terminal}>
+        <Terminal />
+      </div>
+    </div>
   );
 };
 

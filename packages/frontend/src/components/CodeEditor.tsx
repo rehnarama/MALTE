@@ -25,30 +25,15 @@ const CodeEditor: React.FC = () => {
   }
 
   return (
-    <div
-      style={{
-        height: "100%",
-        display: "grid",
-        gridTemplateRows: "min-content 1fr"
-      }}
-    >
-      <div className={classes.tabBar}>
-        <p className={classes.fileName}>{fileName}</p>
-      </div>
-      <div style={{ minWidth: 0, minHeight: 0 }}>
-        <ReactResizeDetector
-          handleWidth
-          handleHeight
-          onResize={resizeTerminal}
-        />
-        <MonacoEditor
-          width={width}
-          height={height}
-          language="javascript"
-          editorDidMount={handler}
-        />
-      </div>
-    </div>
+    <>
+      <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
+      <MonacoEditor
+        width={width}
+        height={height}
+        language="javascript"
+        editorDidMount={handler}
+      />
+    </>
   );
 };
 

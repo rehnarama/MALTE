@@ -19,9 +19,14 @@
   grid-area: vresize;
 }
 
+.topBar {
+  grid-area: topbar;
+}
+
 .gridContainer {
   display: grid;
   grid:
+    "sidebar hresize  topbar"
     "sidebar hresize texteditor"
     "sidebar hresize vresize"
     "sidebar hresize terminal";

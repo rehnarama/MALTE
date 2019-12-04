@@ -1,14 +1,6 @@
 .container {
   display: flex;
   align-items: center;
-  padding: 8px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  background: transparent;
-  z-index: 10;
-  pointer-events: none;
 }
 
 .container * {
@@ -17,4 +9,22 @@
 
 .rightSide {
   margin-left: auto;
+  padding: 8px;
+}
+
+.tabBar {
+  padding-left: 8px;
+  padding-right: 8px;
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.fileName {
+  display: inline-block;
+  width: auto;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border-radius: 8px 8px 0 0;
 }
