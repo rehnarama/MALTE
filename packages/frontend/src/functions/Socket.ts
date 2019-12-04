@@ -35,8 +35,9 @@ class Socket {
       Socket.instance = new Socket();
     }
 
-    if (!Socket.instance.isAuthenticated) {
-      console.log("authenticating");
+    if (
+      Socket.instance.isAuthenticated === AuthenticationStatus.Unauthenticated
+    ) {
       Socket.instance.authenticateConnection();
     }
 
