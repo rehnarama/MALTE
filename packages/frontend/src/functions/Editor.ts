@@ -56,6 +56,14 @@ export default class Editor {
     });
   }
 
+  public openBuffer(path: string) {
+    Socket.getInstance()
+      .getSocket()
+      .emit("join-buffer", {
+        path
+      });
+  }
+
   private openNewBuffer(path: string, content: RGAJSON) {
     const Uri = Monaco.getInstance().getMonacoNamespace().Uri;
     const newModel = this.editorNamespace.createModel(

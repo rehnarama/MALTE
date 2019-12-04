@@ -1,11 +1,11 @@
 import * as React from "react";
 import classes from "./TopBar.module.css";
 import UserButton from "../UserButton";
-import useFilename from "../../hooks/useFilename";
 
-const TopBar: React.SFC = () => {
-  const fileName = useFilename();
-  const actualFileName = fileName.split(/\\|\//g).pop() || fileName;
+const TopBar: React.FC<{ fileName: string }> = (props: {
+  fileName: string;
+}) => {
+  const actualFileName = props.fileName.split(/\\|\//g).pop() || props.fileName;
 
   return (
     <header className={classes.container}>

@@ -10,6 +10,7 @@ import { DraggableCore, DraggableEventHandler } from "react-draggable";
 const App: React.FC = () => {
   const [vsplit, setVSplit] = React.useState(300);
   const [hsplit, setHSplit] = React.useState(300);
+  const [fileName, setFileName] = React.useState("");
 
   const onHDrag: DraggableEventHandler = (_, e) => {
     setHSplit(hsplit + e.deltaX);
@@ -28,10 +29,10 @@ const App: React.FC = () => {
       }}
     >
       <div className={classes.topBar}>
-        <TopBar />
+        <TopBar fileName={fileName} />
       </div>
       <div className={classes.sidebar}>
-        <SideBar />
+        <SideBar fileName={fileName} setFileName={setFileName} />
       </div>
       <div className={classes.hresize}>
         <DraggableCore onDrag={onHDrag}>
@@ -39,7 +40,7 @@ const App: React.FC = () => {
         </DraggableCore>
       </div>
       <div className={classes.texteditor}>
-        <CodeEditor />
+        <CodeEditor fileName={fileName} />
       </div>
       <div className={classes.vresize}>
         <DraggableCore onDrag={onVDrag}>
