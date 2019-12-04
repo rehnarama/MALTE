@@ -67,6 +67,7 @@ async function start(): Promise<void> {
   // ports are allowed, so let's make it so!
   const origins = frontendUrl.replace(/:\d+$/, "") + ":*";
 
+  SocketServer.initialize(server, origins, project);
   const io = SocketServer.getInstance().server;
 
   // broadcast file tree when filesystem changes
