@@ -15,7 +15,9 @@ ENV MONGODB_URI=$MONGODB_URI
 
 ENV DISTRO="bionic" 
 RUN apt-get update
-RUN apt-get install -y curl gnupg2 build-essential emacs nano less
+RUN apt-get install -y curl gnupg2 build-essential emacs \ 
+    nano less git valgrind unzip cmake htop make \
+    openjdk-11-jdk haskell-platform
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
     && curl -sL https://deb.nodesource.com/setup_12.x | bash \
