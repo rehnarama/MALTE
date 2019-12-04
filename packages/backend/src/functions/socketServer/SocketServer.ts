@@ -31,7 +31,7 @@ export default class SocketServer {
     console.log(`Socket with id ${socket.id} connected`);
 
     // everyone must be able to request to join, otherwise noone can join
-    socket.on("join-group", async userId => {
+    socket.on("connection/auth", async userId => {
       const response = await GitHub.getInstance().getUser(userId);
 
       if (this.userMap.has(socket.id)) {
@@ -43,7 +43,7 @@ export default class SocketServer {
         this.userMap.set(socket.id, response);
 
         // Tell user they are authenticated
-        socket.emit("authenticated");
+        socket.emit("connection/auth-confirm");
 
         this.project.join(socket);
         new Terminal(socket, this.project.getPath());
@@ -57,6 +57,9 @@ export default class SocketServer {
         socket.join("authenticated");
         // emit filetree here can be removed later when we have login in separate window
         socket.emit("file-tree", await fsTree(this.project.getPath()));
+      } else {
+        // Tell user authentication failed
+        socket.emit("connection/auth-fail");
       }
     });
 

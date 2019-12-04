@@ -11,10 +11,10 @@ export default function useUserList() {
       setIsAuthenticated(true);
     }
     const socket = Socket.getInstance().getSocket();
-    socket.on("authenticated", onAuthenticated);
+    socket.on("connection/auth-confirm", onAuthenticated);
 
     return () => {
-      socket.removeListener("authenticated", onAuthenticated);
+      socket.removeListener("connection/auth-confirm", onAuthenticated);
     };
   });
 

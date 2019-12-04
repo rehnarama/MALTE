@@ -10,8 +10,15 @@ class Socket {
   private constructor() {
     this.s = io(getBackendUrl());
 
-    this.s.on("authenticated", () => {
+    this.s.on("connection/auth-confirm", () => {
       this.isAuthenticated = true;
+    });
+
+    this.s.on("connection/auth-fail", () => {
+      // Let's remove cookie, maybe that's why we failed
+      document.cookie = document.cookie.replace(/(userId)=([^;]+);?/g, "");
+      // Let's reload to force components to reload like login button
+      window.location.reload(true);
     });
   }
 
@@ -38,7 +45,7 @@ class Socket {
       const regex = /(userId)=([^;]+)/g;
       const userId = regex.exec(document.cookie);
       if (userId && userId[2]) {
-        this.s.emit("join-group", userId[2]);
+        this.s.emit("connection/auth", userId[2]);
       }
     }
   }
