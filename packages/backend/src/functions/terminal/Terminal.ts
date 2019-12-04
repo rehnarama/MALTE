@@ -21,11 +21,15 @@ class Terminal {
     });
 
     this.terminal.on("data", function(data) {
-      socket.emit("pty-data", data.toString());
+      if (socket.rooms["authenticated"]) {
+        socket.emit("pty-data", data.toString());
+      }
     });
 
     socket.on("pty-data", data => {
-      this.terminal.write(data);
+      if (socket.rooms["authenticated"]) {
+        this.terminal.write(data);
+      }
     });
 
     socket.on("pty-resize", (data: TerminalSize) => {

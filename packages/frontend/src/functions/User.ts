@@ -69,13 +69,15 @@ export default class User {
   }
 
   public static authenticateConnection() {
+    // cookies are stored in a ; separated list
+    // regex used to filter out the text on the right side of "userId=" where the id is
     const regex = /(userId)=([^;]+)/g;
     const userId = regex.exec(document.cookie);
-    if(userId && userId[2]) {
-    console.log(userId[2]);
-    Socket.getInstance()
-      .getSocket()
-      .emit("join-group", userId[2]);
-    } 
+    if (userId && userId[2]) {
+      console.log(userId[2]);
+      Socket.getInstance()
+        .getSocket()
+        .emit("join-group", userId[2]);
+    }
   }
 }
