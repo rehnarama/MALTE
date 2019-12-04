@@ -1,9 +1,9 @@
 import * as React from "react";
 import TreeNode from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
-import Tree from "./Tree";
-import Socket from "../functions/Socket";
-import useFilename from "../hooks/useFilename";
+import Tree from "../Tree";
+import Socket from "../../functions/Socket";
+import useFilename from "../../hooks/useFilename";
 import classes from "./SideBar.module.css";
 
 interface State {
