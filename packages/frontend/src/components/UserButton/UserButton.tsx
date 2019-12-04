@@ -2,6 +2,7 @@ import * as React from "react";
 
 import User from "../../functions/User";
 import Avatar from "../Avatar";
+import Socket from "../../functions/Socket";
 
 const UserButton: React.SFC = () => {
   const [error, setError] = React.useState<string | null>(null);
@@ -35,14 +36,13 @@ const UserButton: React.SFC = () => {
     const success = await User.authenticate();
     if (success) {
       setNeedAuthentication(false);
-      User.authenticateConnection();
     } else {
       setNeedAuthentication(true);
     }
   };
 
   if (user) {
-    return <Avatar url={user.avatar_url} name={user.login} />;
+    return null;
   } else if (loading) {
     return <p>Loading user...</p>;
   } else if (needAuthentication) {

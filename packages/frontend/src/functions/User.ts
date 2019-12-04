@@ -51,6 +51,8 @@ export default class User {
           // 2. the user aborted authentication
           const status = await User.fetchUser();
           if (status === "success") {
+            // Let's auth our websocket connection as well
+            Socket.getInstance().authenticateConnection();
             resolve(true);
           } else {
             resolve(false);
@@ -66,17 +68,5 @@ export default class User {
 
   public static getUser() {
     return User.user;
-  }
-
-  public static authenticateConnection() {
-    // cookies are stored in a ; separated list
-    // regex used to filter out the text on the right side of "userId=" where the id is
-    const regex = /(userId)=([^;]+)/g;
-    const userId = regex.exec(document.cookie);
-    if (userId && userId[2]) {
-      Socket.getInstance()
-        .getSocket()
-        .emit("join-group", userId[2]);
-    }
   }
 }
