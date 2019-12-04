@@ -3,16 +3,21 @@ import TreeNode from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "./Tree";
 import Socket from "../functions/Socket";
+import useFilename from "../hooks/useFilename";
 
 interface State {
   data?: TreeNode;
   toggledKeys: { [key: string]: boolean };
 }
 
-class SideBar extends React.Component<{}, State> {
+interface Props {
+  selectedFile: string;
+}
+
+class SideBar extends React.Component<Props, State> {
   private socket: SocketIOClient.Socket;
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
     this.socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
@@ -88,6 +93,7 @@ class SideBar extends React.Component<{}, State> {
           <Tree
             node={this.state.data}
             root
+            selected={this.props.selectedFile}
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
@@ -104,4 +110,10 @@ class SideBar extends React.Component<{}, State> {
   }
 }
 
-export default SideBar;
+const SideBarWithFileName = () => {
+  const fileName = useFilename();
+
+  return <SideBar selectedFile={fileName} />;
+};
+
+export default SideBarWithFileName;

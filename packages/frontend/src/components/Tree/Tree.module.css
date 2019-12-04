@@ -1,6 +1,7 @@
 .list {
   padding: 0;
   list-style: none;
+  background: #fafafa;
 }
 .list .list {
   padding-left: 1em;
@@ -8,5 +9,11 @@
 .item {
   display: flex;
   align-items: center;
-  height: 1.3em;
+  height: 1.5em;
+  cursor: pointer;
+  justify-content: space-between;
+}
+
+.selected {
+  background: #bdbdbd;
 }

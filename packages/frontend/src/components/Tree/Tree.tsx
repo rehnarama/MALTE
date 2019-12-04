@@ -98,6 +98,7 @@ interface TreeProps {
   onCreateFile?: (node: TreeNode, name: string) => void;
   onCreateFolder?: (node: TreeNode, name: string) => void;
   onEdit?: (node: TreeNode, parent: TreeNode, name: string) => void;
+  selected: string;
 }
 
 const Tree: React.SFC<TreeProps> = props => {
@@ -111,7 +112,8 @@ const Tree: React.SFC<TreeProps> = props => {
     onDelete,
     onCreateFile,
     onCreateFolder,
-    onEdit
+    onEdit,
+    selected
   } = props;
 
   const isToggled = toggledKeys[node.path] === true;
@@ -182,33 +184,41 @@ const Tree: React.SFC<TreeProps> = props => {
         onClick={onClick}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className={classes.item}
+        className={
+          selected === node.path
+            ? `${classes.item} ${classes.selected}`
+            : classes.item
+        }
       >
-        {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
-        {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
-        {isEditing ? (
-          <input
-            type="text"
-            autoFocus
-            onBlur={() => setIsEditing(false)}
-            onKeyDown={handleKeyDown}
-            onChange={handleFileNameChange}
-            placeholder={node.name}
-            value={fileName}
-          />
-        ) : (
-          node.name
-        )}
+        <div className={classes.name}>
+          {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
+          {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
+          {isEditing ? (
+            <input
+              type="text"
+              autoFocus
+              onBlur={() => setIsEditing(false)}
+              onKeyDown={handleKeyDown}
+              onChange={handleFileNameChange}
+              placeholder={node.name}
+              value={fileName}
+            />
+          ) : (
+            node.name
+          )}
+        </div>
 
         {isHover && (
-          <Icons
-            node={node}
-            parent={parent}
-            onDelete={deleteNode}
-            onCreateFile={() => setIsCreating("file")}
-            onCreateFolder={() => setIsCreating("folder")}
-            onEdit={() => setIsEditing(true)}
-          ></Icons>
+          <div>
+            <Icons
+              node={node}
+              parent={parent}
+              onDelete={deleteNode}
+              onCreateFile={() => setIsCreating("file")}
+              onCreateFolder={() => setIsCreating("folder")}
+              onEdit={() => setIsEditing(true)}
+            ></Icons>
+          </div>
         )}
       </div>
       <ul className={classes.list}>
@@ -235,6 +245,7 @@ const Tree: React.SFC<TreeProps> = props => {
               <Tree
                 key={child.path}
                 node={child}
+                selected={selected}
                 parent={node}
                 toggledKeys={toggledKeys}
                 onSelect={onSelect}
