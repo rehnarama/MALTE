@@ -6,14 +6,15 @@ import useUserList from "../../hooks/useUserList";
 import Avatar from "../Avatar";
 import Socket from "../../functions/Socket";
 import { useFileNameContext } from "../../context/FileNameContext";
+import useAuthenticated from "../../hooks/useIsAuthenticated";
 
 const TopBar: React.FC = () => {
   const { fileName } = useFileNameContext();
   const userList = useUserList();
   const fileName = useFilename();
-  const actualFileName = fileName.split(/\\|\//g).pop() || fileName;
+  const isAuthenticated = useAuthenticated();
 
-  const isAuthenticated = Socket.isAuthenticated();
+  const actualFileName = fileName.split(/\\|\//g).pop() || fileName;
 
   return (
     <header className={classes.container}>

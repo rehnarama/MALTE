@@ -9,6 +9,10 @@ class Socket {
 
   private constructor() {
     this.s = io(getBackendUrl());
+
+    this.s.on("authenticated", () => {
+      this.isAuthenticated = true;
+    });
   }
 
   static getInstance(): Socket {
@@ -28,14 +32,14 @@ class Socket {
   }
 
   public authenticateConnection() {
-    // cookies are stored in a ; separated list
-    // regex used to filter out the text on the right side of "userId=" where the id is
-    const regex = /(userId)=([^;]+)/g;
-    const userId = regex.exec(document.cookie);
-    if (userId && userId[2]) {
-      this.s.emit("join-group", userId[2]);
-
-      this.isAuthenticated = true;
+    if (!this.isAuthenticated) {
+      // cookies are stored in a ; separated list
+      // regex used to filter out the text on the right side of "userId=" where the id is
+      const regex = /(userId)=([^;]+)/g;
+      const userId = regex.exec(document.cookie);
+      if (userId && userId[2]) {
+        this.s.emit("join-group", userId[2]);
+      }
     }
   }
 

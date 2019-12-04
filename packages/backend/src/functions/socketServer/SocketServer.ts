@@ -33,8 +33,17 @@ export default class SocketServer {
     // everyone must be able to request to join, otherwise noone can join
     socket.on("join-group", async userId => {
       const response = await GitHub.getInstance().getUser(userId);
+
+      if (this.userMap.has(socket.id)) {
+        // Already authenticated, let's not join this one again
+        return;
+      }
+
       if (isUser(response)) {
         this.userMap.set(socket.id, response);
+
+        // Tell user they are authenticated
+        socket.emit("authenticated");
 
         this.project.join(socket);
         new Terminal(socket, this.project.getPath());
