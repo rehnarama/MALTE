@@ -76,7 +76,6 @@ export default class Project {
       // You can't join twice
       return false;
     }
-    console.log("yä");
 
     this.sockets.push(socket);
     this.broadcastUserList();
