@@ -40,7 +40,7 @@ const UserButton: React.SFC = () => {
   };
 
   if (user) {
-    return <Avatar url={user.avatar_url} name={user.name} />;
+    return <Avatar url={user.avatar_url} name={user.login} />;
   } else if (loading) {
     return <p>Loading user...</p>;
   } else if (needAuthentication) {

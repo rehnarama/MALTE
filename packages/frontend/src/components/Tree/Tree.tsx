@@ -178,10 +178,11 @@ const Tree: React.SFC<TreeProps> = props => {
 
   const content = (
     <li>
-      <p
+      <div
         onClick={onClick}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
+        className={classes.item}
       >
         {node.type === "directory" && isToggled && <span>▼&nbsp;</span>}
         {node.type === "directory" && !isToggled && <span>▶&nbsp;</span>}
@@ -209,7 +210,7 @@ const Tree: React.SFC<TreeProps> = props => {
             onEdit={() => setIsEditing(true)}
           ></Icons>
         )}
-      </p>
+      </div>
       <ul className={classes.list}>
         {isCreating && (
           <input
@@ -223,20 +224,27 @@ const Tree: React.SFC<TreeProps> = props => {
         )}
         {node.children &&
           isToggled &&
-          node.children.map(child => (
-            <Tree
-              key={child.path}
-              node={child}
-              parent={node}
-              toggledKeys={toggledKeys}
-              onSelect={onSelect}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onCreateFile={onCreateFile}
-              onCreateFolder={onCreateFolder}
-              onEdit={onEdit}
-            />
-          ))}
+          node.children
+            .sort((c1, c2) => {
+              if (c1.type === "directory" && c2.type !== "directory") return -1;
+              else if (c1.type !== "directory" && c2.type === "directory")
+                return 1;
+              else return 0;
+            })
+            .map(child => (
+              <Tree
+                key={child.path}
+                node={child}
+                parent={node}
+                toggledKeys={toggledKeys}
+                onSelect={onSelect}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onCreateFile={onCreateFile}
+                onCreateFolder={onCreateFolder}
+                onEdit={onEdit}
+              />
+            ))}
       </ul>
     </li>
   );

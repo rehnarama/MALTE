@@ -1,0 +1,8 @@
+.widget {
+  transition: all 0.2s;
+  pointer-events: none;
+}
+
+.bubble:hover {
+  opacity: 0;
+}
