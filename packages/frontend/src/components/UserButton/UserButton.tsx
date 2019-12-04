@@ -23,17 +23,19 @@ const UserButton: React.SFC = () => {
       setLoading(false);
     }
 
-    if (user === null) {
+    if (User.hasUser()) {
+      setUser(User.getUser());
+      setLoading(false);
+    } else if (user === null) {
       fetch();
     }
-  }, [user]);
+  }, [user, needAuthentication]);
 
   const authenticate = async () => {
     const success = await User.authenticate();
     if (success) {
-      setUser(User.getUser());
-      setLoading(false);
       setNeedAuthentication(false);
+      User.authenticateConnection();
     } else {
       setNeedAuthentication(true);
     }
