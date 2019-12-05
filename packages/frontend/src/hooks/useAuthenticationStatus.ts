@@ -3,12 +3,12 @@ import Socket from "../functions/Socket";
 
 export default function useAuthenticationStatus() {
   const [authenticationStatus, setAuthenticationStatus] = React.useState(
-    Socket.isAuthenticated()
+    Socket.getAuthenticationStatus()
   );
 
   React.useEffect(() => {
     function onUpdate() {
-      setAuthenticationStatus(Socket.isAuthenticated());
+      setAuthenticationStatus(Socket.getAuthenticationStatus());
     }
     const socket = Socket.getInstance().getSocket();
     socket.on("connection/auth-confirm", onUpdate);

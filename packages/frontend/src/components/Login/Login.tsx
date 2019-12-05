@@ -5,7 +5,7 @@ import { Button } from "@material-ui/core";
 import githubLogo from "./githubLogo.svg";
 import dog from "./dog.jpg";
 import useAuthenticationStatus from "../../hooks/useAuthenticationStatus";
-import { AuthenticationStatus } from "../../functions/Socket";
+import {AuthenticationStatus} from "../../functions/AuthenticationStatus";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 const Login: React.FC = () => {

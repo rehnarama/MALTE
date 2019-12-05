@@ -1,28 +1,22 @@
 import io from "socket.io-client";
 import { getBackendUrl } from "./Environment";
-
-export enum AuthenticationStatus {
-  Unknown,
-  Authenticated,
-  Unauthenticated,
-  Failed
-}
+import { AuthenticationStatus } from "./AuthenticationStatus";
 
 class Socket {
   private static instance: Socket;
   private s: SocketIOClient.Socket;
 
-  private isAuthenticated = AuthenticationStatus.Unauthenticated;
+  private authenticationStatus = AuthenticationStatus.Unauthenticated;
 
   private constructor() {
     this.s = io(getBackendUrl());
 
     this.s.on("connection/auth-confirm", () => {
-      this.isAuthenticated = AuthenticationStatus.Authenticated;
+      this.authenticationStatus = AuthenticationStatus.Authenticated;
     });
 
     this.s.on("connection/auth-fail", () => {
-      this.isAuthenticated = AuthenticationStatus.Failed;
+      this.authenticationStatus = AuthenticationStatus.Failed;
       // Let's remove cookie, maybe that's why we failed
       document.cookie = "userId=;Max-Age=0;";
     });
@@ -34,7 +28,8 @@ class Socket {
     }
 
     if (
-      Socket.instance.isAuthenticated === AuthenticationStatus.Unauthenticated
+      Socket.instance.authenticationStatus ===
+      AuthenticationStatus.Unauthenticated
     ) {
       Socket.instance.authenticateConnection();
     }
@@ -47,8 +42,8 @@ class Socket {
   }
 
   public authenticateConnection() {
-    if (this.isAuthenticated !== AuthenticationStatus.Authenticated) {
-      this.isAuthenticated = AuthenticationStatus.Unknown;
+    if (this.authenticationStatus !== AuthenticationStatus.Authenticated) {
+      this.authenticationStatus = AuthenticationStatus.Unknown;
       // cookies are stored in a ; separated list
       // regex used to filter out the text on the right side of "userId=" where the id is
       const regex = /(userId)=([^;]+)/g;
@@ -59,8 +54,8 @@ class Socket {
     }
   }
 
-  public static isAuthenticated() {
-    return this.getInstance().isAuthenticated;
+  public static getAuthenticationStatus() {
+    return this.getInstance().authenticationStatus;
   }
 }
 

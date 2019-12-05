@@ -56,8 +56,6 @@ export default class SocketServer {
       });
 
       socket.join("authenticated");
-      // emit filetree here can be removed later when we have login in separate window
-      socket.emit("file-tree", await fsTree(this.project.getPath()));
     } else {
       // Tell user authentication failed
       socket.emit("connection/auth-fail");

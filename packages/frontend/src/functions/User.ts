@@ -51,7 +51,6 @@ export default class User {
           // 2. the user aborted authentication
           const status = await User.fetchUser();
           if (status === "success") {
-            // Let's auth our websocket connection as well
             Socket.getInstance().authenticateConnection();
             resolve(true);
           } else {
