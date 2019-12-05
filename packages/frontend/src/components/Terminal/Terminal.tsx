@@ -29,6 +29,11 @@ const Terminal: React.FC = () => {
       socket.getSocket().on("pty-data", (data: string) => {
         terminal.write(data);
       });
+
+      socket.getSocket().on("connection/signout", () => {
+        terminal.dispose();
+        console.log("disposed terminal");
+      });
     }
   }, []);
 
