@@ -7,7 +7,8 @@ const TopBar: React.FC = () => {
   const {
     activeFileName,
     fileNames,
-    changeActiveFileName
+    changeActiveFileName,
+    removeFile
   } = useFileNameContext();
 
   const actualActiveFileName =
@@ -27,14 +28,21 @@ const TopBar: React.FC = () => {
             actualFile === actualActiveFileName
               ? classes.activeFileName
               : classes.fileName;
+          const closeFile =
+            actualFile === actualActiveFileName ? (
+              <p className={classes.close} onClick={() => removeFile(file)}>
+                x
+              </p>
+            ) : null;
           return (
-            <p
+            <div
               key={actualFile}
               className={fileClasses}
               onClick={() => changeActiveFileName(file)}
             >
               {actualFile}
-            </p>
+              {closeFile}
+            </div>
           );
         })}
         {welcomeTab}

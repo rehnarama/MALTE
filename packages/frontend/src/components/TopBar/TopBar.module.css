@@ -39,3 +39,13 @@
   border-radius: 8px 8px 0 0;
   cursor: pointer;
 }
+
+.close {
+  padding-left: 10px;
+  display: inline-block;
+  color: inherit;
+}
+
+.close:hover {
+  color: red;
+}

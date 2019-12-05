@@ -71,6 +71,21 @@ export default class Editor {
     }
   }
 
+  private removeFile(file: File) {
+    const fileIndex = this.files.findIndex(f => f.path === file.path);
+    if (fileIndex >= 0) {
+      this.files.splice(fileIndex, 1);
+    }
+  }
+
+  public closeBuffer(path: string) {
+    const file = this.getFile(path);
+    if (file) {
+      file.close();
+      this.removeFile(file);
+    }
+  }
+
   private openNewBuffer(path: string, content: RGAJSON) {
     const Uri = Monaco.getInstance().getMonacoNamespace().Uri;
     const newModel = this.editorNamespace.createModel(

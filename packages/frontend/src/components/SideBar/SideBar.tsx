@@ -14,6 +14,7 @@ interface State {
 interface Props {
   activeFileName: string;
   changeActiveFileName: (newName: string) => void;
+  removeFile: (newName: string) => void;
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
@@ -60,6 +61,7 @@ class SideBar extends React.Component<Props, State> {
       dir: parent.path,
       name: node.name
     });
+    this.props.removeFile(node.path);
   };
 
   onCreateFolder = (node: TreeNode, name: string) => {
@@ -114,12 +116,17 @@ class SideBar extends React.Component<Props, State> {
 }
 
 const SideBarWithFileName = () => {
-  const { activeFileName, changeActiveFileName } = useFileNameContext();
+  const {
+    activeFileName,
+    changeActiveFileName,
+    removeFile
+  } = useFileNameContext();
 
   return (
     <SideBar
       activeFileName={activeFileName}
       changeActiveFileName={changeActiveFileName}
+      removeFile={removeFile}
     />
   );
 };
