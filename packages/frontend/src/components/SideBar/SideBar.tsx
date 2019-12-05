@@ -16,10 +16,6 @@ interface Props {
   setFileName: (newName: string) => void;
 }
 
-const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
-  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 7)
-  : "development build";
-
 class SideBar extends React.Component<Props, State> {
   private socket: SocketIOClient.Socket;
 
@@ -107,7 +103,6 @@ class SideBar extends React.Component<Props, State> {
         ) : (
           <p>Loading...</p>
         )}
-        <p className={classes.commitId}>Build: {COMMIT_ID}</p>
       </div>
     );
   }

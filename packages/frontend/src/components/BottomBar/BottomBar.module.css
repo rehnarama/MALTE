@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    font-size: small;
+    height: 1.5rem;
+    width: 100vw;
+    background-color: #448084;
+    padding: 4px;
+    color: #ffffff;
+}
+.rightSide {
+    position: absolute;
+    right: 4px;
+}
+.leftSide {
+    position: absolute;
+    left: 4px;
+}
+.actionable {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+}
