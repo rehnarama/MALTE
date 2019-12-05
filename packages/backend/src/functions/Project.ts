@@ -151,7 +151,7 @@ export default class Project {
       .filter(s => s !== null);
     const userList: UserList = { users };
 
-    socketServer.server.emit("user/list", userList);
+    socketServer.server.in("authenticated").emit("user/list", userList);
   };
 
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
@@ -175,6 +175,6 @@ export default class Project {
       });
     }
 
-    socket.server.emit("cursor/list", this.cursorList);
+    socket.server.in("authenticated").emit("cursor/list", this.cursorList);
   };
 }

@@ -53,11 +53,10 @@ describe("Project", function() {
       const projectPath = "dummy/path";
       const filePath = "dummyFile.txt";
       const project = new Project(projectPath);
-      const socket = new MockSocket();
 
       const server = SocketServer.getInstance() as MockSocketServer;
       const io = server.server as MockSocketIoServer;
-      io.addMockSocket(socket);
+      const socket = io.addMockSocket();
 
       socket.emit("connection/auth", "my user id");
 

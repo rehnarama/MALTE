@@ -1,30 +1,73 @@
 /* eslint-disable */
 import SocketIO from "socket.io";
 import MockSocket from "./MockSocket";
+import MockSocketNamespace from "./MockSocketNamespace";
 
 export default class MockSocketIoServer implements SocketIO.Server {
-  private mockSockets: MockSocket[] = [];
-  private eventFnMap = new Map<string, Function[]>();
+  private eventFnMap = new Map<string | symbol, Function[]>();
+  private allSockets: MockSocket[] = [];
 
-  public addMockSocket(socket: MockSocket) {
-    this.mockSockets.push(socket);
-    socket.onAny = (event: string, ...args: any[]) => {
+  constructor() {
+    this.sockets = new MockSocketNamespace(this, {});
+  }
+  public addMockSocket(): MockSocket {
+    const socket = new MockSocket(this);
+    this.allSockets.push(socket);
+    this.sockets.sockets[socket.id] = socket;
+    this.sockets.onAny = (event: string, ...args: any[]) => {
       const fns = this.eventFnMap.get(event);
       if (fns) {
         fns.forEach(fn => fn(...args));
       }
     };
 
-    // Call functions
     const connectionFns = this.eventFnMap.get("connection");
     if (connectionFns) {
       connectionFns.forEach(fn => fn(socket));
     }
+
+    return socket;
+  }
+
+  on(
+    event: "connection",
+    listener: (socket: SocketIO.Socket) => void
+  ): SocketIO.Namespace;
+  on(
+    event: "connect",
+    listener: (socket: SocketIO.Socket) => void
+  ): SocketIO.Namespace;
+  on(event: string, listener: Function): SocketIO.Namespace;
+  on(event: any, listener: any): SocketIO.Namespace {
+    let fns = this.eventFnMap.get(event);
+    if (!fns) {
+      fns = [];
+      this.eventFnMap.set(event, fns);
+    }
+    fns.push(listener);
+    return this.sockets;
+  }
+  emit(event: string, ...args: any[]): SocketIO.Namespace {
+    this.sockets.emit(event, ...args);
+    return this.sockets;
+  }
+  to(room: string): SocketIO.Namespace {
+    const socketsInRoom: { [id: string]: SocketIO.Socket } = {};
+    for (const socket of this.allSockets) {
+      if (socket.rooms[room]) {
+        socketsInRoom[socket.id] = socket;
+      }
+    }
+
+    return new MockSocketNamespace(this, socketsInRoom);
+  }
+  in(room: string): SocketIO.Namespace {
+    return this.to(room);
   }
 
   engine: { ws: any };
   nsps: { [namespace: string]: SocketIO.Namespace };
-  sockets: SocketIO.Namespace;
+  sockets: MockSocketNamespace;
   json: SocketIO.Server;
   volatile: SocketIO.Server;
   local: SocketIO.Server;
@@ -79,40 +122,10 @@ export default class MockSocketIoServer implements SocketIO.Server {
   close(fn?: () => void): void {
     throw new Error("Method not implemented.");
   }
-  on(
-    event: "connection",
-    listener: (socket: SocketIO.Socket) => void
-  ): SocketIO.Namespace;
-  on(
-    event: "connect",
-    listener: (socket: SocketIO.Socket) => void
-  ): SocketIO.Namespace;
-  on(event: string, listener: Function): SocketIO.Namespace;
-  on(event: any, listener: any): SocketIO.Namespace {
-    let fns = this.eventFnMap.get(event);
-    if (!fns) {
-      fns = [];
-      this.eventFnMap.set(event, fns);
-    }
-    fns.push(listener);
-    return null;
-  }
-  to(room: string): SocketIO.Namespace {
-    throw new Error("Method not implemented.");
-  }
-  in(room: string): SocketIO.Namespace {
-    throw new Error("Method not implemented.");
-  }
   use(
     fn: (socket: SocketIO.Socket, fn: (err?: any) => void) => void
   ): SocketIO.Namespace {
     throw new Error("Method not implemented.");
-  }
-  emit(event: string, ...args: any[]): SocketIO.Namespace {
-    for (const socket of this.mockSockets) {
-      socket.emit(event, ...args);
-    }
-    return this.sockets;
   }
   send(...args: any[]): SocketIO.Namespace {
     throw new Error("Method not implemented.");

@@ -1,21 +1,26 @@
 /* eslint-disable */
 import SocketIO from "socket.io";
-import uuidv4 from "uuid/v4";
-import MockSocketNamespace from "./MockSocketNamespace";
 import MockSocketIoServer from "./MockSocketIoServer";
 
-export default class MockSocket implements SocketIO.Socket {
+export default class MockSocketNamespace implements SocketIO.Namespace {
+  private eventFnMap = new Map<string | symbol, Function[]>();
   public onAny: (event: string | symbol, ...args: any[]) => void | undefined;
 
-  constructor(server: MockSocketIoServer) {
+  constructor(
+    server: MockSocketIoServer,
+    sockets: { [id: string]: SocketIO.Socket }
+  ) {
     this.server = server;
-    this.nsp = new MockSocketNamespace(server, {
-      [this.id]: this
-    });
+    this.sockets = sockets;
   }
 
   on(event: string | symbol, listener: (...args: any[]) => void): this {
-    this.nsp.on(event.toString(), listener);
+    let fns = this.eventFnMap.get(event);
+    if (!fns) {
+      fns = [];
+      this.eventFnMap.set(event, fns);
+    }
+    fns.push(listener);
     return this;
   }
 
@@ -23,64 +28,41 @@ export default class MockSocket implements SocketIO.Socket {
     if (this.onAny) {
       this.onAny(event, ...args);
     }
-    return this.nsp.emit(event.toString(), ...args);
-  }
 
-  nsp: SocketIO.Namespace;
-  server: SocketIO.Server;
-  adapter: SocketIO.Adapter;
-  id: string = uuidv4();
-  request: any;
-  client: SocketIO.Client;
-  conn: SocketIO.EngineSocket;
-  rooms: { [id: string]: string } = {};
-  connected: boolean;
-  disconnected: boolean;
-  handshake: SocketIO.Handshake;
-  json: SocketIO.Socket;
-  volatile: SocketIO.Socket;
-  broadcast: SocketIO.Socket;
-  to(room: string): SocketIO.Socket {
-    throw new Error("Method not implemented.");
-  }
-  in(room: string): SocketIO.Socket {
-    throw new Error("Method not implemented.");
-  }
-  use(
-    fn: (packet: SocketIO.Packet, next: (err?: any) => void) => void
-  ): SocketIO.Socket {
-    throw new Error("Method not implemented.");
-  }
-  send(...args: any[]): SocketIO.Socket {
-    throw new Error("Method not implemented.");
-  }
-  write(...args: any[]): SocketIO.Socket {
-    throw new Error("Method not implemented.");
-  }
-  join(name: string | string[], fn?: (err?: any) => void): SocketIO.Socket {
-    if (typeof name === "string") {
-      this.rooms[name] = "joined";
-    } else {
-      name.forEach(n => this.join(n, fn));
+    const fns = this.eventFnMap.get(event);
+    if (fns) {
+      fns.forEach(fn => fn(...args));
     }
-    return this;
+
+    return true;
   }
-  leave(name: string, fn?: Function): SocketIO.Socket {
+  name: string;
+  server: SocketIO.Server;
+  sockets: { [id: string]: SocketIO.Socket };
+  connected: { [id: string]: SocketIO.Socket };
+  adapter: SocketIO.Adapter;
+  json: SocketIO.Namespace;
+  use(
+    fn: (socket: SocketIO.Socket, fn: (err?: any) => void) => void
+  ): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
-  leaveAll(): void {
+  to(room: string): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
-  disconnect(close?: boolean): SocketIO.Socket {
+  in(room: string): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
-  listeners(event: string): Function[] {
+  send(...args: any[]): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
-  compress(compress: boolean): SocketIO.Socket {
+  write(...args: any[]): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
-  error(err: any): void {
+  clients(fn: Function): SocketIO.Namespace {
+    throw new Error("Method not implemented.");
+  }
+  compress(compress: boolean): SocketIO.Namespace {
     throw new Error("Method not implemented.");
   }
   addListener(
@@ -108,6 +90,9 @@ export default class MockSocket implements SocketIO.Socket {
     throw new Error("Method not implemented.");
   }
   getMaxListeners(): number {
+    throw new Error("Method not implemented.");
+  }
+  listeners(event: string | symbol): Function[] {
     throw new Error("Method not implemented.");
   }
   rawListeners(event: string | symbol): Function[] {
