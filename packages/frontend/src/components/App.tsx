@@ -1,7 +1,6 @@
 import * as React from "react";
 import Login from "./Login";
 import Main from "./Main";
-import User from "../functions/User";
 import { useFileNameContext } from "../context/FileNameContext";
 import useAuthenticationStatus from "../hooks/useAuthenticationStatus";
 import { AuthenticationStatus } from "../functions/AuthenticationStatus";
