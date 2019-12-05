@@ -5,6 +5,8 @@ import Tree from "../Tree";
 import Socket from "../../functions/Socket";
 import classes from "./SideBar.module.css";
 import { useFileNameContext } from "../../context/FileNameContext";
+import { Button, Box } from "@material-ui/core";
+import SignOutIcon from "@material-ui/icons/PowerSettingsNew";
 
 interface State {
   data?: TreeNode;
@@ -86,23 +88,31 @@ class SideBar extends React.Component<Props, State> {
   render() {
     return (
       <div className={classes.sideBar}>
-        <p>Files</p>
-        {this.state.data ? (
-          <Tree
-            node={this.state.data}
-            root
-            selected={this.props.fileName}
-            toggledKeys={this.state.toggledKeys}
-            onSelect={this.onSelect}
-            onToggle={this.onToggle}
-            onDelete={this.onDelete}
-            onCreateFolder={this.onCreateFolder}
-            onCreateFile={this.onCreateFile}
-            onEdit={this.onEdit}
-          />
-        ) : (
-          <p>Loading...</p>
-        )}
+        <div className={classes.fileTree}>
+          <p>Files</p>
+          {this.state.data ? (
+            <Tree
+              node={this.state.data}
+              root
+              selected={this.props.fileName}
+              toggledKeys={this.state.toggledKeys}
+              onSelect={this.onSelect}
+              onToggle={this.onToggle}
+              onDelete={this.onDelete}
+              onCreateFolder={this.onCreateFolder}
+              onCreateFile={this.onCreateFile}
+              onEdit={this.onEdit}
+            />
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+        <div className={classes.signOut}>
+          <Button fullWidth variant={"outlined"}>
+            <SignOutIcon />
+            Sign Out
+          </Button>
+        </div>
       </div>
     );
   }
