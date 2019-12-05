@@ -19,45 +19,36 @@ const CodeEditor: React.FC = () => {
   };
 
   useEffect(() => {
-    if (editor && activeFileName !== "") {
-      editor.openBuffer(activeFileName);
-    }
-  }, [activeFileName, editor]);
-
-  useEffect(() => {
     if (editor && fileToRemove !== "") {
       editor.closeBuffer(fileToRemove);
     }
   }, [fileToRemove, editor]);
+
+  useEffect(() => {
+    if (editor && activeFileName !== "") {
+      editor.openBuffer(activeFileName);
+    }
+
+    if (activeFileName === "" && editor) {
+      editor.dispose();
+    }
+  }, [activeFileName, editor]);
 
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
     setHeight(height);
   }
 
-  if (activeFileName === "") {
-    return (
-      <>
-        <ReactResizeDetector
-          handleWidth
-          handleHeight
-          onResize={resizeTerminal}
-        />
+  return (
+    <>
+      <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
+      {activeFileName == "" ? (
         <WelcomeScreen />
-      </>
-    );
-  } else {
-    return (
-      <>
-        <ReactResizeDetector
-          handleWidth
-          handleHeight
-          onResize={resizeTerminal}
-        />
+      ) : (
         <MonacoEditor width={width} height={height} editorDidMount={handler} />
-      </>
-    );
-  }
+      )}
+    </>
+  );
 };
 
 export default CodeEditor;
