@@ -46,7 +46,7 @@ export default class SocketServer {
   ): Promise<void> {
     const response = await GitHub.getInstance().getUser(userId);
 
-    if (this.userMap.has(socket.id)) {
+    if (socket.rooms["authenticated"]) {
       // Already authenticated, let's not join this one again
       return;
     }
