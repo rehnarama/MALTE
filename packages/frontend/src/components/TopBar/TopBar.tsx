@@ -10,7 +10,9 @@ const TopBar: React.FC = () => {
   return (
     <header className={classes.container}>
       <div className={classes.tabBar}>
-        <p className={classes.fileName}>{actualFileName}</p>
+        <p className={classes.fileName}>
+          {actualFileName === "" ? "Welcome!" : actualFileName}
+        </p>
       </div>
       <div className={classes.rightSide}>
         <UserButton />
