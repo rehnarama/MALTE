@@ -1,5 +1,4 @@
 import { MongoClient, Db } from "mongodb";
-
 class Database {
   private static instance: Database;
   private static DB_URL = process.env.MONGODB_URI
@@ -20,6 +19,16 @@ class Database {
     });
     this.db = client.db();
     this.client = client;
+    this.initialize();
+  }
+
+  private async initialize(): Promise<void> {
+    const collection = this.client.db().collection("config");
+    collection.find({ firstTime: { $exists: 1 } }).toArray(function(err, doc) {
+      if (doc.length == 0) {
+        collection.insertOne({ firstTime: true });
+      }
+    });
   }
 
   public getDb(): Db {
