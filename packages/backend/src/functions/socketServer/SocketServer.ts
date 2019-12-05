@@ -21,7 +21,7 @@ export default class SocketServer {
   }
 
   private onConnection(socket: SocketIO.Socket): void {
-    // everyone must be able to request to join, otherwise noone can join
+    // everyone must be able to request to join, otherwise no one can join
     socket.on("connection/auth", userId => this.onAuth(socket, userId));
 
     socket.on("disconnect", () => {
