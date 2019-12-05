@@ -5,7 +5,7 @@ import Tree from "../Tree";
 import Socket from "../../functions/Socket";
 import classes from "./SideBar.module.css";
 import { useFileNameContext } from "../../context/FileNameContext";
-import { Button, Box } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import SignOutIcon from "@material-ui/icons/PowerSettingsNew";
 
 interface State {
@@ -16,6 +16,7 @@ interface State {
 interface Props {
   fileName: string;
   setFileName: (newName: string) => void;
+  signOut: () => void;
 }
 
 class SideBar extends React.Component<Props, State> {
@@ -108,7 +109,7 @@ class SideBar extends React.Component<Props, State> {
           )}
         </div>
         <div className={classes.signOut}>
-          <Button fullWidth variant={"outlined"}>
+          <Button fullWidth variant={"outlined"} onClick={this.props.signOut}>
             <SignOutIcon />
             Sign Out
           </Button>
@@ -118,10 +119,20 @@ class SideBar extends React.Component<Props, State> {
   }
 }
 
-const SideBarWithFileName = () => {
+interface ExternalProp {
+  signOut: () => void;
+}
+
+const SideBarWithFileName = (props: ExternalProp) => {
   const { fileName, changeFileName } = useFileNameContext();
 
-  return <SideBar fileName={fileName} setFileName={changeFileName} />;
+  return (
+    <SideBar
+      fileName={fileName}
+      setFileName={changeFileName}
+      signOut={props.signOut}
+    />
+  );
 };
 
 export default SideBarWithFileName;

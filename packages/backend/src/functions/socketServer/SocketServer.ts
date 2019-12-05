@@ -23,10 +23,21 @@ export default class SocketServer {
   private onConnection(socket: SocketIO.Socket): void {
     // everyone must be able to request to join, otherwise no one can join
     socket.on("connection/auth", userId => this.onAuth(socket, userId));
+    socket.on("connection/signout", userId => this.signOut(socket, userId));
 
     socket.on("disconnect", () => {
       this.userMap.delete(socket.id);
     });
+  }
+
+  private async signOut(
+    socket: SocketIO.Socket,
+    userId: string
+  ): Promise<void> {
+    console.log(userId);
+    this.userMap.delete(userId);
+    socket.emit("connection/signout");
+    socket.leave("authenticated");
   }
 
   protected async onAuth(

@@ -6,11 +6,14 @@ import CodeEditor from "../CodeEditor";
 import classes from "./Main.module.css";
 import { DraggableCore, DraggableEventHandler } from "react-draggable";
 import BottomBar from "../BottomBar";
+import Socket from "../../functions/Socket";
+import { useCookies } from "react-cookie";
 
 const Main: React.FC = () => {
   const [vsplit, setVSplit] = React.useState(300);
   const [hsplit, setHSplit] = React.useState(300);
   const [darkTheme, setDarkTheme] = React.useState(false);
+  const [cookies] = useCookies(["userId"]);
 
   const onHDrag: DraggableEventHandler = (_, e) => {
     setHSplit(hsplit + e.deltaX);
@@ -21,6 +24,13 @@ const Main: React.FC = () => {
   };
   const toggleDarkTheme = () => {
     setDarkTheme(!darkTheme);
+  };
+  const signOut = () => {
+    if (cookies.userId) {
+      Socket.getInstance()
+        .getSocket()
+        .emit("connection/signout", cookies.userId);
+    }
   };
 
   return (
@@ -36,7 +46,7 @@ const Main: React.FC = () => {
           <TopBar />
         </div>
         <div className={classes.sidebar}>
-          <SideBar />
+          <SideBar signOut={signOut} />
         </div>
         <div className={classes.hresize}>
           <DraggableCore onDrag={onHDrag}>
