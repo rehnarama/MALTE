@@ -4,8 +4,9 @@ import { isUser } from "malte-common/dist/oauth/isUser";
 import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
 import uuidv4 from "uuid/v4";
 import { AuthError } from "malte-common/dist/oauth/AuthError";
-import { updateUser } from "./updateUser";
+import { updateUser, existUser } from "./user";
 import { filterUser } from "malte-common/dist/oauth/filterUser";
+import { isFirstTime, unsetFirstTime } from "./firstTime";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -99,11 +100,20 @@ export default class GitHub {
 
     const user = await this.getUser(userId);
     if (isUser(user)) {
-      updateUser(filterUser(user));
+      if (await isFirstTime()) {
+        updateUser(filterUser(user));
+        unsetFirstTime();
+        // eslint-disable-next-line no-constant-condition
+      } else if (false /* is in pre-approved list?*/) {
+        // check if in pre-approved list and if yes call updateUser() to add it in database
+      }
     } else if (user === AuthError.AuthNeeded) {
       return res.sendStatus(401);
-    } else {
+    } else if (user === AuthError.Unknown) {
       return res.sendStatus(500);
+    } else {
+      this.userIdAccessTokenMap.delete(userId);
+      return res.sendStatus(401);
     }
 
     // All done! This should have been opened in a popup window, as such
