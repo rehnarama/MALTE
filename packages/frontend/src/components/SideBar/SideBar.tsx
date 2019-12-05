@@ -3,8 +3,8 @@ import TreeNode from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "../Tree";
 import Socket from "../../functions/Socket";
-import useFilename from "../../hooks/useFilename";
 import classes from "./SideBar.module.css";
+import { useFileNameContext } from "../../context/FileNameContext";
 
 interface State {
   data?: TreeNode;
@@ -12,7 +12,8 @@ interface State {
 }
 
 interface Props {
-  selectedFile: string;
+  fileName: string;
+  setFileName: (newName: string) => void;
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
@@ -42,11 +43,7 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    Socket.getInstance()
-      .getSocket()
-      .emit("join-buffer", {
-        path: node.path
-      });
+    this.props.setFileName(node.path);
   };
 
   onToggle = (node: TreeNode) => {
@@ -98,7 +95,7 @@ class SideBar extends React.Component<Props, State> {
           <Tree
             node={this.state.data}
             root
-            selected={this.props.selectedFile}
+            selected={this.props.fileName}
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
@@ -117,9 +114,9 @@ class SideBar extends React.Component<Props, State> {
 }
 
 const SideBarWithFileName = () => {
-  const fileName = useFilename();
+  const { fileName, changeFileName } = useFileNameContext();
 
-  return <SideBar selectedFile={fileName} />;
+  return <SideBar fileName={fileName} setFileName={changeFileName} />;
 };
 
 export default SideBarWithFileName;
