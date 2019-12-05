@@ -138,12 +138,7 @@ export default class Project {
       .map(s => {
         const ghUser = socketServer.getUser(s.id);
         if (ghUser) {
-          const user: User = {
-            name: ghUser.login,
-            avatarUrl: ghUser.avatar_url,
-            id: ghUser.id
-          };
-          return user;
+          return ghUser;
         } else {
           return null;
         }

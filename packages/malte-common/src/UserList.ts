@@ -1,8 +1,6 @@
-export interface User {
-  name: string;
-  avatarUrl: string;
-  id: number;
-}
+import { User } from "./oauth/GitHub";
+
+export { User };
 
 export interface UserList {
   users: User[];

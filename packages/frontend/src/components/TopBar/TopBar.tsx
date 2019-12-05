@@ -22,7 +22,7 @@ const TopBar: React.FC = () => {
       <div className={classes.rightSide}>
         {userList &&
           userList.users.map(user => (
-            <Avatar key={user.id} url={user.avatarUrl} name={user.name} />
+            <Avatar key={user.id} url={user.avatar_url} name={user.login} />
           ))}
       </div>
     </header>
