@@ -43,12 +43,12 @@ class Socket {
 
   public authenticateConnection() {
     if (this.authenticationStatus !== AuthenticationStatus.Authenticated) {
-      this.authenticationStatus = AuthenticationStatus.Unknown;
       // cookies are stored in a ; separated list
       // regex used to filter out the text on the right side of "userId=" where the id is
       const regex = /(userId)=([^;]+)/g;
       const userId = regex.exec(document.cookie);
       if (userId && userId[2]) {
+        this.authenticationStatus = AuthenticationStatus.Unknown;
         this.s.emit("connection/auth", userId[2]);
       }
     }
