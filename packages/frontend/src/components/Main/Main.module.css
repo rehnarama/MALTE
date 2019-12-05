@@ -25,17 +25,25 @@
   grid-area: topbar;
 }
 
+.bottomBar {
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  height: 1.5rem;
+}
+
 .gridContainer {
   display: grid;
   grid:
-    "sidebar hresize  topbar"
+    "sidebar hresize topbar"
     "sidebar hresize texteditor"
     "sidebar hresize vresize"
     "sidebar hresize terminal";
+    
   background-color: coral;
-  height: 100vh;
+  height: calc(100vh - 1.5rem);
 }
 
 .gridContainer > div {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #d3dbe5;
 }
