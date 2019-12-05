@@ -4,19 +4,15 @@ import classes from "./Login.module.css";
 import { Button } from "@material-ui/core";
 import githubLogo from "./githubLogo.svg";
 import dog from "./dog.jpg";
+import useAuthenticationStatus from "../../hooks/useAuthenticationStatus";
+import { AuthenticationStatus } from "../../functions/AuthenticationStatus";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-interface Props {
-  updateAuthenticatedStatus: () => void;
-}
-
-const Login: React.FC<Props> = (props: Props) => {
-  const { updateAuthenticatedStatus } = props;
+const Login: React.FC = () => {
+  const authenticationStatus = useAuthenticationStatus();
 
   async function authenticate() {
-    const authenticated = await User.authenticate();
-    if (authenticated) {
-      updateAuthenticatedStatus();
-    }
+    await User.authenticate();
   }
   return (
     <div className={classes.container}>
@@ -27,10 +23,16 @@ const Login: React.FC<Props> = (props: Props) => {
         </p>
       </div>
       <div>
-        <Button variant="contained" onClick={authenticate}>
-          Login with GitHub
-          <img className={classes.logo} src={githubLogo} alt="Github Logo" />
-        </Button>
+        {authenticationStatus === AuthenticationStatus.Unknown && (
+          <CircularProgress />
+        )}
+        {(authenticationStatus === AuthenticationStatus.Failed ||
+          authenticationStatus === AuthenticationStatus.Unauthenticated) && (
+          <Button variant="contained" onClick={authenticate}>
+            Login with GitHub
+            <img className={classes.logo} src={githubLogo} alt="Github Logo" />
+          </Button>
+        )}
       </div>
     </div>
   );

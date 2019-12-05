@@ -6,14 +6,7 @@ import CodeEditor from "../CodeEditor";
 import classes from "./Main.module.css";
 import { DraggableCore, DraggableEventHandler } from "react-draggable";
 
-interface Props {
-  checkAuthenticatedStatus: () => void;
-}
-
-const Main: React.FC<Props> = (props: Props) => {
-  const { checkAuthenticatedStatus } = props;
-  checkAuthenticatedStatus();
-
+const Main: React.FC = () => {
   const [vsplit, setVSplit] = React.useState(300);
   const [hsplit, setHSplit] = React.useState(300);
 

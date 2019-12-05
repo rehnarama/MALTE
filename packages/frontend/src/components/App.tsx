@@ -1,33 +1,21 @@
 import * as React from "react";
 import Login from "./Login";
 import Main from "./Main";
-import { useCookies } from "react-cookie";
-import User from "../functions/User";
 import { useFileNameContext } from "../context/FileNameContext";
+import useAuthenticationStatus from "../hooks/useAuthenticationStatus";
+import { AuthenticationStatus } from "../functions/AuthenticationStatus";
 
 const App: React.FC = () => {
-  const [authenticated, setAuthenticated] = React.useState(false);
-  const [cookies] = useCookies(["userId"]);
+  const authenticationStatus = useAuthenticationStatus();
 
-  function updateAuthenticatedStatusTrue() {
-    setAuthenticated(true);
-    User.authenticateConnection();
-  }
-
-  function checkAuthenticatedStatus() {
-    if (cookies.userId) {
-      setAuthenticated(true);
-      User.authenticateConnection();
-    }
-  }
   return (
     <div>
-      {authenticated || cookies.userId ? (
+      {authenticationStatus === AuthenticationStatus.Authenticated ? (
         <useFileNameContext.Provider>
-          <Main checkAuthenticatedStatus={checkAuthenticatedStatus} />
+          <Main />
         </useFileNameContext.Provider>
       ) : (
-        <Login updateAuthenticatedStatus={updateAuthenticatedStatusTrue} />
+        <Login />
       )}
     </div>
   );

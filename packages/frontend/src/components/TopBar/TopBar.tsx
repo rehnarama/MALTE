@@ -1,10 +1,13 @@
 import * as React from "react";
 import classes from "./TopBar.module.css";
-import UserButton from "../UserButton";
+import useUserList from "../../hooks/useUserList";
+import Avatar from "../Avatar";
 import { useFileNameContext } from "../../context/FileNameContext";
 
 const TopBar: React.FC = () => {
   const { fileName } = useFileNameContext();
+  const userList = useUserList();
+
   const actualFileName = fileName.split(/\\|\//g).pop() || fileName;
 
   return (
@@ -15,7 +18,10 @@ const TopBar: React.FC = () => {
         </p>
       </div>
       <div className={classes.rightSide}>
-        <UserButton />
+        {userList &&
+          userList.users.map(user => (
+            <Avatar key={user.id} url={user.avatar_url} name={user.login} />
+          ))}
       </div>
     </header>
   );
