@@ -41,6 +41,7 @@ export default class SocketServer {
     }
 
     if (isUser(response)) {
+      socket.join("authenticated");
       this.userMap.set(socket.id, response);
 
       // Tell user they are authenticated
@@ -54,8 +55,6 @@ export default class SocketServer {
         // send file tree on request from client
         socket.emit("file-tree", await fsTree(this.project.getPath()));
       });
-
-      socket.join("authenticated");
     } else {
       // Tell user authentication failed
       socket.emit("connection/auth-fail");
