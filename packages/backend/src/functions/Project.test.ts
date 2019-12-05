@@ -4,6 +4,9 @@ import Project from "./Project";
 import MockSocketUnTyped from "socket.io-mock";
 import File from "./File";
 import { RGAJSON } from "rga/dist/RGA";
+import SocketServer from "./socketServer/SocketServer";
+import MockSocketIoServer from "./socketServer/MockSocketIoServer";
+import MockSocketServer from "./socketServer/MockSocketServer";
 
 const prototypes = {};
 
@@ -24,6 +27,8 @@ describe("Project", function() {
       File.prototype.getContent = (): RGAJSON => {
         return { nodes: [] };
       };
+
+      SocketServer["instance"] = new MockSocketServer();
     });
 
     this.afterEach(() => {
@@ -31,6 +36,7 @@ describe("Project", function() {
       File.prototype.leave = prototypes["File.leave"];
       File.prototype.initialize = prototypes["File.initialize"];
       File.prototype.getContent = prototypes["File.getContent"];
+      SocketServer["instance"] = undefined;
     });
 
     it("should allow a client to join a project", () => {
@@ -42,7 +48,6 @@ describe("Project", function() {
     });
 
     // how to test if a client has joined the "authenticated" group
-    /*
     it("should allow a client to join a buffer", (done: MochaDone) => {
       const projectPath = "dummy/path";
       const filePath = "dummyFile.txt";
@@ -60,7 +65,6 @@ describe("Project", function() {
 
       socket.socketClient.emit("join-buffer", { path: filePath });
     });
-    */
 
     it("should allow a client to leave a buffer", (done: MochaDone) => {
       File.prototype.leave = (): void => {
