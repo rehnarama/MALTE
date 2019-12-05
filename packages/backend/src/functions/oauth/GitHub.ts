@@ -28,7 +28,23 @@ export default class GitHub {
   private redirectUrl: string;
   private callbackUrl: string;
 
-  private userIdAccessTokenMap: Map<string, string>;
+  private userIdAccessTokenMap = new Map<string, string>();
+
+  private static instance: GitHub;
+
+  public static initialize(app: Express): GitHub {
+    this.instance = new GitHub(app);
+
+    return this.instance;
+  }
+
+  public static getInstance(): GitHub {
+    if (this.instance) {
+      return this.instance;
+    } else {
+      throw new Error("You must call initialize first");
+    }
+  }
 
   constructor(app: Express) {
     const backendUrl =
@@ -37,7 +53,6 @@ export default class GitHub {
     this.clientSecret = process.env.GH_CLIENT_SECRET;
     this.redirectUrl = backendUrl + REDIRECT_PATH;
     this.callbackUrl = backendUrl + CALLBACK_PATH;
-    this.userIdAccessTokenMap = new Map<string, string>();
 
     app.get(CALLBACK_PATH, this.onCallback);
     app.get(REDIRECT_PATH, this.onRedirect);
