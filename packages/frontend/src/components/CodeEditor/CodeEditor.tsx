@@ -4,13 +4,13 @@ import { editor as editorType } from "monaco-editor";
 import Editor from "../../functions/Editor";
 import ReactResizeDetector from "react-resize-detector";
 import WelcomeScreen from "./WelcomeScreen";
+import { useFileNameContext } from "../../context/FileNameContext";
 
-const CodeEditor: React.FC<{ fileName: string }> = (props: {
-  fileName: string;
-}) => {
+const CodeEditor: React.FC = () => {
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
+  const { fileName } = useFileNameContext();
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     const e = new Editor(editor);
@@ -20,16 +20,16 @@ const CodeEditor: React.FC<{ fileName: string }> = (props: {
 
   useEffect(() => {
     if (editor) {
-      editor.openBuffer(props.fileName);
+      editor.openBuffer(fileName);
     }
-  }, [props.fileName, editor]);
+  }, [fileName, editor]);
 
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
     setHeight(height);
   }
 
-  if (props.fileName === "") {
+  if (fileName === "") {
     return (
       <>
         <ReactResizeDetector

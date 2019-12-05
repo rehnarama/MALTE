@@ -4,6 +4,7 @@ import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "../Tree";
 import Socket from "../../functions/Socket";
 import classes from "./SideBar.module.css";
+import { useFileNameContext } from "../../context/FileNameContext";
 
 interface State {
   data?: TreeNode;
@@ -12,7 +13,7 @@ interface State {
 
 interface Props {
   fileName: string;
-  setFileName: React.Dispatch<React.SetStateAction<string>>;
+  setFileName: (newName: string) => void;
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
@@ -112,4 +113,10 @@ class SideBar extends React.Component<Props, State> {
   }
 }
 
-export default SideBar;
+const SideBarWithFileName = () => {
+  const { fileName, changeFileName } = useFileNameContext();
+
+  return <SideBar fileName={fileName} setFileName={changeFileName} />;
+};
+
+export default SideBarWithFileName;

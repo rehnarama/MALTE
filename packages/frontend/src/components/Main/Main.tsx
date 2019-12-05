@@ -16,7 +16,6 @@ const Main: React.FC<Props> = (props: Props) => {
 
   const [vsplit, setVSplit] = React.useState(300);
   const [hsplit, setHSplit] = React.useState(300);
-  const [fileName, setFileName] = React.useState("");
 
   const onHDrag: DraggableEventHandler = (_, e) => {
     setHSplit(hsplit + e.deltaX);
@@ -35,10 +34,10 @@ const Main: React.FC<Props> = (props: Props) => {
       }}
     >
       <div className={classes.topBar}>
-        <TopBar fileName={fileName} />
+        <TopBar />
       </div>
       <div className={classes.sidebar}>
-        <SideBar fileName={fileName} setFileName={setFileName} />
+        <SideBar />
       </div>
       <div className={classes.hresize}>
         <DraggableCore onDrag={onHDrag}>
@@ -46,7 +45,7 @@ const Main: React.FC<Props> = (props: Props) => {
         </DraggableCore>
       </div>
       <div className={classes.texteditor}>
-        <CodeEditor fileName={fileName} />
+        <CodeEditor />
       </div>
       <div className={classes.vresize}>
         <DraggableCore onDrag={onVDrag}>

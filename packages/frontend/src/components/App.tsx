@@ -3,6 +3,7 @@ import Login from "./Login";
 import Main from "./Main";
 import { useCookies } from "react-cookie";
 import User from "../functions/User";
+import { useFileNameContext } from "../context/FileNameContext";
 
 const App: React.FC = () => {
   const [authenticated, setAuthenticated] = React.useState(false);
@@ -22,7 +23,9 @@ const App: React.FC = () => {
   return (
     <div>
       {authenticated || cookies.userId ? (
-        <Main checkAuthenticatedStatus={checkAuthenticatedStatus} />
+        <useFileNameContext.Provider>
+          <Main checkAuthenticatedStatus={checkAuthenticatedStatus} />
+        </useFileNameContext.Provider>
       ) : (
         <Login updateAuthenticatedStatus={updateAuthenticatedStatusTrue} />
       )}
