@@ -4,4 +4,3 @@ export enum AuthenticationStatus {
   Unauthenticated,
   Failed
 }
-
