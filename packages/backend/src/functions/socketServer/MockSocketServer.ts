@@ -22,6 +22,12 @@ class MockSocketServer extends SocketServer {
     // In tests, we should always allow confirmation
     socket.join("authenticated");
     socket.emit("connection/auth-confirm");
+    this.userMap.set(socket.id, {
+      id: 123,
+      url: "https://github.com/my-user",
+      login: "my-user",
+      avatar_url: "myavatar.png"
+    });
   }
 }
 
