@@ -1,8 +1,26 @@
 /* eslint-disable */
 import SocketIO from "socket.io";
+import MockSocket from "./MockSocket";
 
 export default class MockSocketIoServer implements SocketIO.Server {
-  private mockSockets: any[] = [];
+  private mockSockets: MockSocket[] = [];
+  private eventFnMap = new Map<string, Function[]>();
+
+  public addMockSocket(socket: MockSocket) {
+    this.mockSockets.push(socket);
+    socket.onAny = (event: string, ...args: any[]) => {
+      const fns = this.eventFnMap.get(event);
+      if (fns) {
+        fns.forEach(fn => fn(...args));
+      }
+    };
+
+    // Call functions
+    const connectionFns = this.eventFnMap.get("connection");
+    if (connectionFns) {
+      connectionFns.forEach(fn => fn(socket));
+    }
+  }
 
   engine: { ws: any };
   nsps: { [namespace: string]: SocketIO.Namespace };
@@ -71,7 +89,13 @@ export default class MockSocketIoServer implements SocketIO.Server {
   ): SocketIO.Namespace;
   on(event: string, listener: Function): SocketIO.Namespace;
   on(event: any, listener: any): SocketIO.Namespace {
-    throw new Error("Method not implemented.");
+    let fns = this.eventFnMap.get(event);
+    if (!fns) {
+      fns = [];
+      this.eventFnMap.set(event, fns);
+    }
+    fns.push(listener);
+    return null;
   }
   to(room: string): SocketIO.Namespace {
     throw new Error("Method not implemented.");
