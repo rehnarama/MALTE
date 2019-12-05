@@ -14,7 +14,8 @@ interface BufferOperationData {
 
 export default class Editor {
   private editor: editorType.ICodeEditor;
-  private files: File | undefined;
+  private files: File[] = [];
+  private activeFile: File | undefined;
   private editorNamespace: typeof editorType;
 
   private widgets = new Map<string, CursorWidget>();
@@ -29,10 +30,6 @@ export default class Editor {
   public initialize() {
     const socket = Socket.getInstance().getSocket();
     socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
-      if (this.files !== undefined) {
-        // Close previously open file
-        this.files.close();
-      }
       this.openNewBuffer(data.path, data.content);
 
       // Changed buffer? Let's update cursors
@@ -45,10 +42,10 @@ export default class Editor {
     });
 
     this.editor.onDidChangeCursorPosition(e => {
-      if (this.files) {
-        const rgaPosition = this.files.getPositionRGA(e.position);
+      if (this.activeFile) {
+        const rgaPosition = this.activeFile.getPositionRGA(e.position);
         const movement: CursorMovement = {
-          path: this.files.path,
+          path: this.activeFile.path,
           id: rgaPosition
         };
         socket.emit("cursor/move", movement);
@@ -56,12 +53,22 @@ export default class Editor {
     });
   }
 
+  private getFile(path: string): File | undefined {
+    return this.files.find(f => f.path === path);
+  }
+
   public openBuffer(path: string) {
-    Socket.getInstance()
-      .getSocket()
-      .emit("join-buffer", {
-        path
-      });
+    const file = this.getFile(path);
+    if (file === undefined) {
+      Socket.getInstance()
+        .getSocket()
+        .emit("join-buffer", {
+          path
+        });
+    } else {
+      this.activeFile = file;
+      this.editor.setModel(file.model);
+    }
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
@@ -74,26 +81,27 @@ export default class Editor {
     newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
-    this.files = file;
+    this.files.push(file);
+    this.activeFile = file;
 
     this.editor.setModel(newModel);
   }
 
   private onCursors(cursors: CursorList): void {
-    if (!this.files) {
+    if (!this.activeFile) {
       return;
     }
 
     const newWidgets = new Map<string, CursorWidget>();
     for (const cursor of cursors) {
-      if (cursor.path !== this.files.path) {
+      if (cursor.path !== this.activeFile.path) {
         // We don't want this cursor in our editor!
         continue;
       }
       const userId = cursor.userId;
       let widget = this.widgets.get(userId);
       if (widget === undefined) {
-        widget = new CursorWidget(this.editor, this.files, cursor.userId);
+        widget = new CursorWidget(this.editor, this.activeFile, cursor.userId);
         widget.addWidget();
       } else {
         this.widgets.delete(userId);

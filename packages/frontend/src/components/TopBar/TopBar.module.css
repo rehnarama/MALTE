@@ -20,11 +20,22 @@
   align-items: flex-end;
 }
 
-.fileName {
+.activeFileName {
   display: inline-block;
   width: auto;
   padding: 8px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
   border-radius: 8px 8px 0 0;
+  cursor: pointer;
+}
+
+.fileName {
+  display: inline-block;
+  width: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: black;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
 }

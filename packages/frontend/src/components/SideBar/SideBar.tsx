@@ -12,8 +12,8 @@ interface State {
 }
 
 interface Props {
-  fileName: string;
-  setFileName: (newName: string) => void;
+  activeFileName: string;
+  changeActiveFileName: (newName: string) => void;
 }
 
 const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
@@ -43,7 +43,7 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    this.props.setFileName(node.path);
+    this.props.changeActiveFileName(node.path);
   };
 
   onToggle = (node: TreeNode) => {
@@ -95,7 +95,7 @@ class SideBar extends React.Component<Props, State> {
           <Tree
             node={this.state.data}
             root
-            selected={this.props.fileName}
+            selected={this.props.activeFileName}
             toggledKeys={this.state.toggledKeys}
             onSelect={this.onSelect}
             onToggle={this.onToggle}
@@ -114,9 +114,14 @@ class SideBar extends React.Component<Props, State> {
 }
 
 const SideBarWithFileName = () => {
-  const { fileName, changeFileName } = useFileNameContext();
+  const { activeFileName, changeActiveFileName } = useFileNameContext();
 
-  return <SideBar fileName={fileName} setFileName={changeFileName} />;
+  return (
+    <SideBar
+      activeFileName={activeFileName}
+      changeActiveFileName={changeActiveFileName}
+    />
+  );
 };
 
 export default SideBarWithFileName;

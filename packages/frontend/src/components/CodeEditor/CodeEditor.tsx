@@ -10,7 +10,7 @@ const CodeEditor: React.FC = () => {
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
-  const { fileName } = useFileNameContext();
+  const { activeFileName } = useFileNameContext();
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     const e = new Editor(editor);
@@ -20,16 +20,16 @@ const CodeEditor: React.FC = () => {
 
   useEffect(() => {
     if (editor) {
-      editor.openBuffer(fileName);
+      editor.openBuffer(activeFileName);
     }
-  }, [fileName, editor]);
+  }, [activeFileName, editor]);
 
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
     setHeight(height);
   }
 
-  if (fileName === "") {
+  if (activeFileName === "") {
     return (
       <>
         <ReactResizeDetector
