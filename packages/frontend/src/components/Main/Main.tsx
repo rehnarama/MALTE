@@ -5,10 +5,12 @@ import TopBar from "../TopBar";
 import CodeEditor from "../CodeEditor";
 import classes from "./Main.module.css";
 import { DraggableCore, DraggableEventHandler } from "react-draggable";
+import BottomBar from "../BottomBar";
 
 const Main: React.FC = () => {
   const [vsplit, setVSplit] = React.useState(300);
   const [hsplit, setHSplit] = React.useState(300);
+  const [darkTheme, setDarkTheme] = React.useState(false);
 
   const onHDrag: DraggableEventHandler = (_, e) => {
     setHSplit(hsplit + e.deltaX);
@@ -17,36 +19,44 @@ const Main: React.FC = () => {
     // Negative since we drag terminal
     setVSplit(vsplit - e.deltaY);
   };
+  const toggleDarkTheme = () => {
+    setDarkTheme(!darkTheme);
+  };
 
   return (
-    <div
-      className={classes.gridContainer}
-      style={{
-        gridTemplateColumns: `${hsplit}px min-content auto`,
-        gridTemplateRows: `min-content auto min-content ${vsplit}px`
-      }}
-    >
-      <div className={classes.topBar}>
-        <TopBar />
+    <div>
+      <div
+        className={classes.gridContainer}
+        style={{
+          gridTemplateColumns: `${hsplit}px min-content auto`,
+          gridTemplateRows: `min-content auto min-content ${vsplit}px`
+        }}
+      >
+        <div className={classes.topBar}>
+          <TopBar />
+        </div>
+        <div className={classes.sidebar}>
+          <SideBar />
+        </div>
+        <div className={classes.hresize}>
+          <DraggableCore onDrag={onHDrag}>
+            <div style={{ width: "5px", height: "100%", background: "#AAA" }} />
+          </DraggableCore>
+        </div>
+        <div className={classes.texteditor}>
+          <CodeEditor darkTheme={darkTheme} />
+        </div>
+        <div className={classes.vresize}>
+          <DraggableCore onDrag={onVDrag}>
+            <div style={{ height: "5px", width: "100%", background: "#AAA" }} />
+          </DraggableCore>
+        </div>
+        <div className={classes.terminal}>
+          <Terminal />
+        </div>
       </div>
-      <div className={classes.sidebar}>
-        <SideBar />
-      </div>
-      <div className={classes.hresize}>
-        <DraggableCore onDrag={onHDrag}>
-          <div style={{ width: "5px", height: "100%", background: "#AAA" }} />
-        </DraggableCore>
-      </div>
-      <div className={classes.texteditor}>
-        <CodeEditor />
-      </div>
-      <div className={classes.vresize}>
-        <DraggableCore onDrag={onVDrag}>
-          <div style={{ height: "5px", width: "100%", background: "#AAA" }} />
-        </DraggableCore>
-      </div>
-      <div className={classes.terminal}>
-        <Terminal />
+      <div className={classes.bottomBar}>
+        <BottomBar switchTheme={toggleDarkTheme} />
       </div>
     </div>
   );
