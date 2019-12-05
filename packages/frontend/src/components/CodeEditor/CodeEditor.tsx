@@ -6,7 +6,12 @@ import ReactResizeDetector from "react-resize-detector";
 import WelcomeScreen from "./WelcomeScreen";
 import { useFileNameContext } from "../../context/FileNameContext";
 
-const CodeEditor: React.FC = () => {
+interface Props {
+  darkTheme: boolean;
+}
+
+const CodeEditor: React.FC<Props> = (props: Props) => {
+  const { darkTheme } = props;
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
@@ -28,7 +33,6 @@ const CodeEditor: React.FC = () => {
     setWidth(width);
     setHeight(height);
   }
-
   if (fileName === "") {
     return (
       <>
@@ -48,7 +52,12 @@ const CodeEditor: React.FC = () => {
           handleHeight
           onResize={resizeTerminal}
         />
-        <MonacoEditor width={width} height={height} editorDidMount={handler} />
+        <MonacoEditor
+          width={width}
+          height={height}
+          editorDidMount={handler}
+          theme={darkTheme ? "dark" : "light"}
+        />
       </>
     );
   }
