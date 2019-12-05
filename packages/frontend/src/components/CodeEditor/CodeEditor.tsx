@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import { editor as editorType } from "monaco-editor";
-import Editor from "../functions/Editor";
+import Editor from "../../functions/Editor";
 import ReactResizeDetector from "react-resize-detector";
 import WelcomeScreen from "./WelcomeScreen";
 

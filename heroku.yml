@@ -5,3 +5,4 @@ build:
     REACT_APP_BACKEND_URL: https://malte-uu.herokuapp.com
     REACT_APP_FRONTEND_URL: https://malte-uu.herokuapp.com
     PROJECT_DIRECTORY: workspace
+    

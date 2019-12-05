@@ -7,4 +7,4 @@ function useFileName() {
   return { fileName, changeFileName };
 }
 
-export const useCounterContext = createUseContext(useFileName);
+export const useFileNameContext = createUseContext(useFileName);
