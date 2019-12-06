@@ -34,7 +34,6 @@ export default class SocketServer {
     socket: SocketIO.Socket,
     userId: string
   ): Promise<void> {
-    console.log(userId);
     this.userMap.delete(userId);
     socket.emit("connection/signout");
     socket.leave("authenticated");
