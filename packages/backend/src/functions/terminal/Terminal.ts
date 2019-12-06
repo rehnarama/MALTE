@@ -52,7 +52,7 @@ class Terminal {
   /**
    * Kill the terminal
    */
-  public kill(): void {
+  kill = (): void => {
     if (this.terminal !== null) {
       this.terminal.kill();
       this.terminal = null;
@@ -62,7 +62,7 @@ class Terminal {
       this.socket.off("connection/signout", this.kill);
       this.socket.off("disconnect", this.kill);
     }
-  }
+  };
 }
 
 export default Terminal;
