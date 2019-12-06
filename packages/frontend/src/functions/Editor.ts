@@ -29,17 +29,9 @@ export default class Editor {
 
   public initialize() {
     const socket = Socket.getInstance().getSocket();
-    socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
-      this.openNewBuffer(data.path, data.content);
 
-      // Changed buffer? Let's update cursors
-      this.onCursors(this.cursorList);
-    });
-
-    socket.on("cursor/list", (data: CursorList) => {
-      this.cursorList = data.filter(c => c.userId !== socket.id);
-      this.onCursors(this.cursorList);
-    });
+    socket.on("open-buffer", this.onOpenBuffer);
+    socket.on("cursor/list", this.onCursorList);
 
     this.editor.onDidChangeCursorPosition(e => {
       if (this.activeFile) {
@@ -52,6 +44,19 @@ export default class Editor {
       }
     });
   }
+
+  private onCursorList = (data: CursorList) => {
+    const socket = Socket.getInstance().getSocket();
+    this.cursorList = data.filter(c => c.userId !== socket.id);
+    this.onCursors(this.cursorList);
+  };
+
+  private onOpenBuffer = (data: { path: string; content: RGAJSON }) => {
+    this.openNewBuffer(data.path, data.content);
+
+    // Changed buffer? Let's update cursors
+    this.onCursors(this.cursorList);
+  };
 
   private getFile(path: string): File | undefined {
     return this.files.find(f => f.path === path);
@@ -132,5 +137,12 @@ export default class Editor {
     }
 
     this.widgets = newWidgets;
+  }
+
+  public dispose() {
+    const socket = Socket.getInstance().getSocket();
+    socket.off("open-buffer", this.onOpenBuffer);
+    socket.off("cursor/list", this.onCursorList);
+    this.editor.dispose();
   }
 }
