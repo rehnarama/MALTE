@@ -161,6 +161,7 @@ export default class Project {
     const index = this.sockets.findIndex(s => s.id === socket.id);
     if (index) {
       this.sockets.splice(index, 1);
+      this.broadcastUserList();
     }
     if (this.cursorMap[socket.id]) {
       delete this.cursorMap[socket.id];
