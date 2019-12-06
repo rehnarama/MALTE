@@ -121,18 +121,11 @@ export default class Project {
     socket.on("cursor/move", (data: CursorMovement) =>
       this.onCursorMove(socket, data)
     );
-
     socket.on("disconnect", () => {
-      const index = this.sockets.findIndex(s => s.id === socket.id);
-      if (index) {
-        this.sockets.splice(index, 1);
-      }
-
-      if (this.cursorMap[socket.id]) {
-        delete this.cursorMap[socket.id];
-      }
-
-      this.broadcastCursorList();
+      this.removeSocket(socket);
+    });
+    socket.on("connection/signout", () => {
+      this.removeSocket(socket);
     });
 
     return true;
@@ -163,6 +156,17 @@ export default class Project {
     };
     this.broadcastCursorList();
   };
+
+  private removeSocket(socket: SocketIO.Socket): void {
+    const index = this.sockets.findIndex(s => s.id === socket.id);
+    if (index) {
+      this.sockets.splice(index, 1);
+    }
+    if (this.cursorMap[socket.id]) {
+      delete this.cursorMap[socket.id];
+      this.broadcastCursorList();
+    }
+  }
 
   private broadcastCursorList(): void {
     const cursorList: CursorList = Object.values(this.cursorMap);
