@@ -3,7 +3,11 @@ import path from "path";
 import chokidar from "chokidar";
 import File from "./File";
 import { RGAOperationJSON } from "rga/dist/RGA";
-import { CursorList, CursorMovement } from "malte-common/dist/Cursor";
+import {
+  CursorList,
+  CursorMovement,
+  CursorInfo
+} from "malte-common/dist/Cursor";
 import { User, UserList } from "malte-common/dist/UserList";
 import SocketServer from "./socketServer/SocketServer";
 
@@ -13,7 +17,7 @@ export default class Project {
   private files: File[] = [];
   private sockets: SocketIO.Socket[] = [];
 
-  private cursorList: CursorList = [];
+  private cursorMap: { [socketId: string]: CursorInfo } = {};
 
   constructor(path: string) {
     this.path = path;
@@ -123,10 +127,11 @@ export default class Project {
         this.sockets.splice(index, 1);
       }
 
-      this.cursorList = this.cursorList.filter(c => c.userId !== socket.id);
-      socket.server.emit("cursor/list", this.cursorList);
+      if (this.cursorMap[socket.id]) {
+        delete this.cursorMap[socket.id];
+      }
 
-      this.broadcastUserList();
+      this.broadcastCursorList();
     });
 
     return true;
@@ -150,26 +155,18 @@ export default class Project {
   };
 
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
-    if (this.cursorList.some(c => c.userId === socket.id)) {
-      this.cursorList = this.cursorList.map(c => {
-        if (c.userId === socket.id) {
-          return {
-            ...c,
-            id: data.id,
-            path: data.path
-          };
-        } else {
-          return c;
-        }
-      });
-    } else {
-      this.cursorList.push({
-        userId: socket.id,
-        id: data.id,
-        path: data.path
-      });
-    }
-
-    socket.server.in("authenticated").emit("cursor/list", this.cursorList);
+    this.cursorMap[socket.id] = {
+      ...data,
+      name: SocketServer.getInstance().getUser(socket.id).login,
+      socketId: socket.id
+    };
+    this.broadcastCursorList();
   };
+
+  private broadcastCursorList(): void {
+    const cursorList: CursorList = Object.values(this.cursorMap);
+    SocketServer.getInstance()
+      .server.in("authenticated")
+      .emit("cursor/list", cursorList);
+  }
 }

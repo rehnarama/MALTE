@@ -5,7 +5,8 @@ export interface CursorMovement {
 }
 
 export interface CursorInfo extends CursorMovement {
-  userId: string;
+  name: string;
+  socketId: string;
 }
 
 export type CursorList = CursorInfo[];

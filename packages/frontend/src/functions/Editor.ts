@@ -40,7 +40,7 @@ export default class Editor {
     });
 
     socket.on("cursor/list", (data: CursorList) => {
-      this.cursorList = data.filter(c => c.userId !== socket.id);
+      this.cursorList = data.filter(c => c.socketId !== socket.id);
       this.onCursors(this.cursorList);
     });
 
@@ -90,15 +90,15 @@ export default class Editor {
         // We don't want this cursor in our editor!
         continue;
       }
-      const userId = cursor.userId;
-      let widget = this.widgets.get(userId);
+
+      let widget = this.widgets.get(cursor.socketId);
       if (widget === undefined) {
-        widget = new CursorWidget(this.editor, this.files, cursor.userId);
+        widget = new CursorWidget(this.editor, this.files, cursor.name);
         widget.addWidget();
       } else {
-        this.widgets.delete(userId);
+        this.widgets.delete(cursor.socketId);
       }
-      newWidgets.set(userId, widget);
+      newWidgets.set(cursor.socketId, widget);
 
       widget.updatePosition(new RGAIdentifier(cursor.id.sid, cursor.id.sum));
     }
