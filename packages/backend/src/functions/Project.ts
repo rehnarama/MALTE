@@ -3,7 +3,11 @@ import path from "path";
 import chokidar from "chokidar";
 import File from "./File";
 import { RGAOperationJSON } from "rga/dist/RGA";
-import { CursorList, CursorMovement } from "malte-common/dist/Cursor";
+import {
+  CursorList,
+  CursorMovement,
+  CursorInfo
+} from "malte-common/dist/Cursor";
 import { User, UserList } from "malte-common/dist/UserList";
 import SocketServer from "./socketServer/SocketServer";
 
@@ -13,7 +17,7 @@ export default class Project {
   private files: File[] = [];
   private sockets: SocketIO.Socket[] = [];
 
-  private cursorList: CursorList = [];
+  private cursorMap: { [socketId: string]: CursorInfo } = {};
 
   constructor(path: string) {
     this.path = path;
@@ -87,6 +91,7 @@ export default class Project {
         const joined = file.join(socket);
         if (joined) {
           socket.emit("open-buffer", { path, content: file.getContent() });
+          this.sendCursorList(socket);
         }
       }
     });
@@ -116,17 +121,11 @@ export default class Project {
     socket.on("cursor/move", (data: CursorMovement) =>
       this.onCursorMove(socket, data)
     );
-
     socket.on("disconnect", () => {
-      const index = this.sockets.findIndex(s => s.id === socket.id);
-      if (index) {
-        this.sockets.splice(index, 1);
-      }
-
-      this.cursorList = this.cursorList.filter(c => c.userId !== socket.id);
-      socket.server.emit("cursor/list", this.cursorList);
-
-      this.broadcastUserList();
+      this.removeSocket(socket);
+    });
+    socket.on("connection/signout", () => {
+      this.removeSocket(socket);
     });
 
     return true;
@@ -150,26 +149,34 @@ export default class Project {
   };
 
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
-    if (this.cursorList.some(c => c.userId === socket.id)) {
-      this.cursorList = this.cursorList.map(c => {
-        if (c.userId === socket.id) {
-          return {
-            ...c,
-            id: data.id,
-            path: data.path
-          };
-        } else {
-          return c;
-        }
-      });
-    } else {
-      this.cursorList.push({
-        userId: socket.id,
-        id: data.id,
-        path: data.path
-      });
-    }
-
-    socket.server.in("authenticated").emit("cursor/list", this.cursorList);
+    this.cursorMap[socket.id] = {
+      ...data,
+      login: SocketServer.getInstance().getUser(socket.id).login,
+      socketId: socket.id
+    };
+    this.broadcastCursorList();
   };
+
+  private removeSocket(socket: SocketIO.Socket): void {
+    const index = this.sockets.findIndex(s => s.id === socket.id);
+    if (index) {
+      this.sockets.splice(index, 1);
+      this.broadcastUserList();
+    }
+    if (this.cursorMap[socket.id]) {
+      delete this.cursorMap[socket.id];
+      this.broadcastCursorList();
+    }
+  }
+
+  private broadcastCursorList(): void {
+    const cursorList: CursorList = Object.values(this.cursorMap);
+    SocketServer.getInstance()
+      .server.in("authenticated")
+      .emit("cursor/list", cursorList);
+  }
+  private sendCursorList(socket: SocketIO.Socket): void {
+    const cursorList: CursorList = Object.values(this.cursorMap);
+    socket.emit("cursor/list", cursorList);
+  }
 }
