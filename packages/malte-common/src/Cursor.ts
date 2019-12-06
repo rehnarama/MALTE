@@ -5,7 +5,7 @@ export interface CursorMovement {
 }
 
 export interface CursorInfo extends CursorMovement {
-  name: string;
+  login: string;
   socketId: string;
 }
 

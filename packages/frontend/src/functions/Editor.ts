@@ -93,7 +93,7 @@ export default class Editor {
 
       let widget = this.widgets.get(cursor.socketId);
       if (widget === undefined) {
-        widget = new CursorWidget(this.editor, this.files, cursor.name);
+        widget = new CursorWidget(this.editor, this.files, cursor.login);
         widget.addWidget();
       } else {
         this.widgets.delete(cursor.socketId);

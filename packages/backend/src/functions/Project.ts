@@ -158,7 +158,7 @@ export default class Project {
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
     this.cursorMap[socket.id] = {
       ...data,
-      name: SocketServer.getInstance().getUser(socket.id).login,
+      login: SocketServer.getInstance().getUser(socket.id).login,
       socketId: socket.id
     };
     this.broadcastCursorList();
