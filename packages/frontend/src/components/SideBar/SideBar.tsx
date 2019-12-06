@@ -5,6 +5,8 @@ import Tree from "../Tree";
 import Socket from "../../functions/Socket";
 import classes from "./SideBar.module.css";
 import { useFileNameContext } from "../../context/FileNameContext";
+import { Button } from "@material-ui/core";
+import SignOutIcon from "@material-ui/icons/PowerSettingsNew";
 
 interface State {
   data?: TreeNode;
@@ -14,6 +16,7 @@ interface State {
 interface Props {
   fileName: string;
   setFileName: (newName: string) => void;
+  signOut: () => void;
 }
 
 class SideBar extends React.Component<Props, State> {
@@ -91,32 +94,50 @@ class SideBar extends React.Component<Props, State> {
   render() {
     return (
       <div className={classes.sideBar}>
-        <p>Files</p>
-        {this.state.data ? (
-          <Tree
-            node={this.state.data}
-            root
-            selected={this.props.fileName}
-            toggledKeys={this.state.toggledKeys}
-            onSelect={this.onSelect}
-            onToggle={this.onToggle}
-            onDelete={this.onDelete}
-            onCreateFolder={this.onCreateFolder}
-            onCreateFile={this.onCreateFile}
-            onEdit={this.onEdit}
-          />
-        ) : (
-          <p>Loading...</p>
-        )}
+        <div className={classes.fileTree}>
+          <p>Files</p>
+          {this.state.data ? (
+            <Tree
+              node={this.state.data}
+              root
+              selected={this.props.fileName}
+              toggledKeys={this.state.toggledKeys}
+              onSelect={this.onSelect}
+              onToggle={this.onToggle}
+              onDelete={this.onDelete}
+              onCreateFolder={this.onCreateFolder}
+              onCreateFile={this.onCreateFile}
+              onEdit={this.onEdit}
+            />
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+        <div className={classes.signOut}>
+          <Button fullWidth variant={"outlined"} onClick={this.props.signOut}>
+            <SignOutIcon />
+            Sign Out
+          </Button>
+        </div>
       </div>
     );
   }
 }
 
-const SideBarWithFileName = () => {
+interface ExternalProp {
+  signOut: () => void;
+}
+
+const SideBarWithFileName = (props: ExternalProp) => {
   const { fileName, changeFileName } = useFileNameContext();
 
-  return <SideBar fileName={fileName} setFileName={changeFileName} />;
+  return (
+    <SideBar
+      fileName={fileName}
+      setFileName={changeFileName}
+      signOut={props.signOut}
+    />
+  );
 };
 
 export default SideBarWithFileName;

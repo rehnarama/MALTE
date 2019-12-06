@@ -11,9 +11,11 @@ const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
  * @argument socket The socket to pipe data on.
  */
 class Terminal {
-  private terminal: pty.IPty;
+  private terminal: pty.IPty = null;
+  private socket: socketio.Socket;
 
   constructor(socket: socketio.Socket, homeDirectory?: string) {
+    this.socket = socket;
     this.terminal = pty.spawn(SHELL, [], {
       name: "xterm-color",
       env: process.env,
@@ -26,30 +28,41 @@ class Terminal {
       }
     });
 
-    socket.on("pty-data", data => {
-      if (socket.rooms["authenticated"]) {
-        this.terminal.write(data);
-      }
-    });
+    socket.on("pty-data", this.onPtyData);
+    socket.on("pty-resize", this.onPtyResize);
+    socket.on("connection/signout", this.kill);
+    socket.on("disconnect", this.kill);
+  }
 
-    socket.on("pty-resize", (data: TerminalSize) => {
+  onPtyData = (data: string): void => {
+    if (this.socket.rooms["authenticated"]) {
+      this.terminal.write(data);
+    }
+  };
+
+  onPtyResize = (data: TerminalSize): void => {
+    if (this.socket.rooms["authenticated"]) {
       if (!data?.columns || !data?.rows) {
         return;
       }
       this.terminal.resize(data.columns, data.rows);
-    });
-
-    socket.on("disconnect", () => {
-      this.kill();
-    });
-  }
+    }
+  };
 
   /**
    * Kill the terminal
    */
-  public kill(): void {
-    this.terminal.kill();
-  }
+  kill = (): void => {
+    if (this.terminal !== null) {
+      this.terminal.kill();
+      this.terminal = null;
+
+      this.socket.off("pty-data", this.onPtyData);
+      this.socket.off("pty-resize", this.onPtyResize);
+      this.socket.off("connection/signout", this.kill);
+      this.socket.off("disconnect", this.kill);
+    }
+  };
 }
 
 export default Terminal;
