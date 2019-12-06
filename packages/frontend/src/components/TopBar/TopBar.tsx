@@ -2,6 +2,7 @@ import * as React from "react";
 import classes from "./TopBar.module.css";
 import UserButton from "../UserButton";
 import { useFileNameContext } from "../../context/FileNameContext";
+import CloseIcon from "@material-ui/icons/Close";
 
 const TopBar: React.FC = () => {
   const {
@@ -31,7 +32,7 @@ const TopBar: React.FC = () => {
           const closeFile =
             actualFile === actualActiveFileName ? (
               <p className={classes.close} onClick={() => removeFile(file)}>
-                x
+                <CloseIcon />
               </p>
             ) : null;
           return (
