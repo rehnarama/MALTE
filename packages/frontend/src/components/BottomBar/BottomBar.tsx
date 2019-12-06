@@ -18,7 +18,9 @@ const BottomBar: React.FC<Props> = (props: Props) => {
       </div>
       <div className={classes.rightSide}>
         <p onClick={switchTheme} className={classes.actionable}>
-          💡
+          <span role="img" aria-label="Toggle Dark/Light Theme">
+            💡
+          </span>
         </p>
       </div>
     </div>

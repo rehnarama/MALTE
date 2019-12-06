@@ -20,6 +20,12 @@ class Socket {
       // Let's remove cookie, maybe that's why we failed
       document.cookie = "userId=;Max-Age=0;";
     });
+
+    this.s.on("connection/signout", () => {
+      console.log("signed out!");
+      document.cookie = "userId=;Max-Age=0;";
+      this.authenticationStatus = AuthenticationStatus.Unauthenticated;
+    });
   }
 
   static getInstance(): Socket {
