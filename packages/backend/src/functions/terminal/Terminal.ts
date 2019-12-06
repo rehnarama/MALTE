@@ -39,6 +39,10 @@ class Terminal {
       this.terminal.resize(data.columns, data.rows);
     });
 
+    socket.on("connection/signout", () => {
+      this.terminal.kill();
+    });
+
     socket.on("disconnect", () => {
       this.kill();
     });
