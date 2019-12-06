@@ -27,7 +27,12 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onFileTree = (data: TreeNode) => {
-    this.setState(() => ({ data }));
+    this.setState(({ toggledKeys }) => ({
+      data,
+      // Set root to automatically expanded unless the user has previously set
+      // it to collapsed
+      toggledKeys: Object.assign({ [data.path]: true }, toggledKeys)
+    }));
   };
 
   componentDidMount() {
