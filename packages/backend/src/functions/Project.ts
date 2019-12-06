@@ -91,6 +91,7 @@ export default class Project {
         const joined = file.join(socket);
         if (joined) {
           socket.emit("open-buffer", { path, content: file.getContent() });
+          this.sendCursorList(socket);
         }
       }
     });
@@ -168,5 +169,9 @@ export default class Project {
     SocketServer.getInstance()
       .server.in("authenticated")
       .emit("cursor/list", cursorList);
+  }
+  private sendCursorList(socket: SocketIO.Socket): void {
+    const cursorList: CursorList = Object.values(this.cursorMap);
+    socket.emit("cursor/list", cursorList);
   }
 }
