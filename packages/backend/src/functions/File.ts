@@ -125,7 +125,7 @@ export default class File {
 
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
-        s.emit("buffer-operation", { path: this.path, operation: rgaOp });
+        s.emit("buffer/operation", { path: this.path, operation: rgaOp });
       }
     }
   }

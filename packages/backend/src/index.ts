@@ -73,7 +73,7 @@ async function start(): Promise<void> {
   // broadcast file tree when filesystem changes
   project.getWatcher().on("all", async () => {
     const tree = await fsTree(projectRoot);
-    io.to("authenticated").emit("file-tree", tree);
+    io.to("authenticated").emit("file/tree", tree);
   });
 }
 

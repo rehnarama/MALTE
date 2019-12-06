@@ -84,19 +84,19 @@ export default class Project {
     this.sockets.push(socket);
     this.broadcastUserList();
 
-    socket.on("join-buffer", async (data: { path: string }) => {
+    socket.on("buffer/join", async (data: { path: string }) => {
       if (socket.rooms["authenticated"]) {
         const path: string = data.path;
         const file = await this.getFile(path);
         const joined = file.join(socket);
         if (joined) {
-          socket.emit("open-buffer", { path, content: file.getContent() });
+          socket.emit("buffer/open", { path, content: file.getContent() });
           this.sendCursorList(socket);
         }
       }
     });
 
-    socket.on("leave-buffer", async (data: { path: string }) => {
+    socket.on("buffer/leave", async (data: { path: string }) => {
       const normalizedPath = data.path.replace(this.path, "");
       const path: string = normalizedPath;
       const file = await this.getFile(path);
@@ -104,7 +104,7 @@ export default class Project {
     });
 
     socket.on(
-      "buffer-operation",
+      "buffer/operation",
       async (data: { path: string; operation: RGAOperationJSON }) => {
         if (socket.rooms["authenticated"]) {
           const normalizedPath = data.path.replace(this.path, "");

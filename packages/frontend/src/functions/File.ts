@@ -51,7 +51,7 @@ export default class File {
 
     Socket.getInstance()
       .getSocket()
-      .on("buffer-operation", (data: BufferOperationData) => {
+      .on("buffer/operation", (data: BufferOperationData) => {
         if (data.path === this.path) {
           const operation = rgaOperationFromJSON(data.operation);
           const Range = Monaco.getInstance().getMonacoNamespace().Range;
@@ -101,13 +101,13 @@ export default class File {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
       const socket = Socket.getInstance().getSocket();
-      socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
+      socket.emit("buffer/operation", { path: this.path, operation: rgaOp });
     }
   }
 
   public close() {
     const socket = Socket.getInstance().getSocket();
-    socket.emit("leave-buffer", { path: this.path });
+    socket.emit("buffer/leave", { path: this.path });
     this.contentChangedListener.dispose();
     this.model.dispose();
   }

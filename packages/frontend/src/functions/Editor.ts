@@ -28,7 +28,7 @@ export default class Editor {
 
   public initialize() {
     const socket = Socket.getInstance().getSocket();
-    socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
+    socket.on("buffer/open", (data: { path: string; content: RGAJSON }) => {
       if (this.files !== undefined) {
         // Close previously open file
         this.files.close();
@@ -59,7 +59,7 @@ export default class Editor {
   public openBuffer(path: string) {
     Socket.getInstance()
       .getSocket()
-      .emit("join-buffer", {
+      .emit("buffer/join", {
         path
       });
   }

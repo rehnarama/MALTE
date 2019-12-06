@@ -61,9 +61,9 @@ export default class SocketServer {
       new Terminal(socket, this.project.getPath());
       new FileSystem(socket, this.project.getPath());
 
-      socket.on("refresh-file-tree", async () => {
+      socket.on("file/tree-refresh", async () => {
         // send file tree on request from client
-        socket.emit("file-tree", await fsTree(this.project.getPath()));
+        socket.emit("file/tree", await fsTree(this.project.getPath()));
       });
     } else {
       // Tell user authentication failed
