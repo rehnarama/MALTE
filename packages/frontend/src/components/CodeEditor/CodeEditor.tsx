@@ -47,7 +47,7 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   return (
     <>
       <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
-      {activeFileName == "" ? (
+      {activeFileName === "" ? (
         <WelcomeScreen />
       ) : (
         <MonacoEditor

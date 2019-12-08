@@ -3,7 +3,7 @@ import RGA, {
   RGAOperationJSON,
   rgaOperationFromJSON
 } from "rga/dist/RGA";
-import { editor as editorType, IDisposable, IPosition } from "monaco-editor";
+import { editor as editorType, IPosition } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";

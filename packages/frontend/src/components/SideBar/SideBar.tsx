@@ -1,5 +1,5 @@
 import * as React from "react";
-import TreeNode from "malte-common/dist/TreeNode";
+import TreeNode, { treeToArray } from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "../Tree";
 import Socket from "../../functions/Socket";
@@ -31,6 +31,18 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onFileTree = (data: TreeNode) => {
+    const oldData = treeToArray(this.state.data);
+    const newData = treeToArray(data);
+
+    const removedFiles = oldData.filter(
+      oldNode => 0 > newData.findIndex(newNode => oldNode.path === newNode.path)
+    );
+
+    if (removedFiles.length === 1) {
+      // Assuming that only one file can be removed per update
+      this.props.removeFile(removedFiles[0].path);
+    }
+
     this.setState(({ toggledKeys }) => ({
       data,
       // Set root to automatically expanded unless the user has previously set
