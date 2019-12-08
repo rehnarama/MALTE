@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .container * {
@@ -20,11 +20,37 @@
   align-items: flex-end;
 }
 
-.fileName {
-  display: inline-block;
+.activeFileName {
+  display: flex;
+  align-items: center;
   width: auto;
   padding: 8px;
   background: rgba(0, 0, 0, 0.5);
   color: white;
   border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.fileName {
+  display: flex;
+  align-items: center;
+  width: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: black;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.close {
+  display: inline-block;
+  color: inherit;
+}
+
+.close:hover {
+  color: red;
 }

@@ -15,7 +15,7 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
-  const { fileName } = useFileNameContext();
+  const { activeFileName, fileToRemove } = useFileNameContext();
 
   const handler = (_: Function, editor: editorType.ICodeEditor): void => {
     const e = new Editor(editor);
@@ -24,43 +24,41 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    if (editor) {
-      editor.openBuffer(fileName);
+    if (editor && fileToRemove !== "") {
+      editor.closeBuffer(fileToRemove);
     }
-  }, [fileName, editor]);
+  }, [fileToRemove, editor]);
+
+  useEffect(() => {
+    if (editor && activeFileName !== "") {
+      editor.openBuffer(activeFileName);
+    }
+
+    if (activeFileName === "" && editor) {
+      editor.dispose();
+    }
+  }, [activeFileName, editor]);
 
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
     setHeight(height);
   }
-  if (fileName === "") {
-    return (
-      <>
-        <ReactResizeDetector
-          handleWidth
-          handleHeight
-          onResize={resizeTerminal}
-        />
+
+  return (
+    <>
+      <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
+      {activeFileName === "" ? (
         <WelcomeScreen />
-      </>
-    );
-  } else {
-    return (
-      <>
-        <ReactResizeDetector
-          handleWidth
-          handleHeight
-          onResize={resizeTerminal}
-        />
+      ) : (
         <MonacoEditor
           width={width}
           height={height}
           editorDidMount={handler}
           theme={darkTheme ? "dark" : "light"}
         />
-      </>
-    );
-  }
+      )}
+    </>
+  );
 };
 
 export default CodeEditor;
