@@ -3,19 +3,52 @@ import classes from "./TopBar.module.css";
 import useUserList from "../../hooks/useUserList";
 import Avatar from "../Avatar";
 import { useFileNameContext } from "../../context/FileNameContext";
+import CloseIcon from "@material-ui/icons/Close";
 
 const TopBar: React.FC = () => {
-  const { fileName } = useFileNameContext();
+  const {
+    activeFileName,
+    fileNames,
+    changeActiveFileName,
+    removeFile
+  } = useFileNameContext();
   const userList = useUserList();
 
-  const actualFileName = fileName.split(/\\|\//g).pop() || fileName;
+  const actualActiveFileName =
+    activeFileName.split(/\\|\//g).pop() || activeFileName;
+
+  const welcomeTab =
+    actualActiveFileName === "" ? (
+      <p className={classes.fileName}>Welcome!</p>
+    ) : null;
 
   return (
     <header className={classes.container}>
       <div className={classes.tabBar}>
-        <p className={classes.fileName}>
-          {actualFileName === "" ? "Welcome!" : actualFileName}
-        </p>
+        {fileNames.map((file: string) => {
+          const actualFile = file.split(/\\|\//g).pop() || file;
+          const fileClasses =
+            actualFile === actualActiveFileName
+              ? classes.activeFileName
+              : classes.fileName;
+          const closeFile =
+            actualFile === actualActiveFileName ? (
+              <p className={classes.close} onClick={() => removeFile(file)}>
+                <CloseIcon />
+              </p>
+            ) : null;
+          return (
+            <div
+              key={actualFile}
+              className={fileClasses}
+              onClick={() => changeActiveFileName(file)}
+            >
+              {actualFile}
+              {closeFile}
+            </div>
+          );
+        })}
+        {welcomeTab}
       </div>
       <div className={classes.rightSide}>
         {userList &&
