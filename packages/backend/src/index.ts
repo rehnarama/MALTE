@@ -1,17 +1,14 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import socketio from "socket.io";
 import fsTree from "./functions/fsTree";
 import Project from "./functions/Project";
 import cors from "cors";
-import Terminal from "./functions/terminal/Terminal";
 import GitHub from "./functions/oauth/GitHub";
-import { FileSystem } from "./functions/filesystem";
 import { initializeWorkspaceInUserHome } from "./functions/workspace/initializeWorkspaceInUserHome";
 import { initializeRandomDirectory } from "./functions/workspace/initializeRandomDirectory";
 import { forceSsl } from "./functions/forceSsl/forceSsl";
 import Database from "./functions/db/Database";
-import { AuthError } from "malte-common/dist/oauth/AuthError";
+import SocketServer from "./functions/socketServer/SocketServer";
 
 const PORT = Number.parseInt(process.env.PORT) || 4000;
 let frontendUrl = "http://localhost:3000";
@@ -22,7 +19,7 @@ if (process.env.REACT_APP_FRONTEND_URL) {
 async function start(): Promise<void> {
   await Database.getInstance().connect();
 
-  let projectRoot;
+  let projectRoot: string;
   if (process.env.PROJECT_DIRECTORY) {
     projectRoot = await initializeWorkspaceInUserHome();
   } else {
@@ -57,7 +54,7 @@ async function start(): Promise<void> {
   };
   app.use(cors(corsOptions));
 
-  const gitHub = new GitHub(app);
+  GitHub.initialize(app);
 
   const server = app.listen(PORT, err => {
     if (err) {
@@ -69,34 +66,9 @@ async function start(): Promise<void> {
   // For some reason, socket.io refuses to work on heroku unless all
   // ports are allowed, so let's make it so!
   const origins = frontendUrl.replace(/:\d+$/, "") + ":*";
-  const io = socketio(server, { origins });
-  io.on("connection", async socket => {
-    console.log(`Socket with id ${socket.id} connected`);
 
-    new Terminal(socket, projectRoot);
-    new FileSystem(socket, projectRoot);
-    project.join(socket);
-
-    // send file tree on request from client
-    socket.on("refresh-file-tree", async () => {
-      if (socket.rooms["authenticated"]) {
-        socket.emit("file-tree", await fsTree(projectRoot));
-      }
-    });
-
-    // everyone must be able to request to join, otherwise noone can join
-    socket.on("join-group", async userId => {
-      const response = await gitHub.getUser(userId);
-      if (response === AuthError.AuthNeeded || response === AuthError.Unknown) {
-        console.log("Unknown user trying to connect");
-      } else {
-        console.log("User connected to auth group");
-        socket.join("authenticated");
-        // emit filetree here can be removed later when we have login in separate window
-        socket.emit("file-tree", await fsTree(projectRoot));
-      }
-    });
-  });
+  SocketServer.initialize(server, origins, project);
+  const io = SocketServer.getInstance().server;
 
   // broadcast file tree when filesystem changes
   project.getWatcher().on("all", async () => {

@@ -13,6 +13,15 @@ let terminal: XTerm;
 let fitAddon: FitAddon;
 const Terminal: React.FC = () => {
   const terminalRef = React.useCallback(node => {
+    function writeData(data: string) {
+      terminal.write(data);
+    }
+    function signout() {
+      terminal.dispose();
+      socket.getSocket().off("pty-data", writeData);
+      socket.getSocket().off("connection/signout", signout);
+    }
+
     if (node !== null) {
       socket = Socket.getInstance();
 
@@ -26,9 +35,9 @@ const Terminal: React.FC = () => {
         socket.getSocket().emit("pty-data", data);
       });
 
-      socket.getSocket().on("pty-data", (data: string) => {
-        terminal.write(data);
-      });
+      socket.getSocket().on("pty-data", writeData);
+
+      socket.getSocket().on("connection/signout", signout);
     }
   }, []);
 

@@ -5,6 +5,8 @@ import Tree from "../Tree";
 import Socket from "../../functions/Socket";
 import classes from "./SideBar.module.css";
 import { useFileNameContext } from "../../context/FileNameContext";
+import { Button } from "@material-ui/core";
+import SignOutIcon from "@material-ui/icons/PowerSettingsNew";
 
 interface State {
   data?: TreeNode;
@@ -15,11 +17,8 @@ interface Props {
   activeFileName: string;
   changeActiveFileName: (newName: string) => void;
   removeFile: (newName: string) => void;
+  signOut: () => void;
 }
-
-const COMMIT_ID: string = process.env.REACT_APP_SOURCE_VERSION
-  ? process.env.REACT_APP_SOURCE_VERSION.substr(0, 7)
-  : "development build";
 
 class SideBar extends React.Component<Props, State> {
   private socket: SocketIOClient.Socket;
@@ -32,7 +31,12 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onFileTree = (data: TreeNode) => {
-    this.setState(() => ({ data }));
+    this.setState(({ toggledKeys }) => ({
+      data,
+      // Set root to automatically expanded unless the user has previously set
+      // it to collapsed
+      toggledKeys: Object.assign({ [data.path]: true }, toggledKeys)
+    }));
   };
 
   componentDidMount() {
@@ -92,30 +96,41 @@ class SideBar extends React.Component<Props, State> {
   render() {
     return (
       <div className={classes.sideBar}>
-        <p>Files</p>
-        {this.state.data ? (
-          <Tree
-            node={this.state.data}
-            root
-            selected={this.props.activeFileName}
-            toggledKeys={this.state.toggledKeys}
-            onSelect={this.onSelect}
-            onToggle={this.onToggle}
-            onDelete={this.onDelete}
-            onCreateFolder={this.onCreateFolder}
-            onCreateFile={this.onCreateFile}
-            onEdit={this.onEdit}
-          />
-        ) : (
-          <p>Loading...</p>
-        )}
-        <p className={classes.commitId}>Build: {COMMIT_ID}</p>
+        <div className={classes.fileTree}>
+          <p>Files</p>
+          {this.state.data ? (
+            <Tree
+              node={this.state.data}
+              root
+              selected={this.props.activeFileName}
+              toggledKeys={this.state.toggledKeys}
+              onSelect={this.onSelect}
+              onToggle={this.onToggle}
+              onDelete={this.onDelete}
+              onCreateFolder={this.onCreateFolder}
+              onCreateFile={this.onCreateFile}
+              onEdit={this.onEdit}
+            />
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+        <div className={classes.signOut}>
+          <Button fullWidth variant={"outlined"} onClick={this.props.signOut}>
+            <SignOutIcon />
+            Sign Out
+          </Button>
+        </div>
       </div>
     );
   }
 }
 
-const SideBarWithFileName = () => {
+interface ExternalProp {
+  signOut: () => void;
+}
+
+const SideBarWithFileName = (props: ExternalProp) => {
   const {
     activeFileName,
     changeActiveFileName,
@@ -127,6 +142,7 @@ const SideBarWithFileName = () => {
       activeFileName={activeFileName}
       changeActiveFileName={changeActiveFileName}
       removeFile={removeFile}
+      signOut={props.signOut}
     />
   );
 };

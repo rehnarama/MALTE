@@ -1,6 +1,7 @@
 import * as React from "react";
 import classes from "./TopBar.module.css";
-import UserButton from "../UserButton";
+import useUserList from "../../hooks/useUserList";
+import Avatar from "../Avatar";
 import { useFileNameContext } from "../../context/FileNameContext";
 import CloseIcon from "@material-ui/icons/Close";
 
@@ -11,6 +12,7 @@ const TopBar: React.FC = () => {
     changeActiveFileName,
     removeFile
   } = useFileNameContext();
+  const userList = useUserList();
 
   const actualActiveFileName =
     activeFileName.split(/\\|\//g).pop() || activeFileName;
@@ -49,7 +51,10 @@ const TopBar: React.FC = () => {
         {welcomeTab}
       </div>
       <div className={classes.rightSide}>
-        <UserButton />
+        {userList &&
+          userList.users.map(user => (
+            <Avatar key={user.id} url={user.avatar_url} name={user.login} />
+          ))}
       </div>
     </header>
   );

@@ -10,3 +10,14 @@ export async function updateUser(user: User): Promise<void> {
     collection.insertOne({ ...user, active: true });
   }
 }
+
+export async function existUser(user: User): Promise<boolean> {
+  const collection = Database.getInstance()
+    .getDb()
+    .collection("users");
+
+  if (await collection.findOne({ id: user.id })) {
+    return true;
+  }
+  return false;
+}
