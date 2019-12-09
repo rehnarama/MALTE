@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import addsvg from "./add.svg";
 import deletesvg from "./delete.svg";
 import Avatar from "../Avatar";
@@ -13,6 +14,12 @@ const AddButton: React.FC = () => {
   const [users, setUsers] = React.useState<string[]>([]);
   const [userName, setUserName] = React.useState("");
   const socket = Socket.getInstance().getSocket();
+
+  useEffect(() => {
+    socket.on("authorized/list", (userList: string[]) => {
+      setUsers(userList);
+    });
+  }, [users]); 
 
   const handleFileNameChange = React.useCallback<
     React.ChangeEventHandler<HTMLInputElement>
