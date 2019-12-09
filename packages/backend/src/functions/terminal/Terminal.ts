@@ -4,6 +4,19 @@ import TerminalSize from "malte-common/dist/Terminal";
 
 const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
 
+function pick(
+  obj: { [key: string]: string },
+  keys: string[]
+): { [key: string]: string } {
+  const picked: { [key: string]: string } = {};
+  for (const key of keys) {
+    if (typeof obj[key] !== undefined) {
+      picked[key] = obj[key];
+    }
+  }
+  return picked;
+}
+
 /**
  * Create a pseudo-terminal and pipe the std-out/in to
  * a socket.
@@ -18,7 +31,7 @@ class Terminal {
     this.socket = socket;
     this.terminal = pty.spawn(SHELL, [], {
       name: "xterm-color",
-      env: process.env,
+      env: pick(process.env, ["SystemRoot"]),
       cwd: homeDirectory ? homeDirectory : process.env.HOME
     });
 
