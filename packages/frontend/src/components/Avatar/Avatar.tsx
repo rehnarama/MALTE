@@ -5,10 +5,11 @@ import { Tooltip } from "@material-ui/core";
 export interface Props {
   url?: string;
   name?: string;
+  onSelect?: () => void;
 }
 
 const Avatar: React.SFC<Props> = props => {
-  const { url, name } = props;
+  const { url, name, onSelect } = props;
   if (url && url.length > 0) {
     return (
       <Tooltip
@@ -24,7 +25,7 @@ const Avatar: React.SFC<Props> = props => {
           }
         }}
       >
-        <img className={classes.circle} src={url} alt="Avatar" />
+        <img className={classes.circle} src={url} alt="Avatar" onClick={onSelect} />
       </Tooltip>
     );
   } else {

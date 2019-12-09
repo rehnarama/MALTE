@@ -7,6 +7,8 @@ import fsTree from "../fsTree";
 import GitHub from "../oauth/GitHub";
 import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import { isUser } from "malte-common/dist/oauth/isUser";
+import { isObject } from "util";
+import { Socket } from "dgram";
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -64,6 +66,24 @@ export default class SocketServer {
       socket.on("file/tree-refresh", async () => {
         // send file tree on request from client
         socket.emit("file/tree", await fsTree(this.project.getPath()));
+      });
+      socket.on("authorized/add", async user => {
+        if (user && user.login) {
+          console.log("User: ", user.login, "should be added to db");
+          this.server.to("authenticated").emit("authorized/list", [
+            /*fetch from db*/
+            "test1", "test2"
+          ]);
+        }
+      });
+      socket.on("authorized/remove", async user => {
+        if (user && user.login) {
+          console.log("User: ", user.login, "should be removed from db");
+          this.server.to("authenticated").emit("authorized/list", [
+            /*fetch from db*/
+            "test1", "test2", "test3"
+          ]);
+        }
       });
     } else {
       // Tell user authentication failed

@@ -6,11 +6,13 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import classes from "./AddButton.module.css";
 import { Button } from "@material-ui/core";
+import Socket from "../../functions/Socket";
 
 const AddButton: React.FC = () => {
   const [open, setOpen] = React.useState(false);
   const [users, setUsers] = React.useState<string[]>([]);
   const [userName, setUserName] = React.useState("");
+  const socket = Socket.getInstance().getSocket();
 
   const handleFileNameChange = React.useCallback<
     React.ChangeEventHandler<HTMLInputElement>
@@ -40,14 +42,16 @@ const AddButton: React.FC = () => {
     if (userName && !users.includes(userName)) {
       setUsers(users.concat(userName));
       setUserName("");
+      socket.emit("authorized/add", {"login": userName});
     }
   };
 
   const removeUser = (userName: string) => {
     // This function will call backend
     if (userName) {
-      setUsers(users.filter(e => e !== userName)); 
+      setUsers(users.filter(e => e !== userName));
       setUserName("");
+      socket.emit("authorized/remove", {"login": userName});
     }
   };
 
