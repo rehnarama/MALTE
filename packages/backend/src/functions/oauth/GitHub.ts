@@ -118,6 +118,9 @@ export default class GitHub {
       if (await isFirstTime()) {
         updateUser(filterUser(user));
         unsetFirstTime();
+      } else if (!(await existUser(user))) {
+        this.userIdAccessTokenMap.delete(userId);
+        return res.sendStatus(401);
         // eslint-disable-next-line no-constant-condition
       } else if (false /* is in pre-approved list?*/) {
         // check if in pre-approved list and if yes call updateUser() to add it in database
