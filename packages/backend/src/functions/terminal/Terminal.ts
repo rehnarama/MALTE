@@ -10,7 +10,7 @@ function pick(
 ): { [key: string]: string } {
   const picked: { [key: string]: string } = {};
   for (const key of keys) {
-    if (typeof obj[key] !== undefined) {
+    if (typeof obj[key] !== "undefined") {
       picked[key] = obj[key];
     }
   }
