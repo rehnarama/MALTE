@@ -44,7 +44,7 @@ describe("File", function() {
       assert(success);
     });
 
-    it("should send buffer-operation to others upon update", (done: MochaDone) => {
+    it("should send buffer/operation to others upon update", (done: MochaDone) => {
       const file = new File("fake/dir/file.js");
       file.initialize().then(() => {
         const sourceSocket: any = new MockSocket();
@@ -53,7 +53,7 @@ describe("File", function() {
         file.join(destinationSocket);
 
         destinationSocket.socketClient.on(
-          "buffer-operation",
+          "buffer/operation",
           (data: { path: string; operation: RGAInsert | RGARemove }) => {
             const op = data.operation;
             assert(data.operation instanceof RGAInsert);
