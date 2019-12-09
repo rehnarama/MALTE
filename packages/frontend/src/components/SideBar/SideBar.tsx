@@ -27,7 +27,7 @@ class SideBar extends React.Component<Props, State> {
     super(props);
     this.socket = Socket.getInstance().getSocket();
     this.state = { toggledKeys: {} };
-    this.socket.on("file-tree", this.onFileTree);
+    this.socket.on("file/tree", this.onFileTree);
   }
 
   onFileTree = (data: TreeNode) => {
@@ -52,11 +52,11 @@ class SideBar extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    this.socket.emit("refresh-file-tree");
+    this.socket.emit("file/tree-refresh");
   }
 
   componentWillUnmount() {
-    this.socket.removeListener("file-tree", this.onFileTree);
+    this.socket.removeListener("file/tree", this.onFileTree);
   }
 
   onSelect = (node: TreeNode) => {

@@ -24,12 +24,12 @@ class Terminal {
 
     this.terminal.on("data", function(data) {
       if (socket.rooms["authenticated"]) {
-        socket.emit("pty-data", data.toString());
+        socket.emit("pty/data", data.toString());
       }
     });
 
-    socket.on("pty-data", this.onPtyData);
-    socket.on("pty-resize", this.onPtyResize);
+    socket.on("pty/data", this.onPtyData);
+    socket.on("pty/resize", this.onPtyResize);
     socket.on("connection/signout", this.kill);
     socket.on("disconnect", this.kill);
   }
@@ -57,8 +57,8 @@ class Terminal {
       this.terminal.kill();
       this.terminal = null;
 
-      this.socket.off("pty-data", this.onPtyData);
-      this.socket.off("pty-resize", this.onPtyResize);
+      this.socket.off("pty/data", this.onPtyData);
+      this.socket.off("pty/resize", this.onPtyResize);
       this.socket.off("connection/signout", this.kill);
       this.socket.off("disconnect", this.kill);
     }

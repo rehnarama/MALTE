@@ -62,12 +62,12 @@ describe("Project", function() {
 
       project.join(socket);
 
-      socket.on("open-buffer", (data: { path: string; content: RGAJSON }) => {
+      socket.on("buffer/open", (data: { path: string; content: RGAJSON }) => {
         assert.equal(data.path, filePath);
         done();
       });
 
-      socket.emit("join-buffer", { path: filePath });
+      socket.emit("buffer/join", { path: filePath });
     });
 
     it("should allow a client to leave a buffer", (done: MochaDone) => {
@@ -82,8 +82,8 @@ describe("Project", function() {
       const socket = new MockSocketUnTyped();
       project.join(socket);
 
-      socket.socketClient.emit("join-buffer", { path: filePath });
-      socket.socketClient.emit("leave-buffer", { path: filePath });
+      socket.socketClient.emit("buffer/join", { path: filePath });
+      socket.socketClient.emit("buffer/leave", { path: filePath });
     });
 
     it("shouldn't allow a client to join a project twice", () => {
