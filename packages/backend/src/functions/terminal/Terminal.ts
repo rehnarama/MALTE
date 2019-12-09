@@ -4,6 +4,16 @@ import TerminalSize from "malte-common/dist/Terminal";
 
 const SHELL = process.platform === "win32" ? "powershell.exe" : "bash";
 
+/**
+ * Picks the given keys from the object, if they exist, and return a new object
+ * with the given keys and the given keys only
+ * @param obj   The source object from which values will be extracted from, if
+ *              they exist
+ * @param keys  The keys array which will extract values from `obj`, if they
+ *              exist.
+ * @returns A new object with the keys in `keys` and values in `obj`, if the
+ *          keys existed in `values` to begin with.
+ */
 function pick(
   obj: { [key: string]: string },
   keys: string[]
@@ -31,6 +41,8 @@ class Terminal {
     this.socket = socket;
     this.terminal = pty.spawn(SHELL, [], {
       name: "xterm-color",
+      // We need SystemRoot in the case of windows and powershell. Simplest
+      // solution is to symply pick it from current environment if it exists.
       env: pick(process.env, ["SystemRoot"]),
       cwd: homeDirectory ? homeDirectory : process.env.HOME
     });
