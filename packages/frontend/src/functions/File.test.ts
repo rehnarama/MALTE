@@ -25,7 +25,7 @@ describe("File", function() {
     expect(m1.value).toBe("a");
   });
 
-  it("should create a socket listener for buffer-operation", () => {
+  it("should create a socket listener for buffer/operation", () => {
     const m1 = new MockModel("");
     const rga = new RGA();
     new File(
@@ -34,10 +34,10 @@ describe("File", function() {
       (m1 as unknown) as editorType.ITextModel
     );
 
-    expect(socket.hasListeners("buffer-operation")).toBeTruthy();
+    expect(socket.hasListeners("buffer/operation")).toBeTruthy();
   });
 
-  it("should apply an insert buffer-operation", () => {
+  it("should apply an insert buffer/operation", () => {
     const m1 = new MockModel("");
     const rga = new RGA();
     new File(
@@ -47,7 +47,7 @@ describe("File", function() {
     );
 
     const op = rga.createInsertPos(0, "a");
-    serverSocket.emit("buffer-operation", {
+    serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
       operation: op
     });
@@ -55,7 +55,7 @@ describe("File", function() {
     expect(m1.value).toBe("a");
   });
 
-  it("should apply a remove buffer-operation", () => {
+  it("should apply a remove buffer/operation", () => {
     const m1 = new MockModel("");
     const rga = new RGA();
     rga.insert(rga.createInsertPos(0, "a"));
@@ -66,7 +66,7 @@ describe("File", function() {
     );
 
     const op = rga.createRemovePos(0);
-    serverSocket.emit("buffer-operation", {
+    serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
       operation: op
     });
@@ -74,7 +74,7 @@ describe("File", function() {
     expect(m1.value).toBe("");
   });
 
-  it("should send buffer-operation on content change", done => {
+  it("should send buffer/operation on content change", done => {
     const m1 = new MockModel("");
     const rga = new RGA();
     rga.insert(rga.createInsertPos(0, "a"));
@@ -85,7 +85,7 @@ describe("File", function() {
     );
 
     serverSocket.on(
-      "buffer-operation",
+      "buffer/operation",
       (data: { path: string; operation: RGAInsert | RGARemove }) => {
         expect(data.path).toBe("dummy/path.js");
         expect(data.operation).toHaveProperty("content");
@@ -110,14 +110,14 @@ describe("File", function() {
     );
 
     serverSocket.on(
-      "buffer-operation",
+      "buffer/operation",
       (data: { path: string; operation: RGAInsert | RGARemove }) => {
         expect(data).toBeUndefined();
       }
     );
 
     const op = rga.createInsertPos(0, "a");
-    serverSocket.emit("buffer-operation", {
+    serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
       operation: op
     });
@@ -139,7 +139,7 @@ describe("File", function() {
     );
 
     serverSocket.on(
-      "buffer-operation",
+      "buffer/operation",
       (data: { path: string; operation: RGAInsert | RGARemove }) => {
         expect(data.path).toBe("dummy/path.js");
         expect(data.operation).toHaveProperty("content");

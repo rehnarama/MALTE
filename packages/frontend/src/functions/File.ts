@@ -50,7 +50,7 @@ export default class File {
 
     Socket.getInstance()
       .getSocket()
-      .on("buffer-operation", this.onBufferOperation);
+      .on("buffer/operation", this.onBufferOperation);
   }
 
   private onBufferOperation = (data: BufferOperationData) => {
@@ -102,14 +102,14 @@ export default class File {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
       const socket = Socket.getInstance().getSocket();
-      socket.emit("buffer-operation", { path: this.path, operation: rgaOp });
+      socket.emit("buffer/operation", { path: this.path, operation: rgaOp });
     }
   }
 
   public close() {
     const socket = Socket.getInstance().getSocket();
-    socket.emit("leave-buffer", { path: this.path });
-    socket.off("buffer-operation", this.onBufferOperation);
+    socket.emit("buffer/leave", { path: this.path });
+    socket.off("buffer/operation", this.onBufferOperation);
     this.model.dispose();
   }
 

@@ -30,7 +30,7 @@ export default class Editor {
   public initialize() {
     const socket = Socket.getInstance().getSocket();
 
-    socket.on("open-buffer", this.onOpenBuffer);
+    socket.on("buffer/open", this.onOpenBuffer);
     socket.on("cursor/list", this.onCursorList);
 
     this.editor.onDidChangeCursorPosition(e => {
@@ -67,7 +67,7 @@ export default class Editor {
     if (file === undefined) {
       Socket.getInstance()
         .getSocket()
-        .emit("join-buffer", {
+        .emit("buffer/join", {
           path
         });
     } else {

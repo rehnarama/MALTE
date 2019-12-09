@@ -18,7 +18,7 @@ const Terminal: React.FC = () => {
     }
     function signout() {
       terminal.dispose();
-      socket.getSocket().off("pty-data", writeData);
+      socket.getSocket().off("pty/data", writeData);
       socket.getSocket().off("connection/signout", signout);
     }
 
@@ -32,10 +32,10 @@ const Terminal: React.FC = () => {
       fitAddon.fit();
 
       terminal.onData(data => {
-        socket.getSocket().emit("pty-data", data);
+        socket.getSocket().emit("pty/data", data);
       });
 
-      socket.getSocket().on("pty-data", writeData);
+      socket.getSocket().on("pty/data", writeData);
 
       socket.getSocket().on("connection/signout", signout);
     }
@@ -59,7 +59,7 @@ const Terminal: React.FC = () => {
 
       fitAddon.fit();
 
-      socket.getSocket().emit("pty-resize", lastSizeSent);
+      socket.getSocket().emit("pty/resize", lastSizeSent);
     }
   }
 
