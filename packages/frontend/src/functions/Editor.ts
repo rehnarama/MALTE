@@ -14,7 +14,8 @@ interface BufferOperationData {
 
 export default class Editor {
   private editor: editorType.ICodeEditor;
-  private files: File | undefined;
+  private files: File[] = [];
+  private activeFile: File | undefined;
   private editorNamespace: typeof editorType;
 
   private widgets = new Map<string, CursorWidget>();
@@ -28,27 +29,15 @@ export default class Editor {
 
   public initialize() {
     const socket = Socket.getInstance().getSocket();
-    socket.on("buffer/open", (data: { path: string; content: RGAJSON }) => {
-      if (this.files !== undefined) {
-        // Close previously open file
-        this.files.close();
-      }
-      this.openNewBuffer(data.path, data.content);
 
-      // Changed buffer? Let's update cursors
-      this.onCursors(this.cursorList);
-    });
-
-    socket.on("cursor/list", (data: CursorList) => {
-      this.cursorList = data.filter(c => c.socketId !== socket.id);
-      this.onCursors(this.cursorList);
-    });
+    socket.on("buffer/open", this.onOpenBuffer);
+    socket.on("cursor/list", this.onCursorList);
 
     this.editor.onDidChangeCursorPosition(e => {
-      if (this.files) {
-        const rgaPosition = this.files.getPositionRGA(e.position);
+      if (this.activeFile) {
+        const rgaPosition = this.activeFile.getPositionRGA(e.position);
         const movement: CursorMovement = {
-          path: this.files.path,
+          path: this.activeFile.path,
           id: rgaPosition
         };
         socket.emit("cursor/move", movement);
@@ -56,12 +45,50 @@ export default class Editor {
     });
   }
 
+  private onCursorList = (data: CursorList) => {
+    const socket = Socket.getInstance().getSocket();
+    this.cursorList = data.filter(c => c.socketId !== socket.id);
+    this.onCursors(this.cursorList);
+  };
+
+  private onOpenBuffer = (data: { path: string; content: RGAJSON }) => {
+    this.openNewBuffer(data.path, data.content);
+
+    // Changed buffer? Let's update cursors
+    this.onCursors(this.cursorList);
+  };
+
+  private getFile(path: string): File | undefined {
+    return this.files.find(f => f.path === path);
+  }
+
   public openBuffer(path: string) {
-    Socket.getInstance()
-      .getSocket()
-      .emit("buffer/join", {
-        path
-      });
+    const file = this.getFile(path);
+    if (file === undefined) {
+      Socket.getInstance()
+        .getSocket()
+        .emit("buffer/join", {
+          path
+        });
+    } else {
+      this.activeFile = file;
+      this.editor.setModel(file.model);
+    }
+  }
+
+  private removeFile(file: File) {
+    const fileIndex = this.files.findIndex(f => f.path === file.path);
+    if (fileIndex >= 0) {
+      this.files.splice(fileIndex, 1);
+    }
+  }
+
+  public closeBuffer(path: string) {
+    const file = this.getFile(path);
+    if (file) {
+      file.close();
+      this.removeFile(file);
+    }
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
@@ -74,26 +101,27 @@ export default class Editor {
     newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
-    this.files = file;
+    this.files.push(file);
+    this.activeFile = file;
 
     this.editor.setModel(newModel);
   }
 
   private onCursors(cursors: CursorList): void {
-    if (!this.files) {
+    if (!this.activeFile) {
       return;
     }
 
     const newWidgets = new Map<string, CursorWidget>();
     for (const cursor of cursors) {
-      if (cursor.path !== this.files.path) {
+      if (cursor.path !== this.activeFile.path) {
         // We don't want this cursor in our editor!
         continue;
       }
 
       let widget = this.widgets.get(cursor.socketId);
       if (widget === undefined) {
-        widget = new CursorWidget(this.editor, this.files, cursor.login);
+        widget = new CursorWidget(this.editor, this.activeFile, cursor.login);
         widget.addWidget();
       } else {
         this.widgets.delete(cursor.socketId);
@@ -109,5 +137,12 @@ export default class Editor {
     }
 
     this.widgets = newWidgets;
+  }
+
+  public dispose() {
+    const socket = Socket.getInstance().getSocket();
+    socket.off("open-buffer", this.onOpenBuffer);
+    socket.off("cursor/list", this.onCursorList);
+    this.editor.dispose();
   }
 }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import TreeNode from "malte-common/dist/TreeNode";
+import TreeNode, { treeToArray } from "malte-common/dist/TreeNode";
 import { Operation } from "malte-common/dist/FileSystem";
 import Tree from "../Tree";
 import Socket from "../../functions/Socket";
@@ -14,8 +14,9 @@ interface State {
 }
 
 interface Props {
-  fileName: string;
-  setFileName: (newName: string) => void;
+  activeFileName: string;
+  changeActiveFileName: (newName: string) => void;
+  removeFile: (newName: string) => void;
   signOut: () => void;
 }
 
@@ -30,6 +31,18 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onFileTree = (data: TreeNode) => {
+    const oldData = treeToArray(this.state.data);
+    const newData = treeToArray(data);
+
+    const removedFiles = oldData.filter(
+      oldNode => 0 > newData.findIndex(newNode => oldNode.path === newNode.path)
+    );
+
+    if (removedFiles.length === 1) {
+      // Assuming that only one file can be removed per update
+      this.props.removeFile(removedFiles[0].path);
+    }
+
     this.setState(({ toggledKeys }) => ({
       data,
       // Set root to automatically expanded unless the user has previously set
@@ -47,7 +60,7 @@ class SideBar extends React.Component<Props, State> {
   }
 
   onSelect = (node: TreeNode) => {
-    this.props.setFileName(node.path);
+    this.props.changeActiveFileName(node.path);
   };
 
   onToggle = (node: TreeNode) => {
@@ -64,6 +77,7 @@ class SideBar extends React.Component<Props, State> {
       dir: parent.path,
       name: node.name
     });
+    this.props.removeFile(node.path);
   };
 
   onCreateFolder = (node: TreeNode, name: string) => {
@@ -100,7 +114,7 @@ class SideBar extends React.Component<Props, State> {
             <Tree
               node={this.state.data}
               root
-              selected={this.props.fileName}
+              selected={this.props.activeFileName}
               toggledKeys={this.state.toggledKeys}
               onSelect={this.onSelect}
               onToggle={this.onToggle}
@@ -129,12 +143,17 @@ interface ExternalProp {
 }
 
 const SideBarWithFileName = (props: ExternalProp) => {
-  const { fileName, changeFileName } = useFileNameContext();
+  const {
+    activeFileName,
+    changeActiveFileName,
+    removeFile
+  } = useFileNameContext();
 
   return (
     <SideBar
-      fileName={fileName}
-      setFileName={changeFileName}
+      activeFileName={activeFileName}
+      changeActiveFileName={changeActiveFileName}
+      removeFile={removeFile}
       signOut={props.signOut}
     />
   );

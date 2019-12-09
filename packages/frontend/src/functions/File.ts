@@ -3,7 +3,7 @@ import RGA, {
   RGAOperationJSON,
   rgaOperationFromJSON
 } from "rga/dist/RGA";
-import { editor as editorType, IDisposable, IPosition } from "monaco-editor";
+import { editor as editorType, IPosition } from "monaco-editor";
 import mapOperations from "./MapOperations";
 import { InternalOperation, Operation } from "malte-common/dist/Operations";
 import Socket from "./Socket";
@@ -26,7 +26,6 @@ export default class File {
     return this._model;
   }
 
-  private contentChangedListener: IDisposable;
   private applyingRemote = false;
 
   constructor(path: string, content: RGAJSON, model: editorType.ITextModel) {
@@ -38,7 +37,7 @@ export default class File {
       Monaco.getInstance().getEditorNamespace().EndOfLineSequence.LF
     );
 
-    this.contentChangedListener = this.model.onDidChangeContent(
+    this.model.onDidChangeContent(
       (event: editorType.IModelContentChangedEvent) => {
         if (this.applyingRemote) {
           return;
@@ -51,42 +50,44 @@ export default class File {
 
     Socket.getInstance()
       .getSocket()
-      .on("buffer/operation", (data: BufferOperationData) => {
-        if (data.path === this.path) {
-          const operation = rgaOperationFromJSON(data.operation);
-          const Range = Monaco.getInstance().getMonacoNamespace().Range;
-          let edit: editorType.IIdentifiedSingleEditOperation;
-          if ("content" in operation) {
-            this.rga.insert(operation);
-
-            // Have to apply operation before creating edit
-            const index = this.rga.findPos(operation.id);
-            const position = model.getPositionAt(index);
-            const range = Range.fromPositions(position);
-            edit = {
-              range,
-              text: operation.content,
-              forceMoveMarkers: true
-            };
-          } else {
-            // We have to create edit before applying RGA operation
-            const index = this.rga.findPos(operation.reference);
-            const position = model.getPositionAt(index);
-            const nextPosition = model.getPositionAt(index + 1);
-            const range = Range.fromPositions(position, nextPosition);
-            edit = {
-              range,
-              text: null
-            };
-
-            this.rga.remove(operation);
-          }
-          this.applyingRemote = true;
-          model.applyEdits([edit]);
-          this.applyingRemote = false;
-        }
-      });
+      .on("buffer/operation", this.onBufferOperation);
   }
+
+  private onBufferOperation = (data: BufferOperationData) => {
+    if (data.path === this.path) {
+      const operation = rgaOperationFromJSON(data.operation);
+      const Range = Monaco.getInstance().getMonacoNamespace().Range;
+      let edit: editorType.IIdentifiedSingleEditOperation;
+      if ("content" in operation) {
+        this.rga.insert(operation);
+
+        // Have to apply operation before creating edit
+        const index = this.rga.findPos(operation.id);
+        const position = this.model.getPositionAt(index);
+        const range = Range.fromPositions(position);
+        edit = {
+          range,
+          text: operation.content,
+          forceMoveMarkers: true
+        };
+      } else {
+        // We have to create edit before applying RGA operation
+        const index = this.rga.findPos(operation.reference);
+        const position = this.model.getPositionAt(index);
+        const nextPosition = this.model.getPositionAt(index + 1);
+        const range = Range.fromPositions(position, nextPosition);
+        edit = {
+          range,
+          text: null
+        };
+
+        this.rga.remove(operation);
+      }
+      this.applyingRemote = true;
+      this.model.applyEdits([edit]);
+      this.applyingRemote = false;
+    }
+  };
 
   private internalToRGA(op: InternalOperation) {
     if (op.type === Operation.Insert) {
@@ -108,7 +109,7 @@ export default class File {
   public close() {
     const socket = Socket.getInstance().getSocket();
     socket.emit("buffer/leave", { path: this.path });
-    this.contentChangedListener.dispose();
+    socket.off("buffer/operation", this.onBufferOperation);
     this.model.dispose();
   }
 
