@@ -66,6 +66,7 @@ export default class Editor {
   public changeEditorInstance(newEditor: editorType.ICodeEditor) {
     this.editor.dispose();
     this.editor = newEditor;
+    this.initCursorChangeListener();
   }
 
   private getFile(path: string): File | undefined {
