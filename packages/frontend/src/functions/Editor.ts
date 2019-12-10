@@ -161,7 +161,7 @@ export default class Editor {
 
   public dispose() {
     const socket = Socket.getInstance().getSocket();
-    socket.off("open-buffer", this.onOpenBuffer);
+    socket.off("buffer/open", this.onOpenBuffer);
     socket.off("cursor/list", this.onCursorList);
     this.editor.dispose();
   }
