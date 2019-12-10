@@ -58,7 +58,6 @@ const AddButton: React.FC = () => {
   const removeUser = (userName: string) => {
     // This function will call backend
     if (userName) {
-      //setUsers(users.filter(e => e !== userName));
       setUserName("");
       socket.emit("authorized/remove", { login: userName });
     }
