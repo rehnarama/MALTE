@@ -7,6 +7,10 @@ Multi Access Live Text Editor
 
 Project in Software Engineering 2019 - Dream Team
 
+# How to deploy?
+
+Simplest way is to run `docker run -p 4000:4000 malte-uu:dev` with the environment variables listed in [down below](#environment-variables-backend).
+
 # Development
 
 The code is structured into several separate projects, all of which resides
