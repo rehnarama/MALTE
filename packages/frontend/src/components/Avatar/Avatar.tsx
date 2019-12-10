@@ -25,7 +25,12 @@ const Avatar: React.SFC<Props> = props => {
           }
         }}
       >
-        <img className={classes.circle} src={url} alt="Avatar" onClick={onSelect} />
+        <img
+          className={classes.circle}
+          src={url}
+          alt="Avatar"
+          onClick={onSelect}
+        />
       </Tooltip>
     );
   } else {

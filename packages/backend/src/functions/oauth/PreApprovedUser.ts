@@ -1,7 +1,6 @@
 import Database from "../db/Database";
 
 export async function addPreApproved(login: string): Promise<void> {
-  console.log("add: ", login);
   const collection = Database.getInstance()
     .getDb()
     .collection("preapproved");
@@ -11,7 +10,6 @@ export async function addPreApproved(login: string): Promise<void> {
 }
 
 export async function removePreApproved(login: string): Promise<void> {
-  console.log("remove: ", login);
   const collection = Database.getInstance()
     .getDb()
     .collection("preapproved");

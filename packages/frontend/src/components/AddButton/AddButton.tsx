@@ -19,17 +19,26 @@ const AddButton: React.FC = () => {
     socket.on("authorized/list", (userList: string[]) => {
       setUsers(userList);
     });
-  }, [users]);
+  }, [users, socket]);
 
   useEffect(() => {
     socket.emit("authorized/fetch");
-  }, [open]);
+  }, [open, socket]);
 
   const handleFileNameChange = React.useCallback<
     React.ChangeEventHandler<HTMLInputElement>
   >(e => {
     setUserName(e.currentTarget.value);
   }, []);
+
+  const addUser = React.useCallback(() => {
+    // This function will call backend
+    if (userName && !users.includes(userName)) {
+      //setUsers(users.concat(userName));
+      setUserName("");
+      socket.emit("authorized/add", { login: userName });
+    }
+  }, [users, userName, socket, setUserName]);
 
   const handleKeyDown = React.useCallback<React.KeyboardEventHandler>(
     e => {
@@ -41,26 +50,17 @@ const AddButton: React.FC = () => {
         setUserName("");
       }
     },
-    [userName]
+    [userName, addUser]
   );
 
   const onSelect = () => {
     setOpen(true);
   };
 
-  const addUser = () => {
-    // This function will call backend
-    if (userName && !users.includes(userName)) {
-      setUsers(users.concat(userName));
-      setUserName("");
-      socket.emit("authorized/add", { login: userName });
-    }
-  };
-
   const removeUser = (userName: string) => {
     // This function will call backend
     if (userName) {
-      setUsers(users.filter(e => e !== userName));
+      //setUsers(users.filter(e => e !== userName));
       setUserName("");
       socket.emit("authorized/remove", { login: userName });
     }
@@ -78,7 +78,7 @@ const AddButton: React.FC = () => {
           {users.length > 0 ? (
             <ul>
               {users.map(collaborator => (
-                <li>
+                <li key={collaborator}>
                   {collaborator}
                   <img
                     key="delete"

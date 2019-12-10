@@ -12,8 +12,6 @@ import {
 } from "../oauth/PreApprovedUser";
 import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import { isUser } from "malte-common/dist/oauth/isUser";
-import { isObject } from "util";
-import { Socket } from "dgram";
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -81,7 +79,11 @@ export default class SocketServer {
         }
       });
       socket.on("authorized/remove", async user => {
-        if (user && user.login) {
+        if (
+          user &&
+          user.login &&
+          this.getUser(socket.id).login !== user.login
+        ) {
           await removePreApproved(user.login);
           this.server
             .to("authenticated")
@@ -89,7 +91,7 @@ export default class SocketServer {
         }
       });
       socket.on("authorized/fetch", async () => {
-          socket.emit("authorized/list", await getAllPreapproved());
+        socket.emit("authorized/list", await getAllPreapproved());
       });
     } else {
       // Tell user authentication failed
