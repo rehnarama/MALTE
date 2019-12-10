@@ -5,6 +5,11 @@ import { FileSystem } from "../filesystem";
 import Project from "../Project";
 import fsTree from "../fsTree";
 import GitHub from "../oauth/GitHub";
+import {
+  addPreApproved,
+  removePreApproved,
+  getAllPreapproved
+} from "../oauth/PreApprovedUser";
 import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import { isUser } from "malte-common/dist/oauth/isUser";
 
@@ -64,6 +69,29 @@ export default class SocketServer {
       socket.on("file/tree-refresh", async () => {
         // send file tree on request from client
         socket.emit("file/tree", await fsTree(this.project.getPath()));
+      });
+      socket.on("authorized/add", async user => {
+        if (user && user.login) {
+          await addPreApproved(user.login);
+          this.server
+            .to("authenticated")
+            .emit("authorized/list", await getAllPreapproved());
+        }
+      });
+      socket.on("authorized/remove", async user => {
+        if (
+          user &&
+          user.login &&
+          this.getUser(socket.id).login !== user.login
+        ) {
+          await removePreApproved(user.login);
+          this.server
+            .to("authenticated")
+            .emit("authorized/list", await getAllPreapproved());
+        }
+      });
+      socket.on("authorized/fetch", async () => {
+        socket.emit("authorized/list", await getAllPreapproved());
       });
     } else {
       // Tell user authentication failed
