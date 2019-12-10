@@ -6,10 +6,23 @@
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
     "build": "tsc",
-    "test": "mocha -r ts-node/register \"src/**/*.test.ts\" --exit",
-    "test:watch": "npm test -- --watch --watch-extensions ts",
+    "test": "mocha",
+    "test:coverage": "nyc mocha",
+    "test:watch": "npm test -- --watch",
     "lint": "eslint --ext .ts src/",
     "lint-fix": "eslint --fix --ext .ts src/"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "all": true,
+    "reporter": [
+      "html"
+    ]
   },
   "author": "",
   "devDependencies": {
