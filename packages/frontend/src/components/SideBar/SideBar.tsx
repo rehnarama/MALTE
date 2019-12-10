@@ -151,7 +151,7 @@ const SideBarWithFileName = (props: ExternalProp) => {
 
   return (
     <SideBar
-      activeFileName={activeFileName}
+      activeFileName={activeFileName || ""}
       changeActiveFileName={changeActiveFileName}
       removeFile={removeFile}
       signOut={props.signOut}

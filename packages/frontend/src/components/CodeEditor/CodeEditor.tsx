@@ -15,7 +15,17 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
-  const { activeFileName, fileToRemove } = useFileNameContext();
+
+  const { activeFileName, setCallbacks } = useFileNameContext();
+  useEffect(() => {
+    setCallbacks({
+      onRemove: path => {
+        if (editor) {
+          editor.closeBuffer(path);
+        }
+      }
+    });
+  }, [editor]);
 
   const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
     if (editor) {
@@ -29,17 +39,11 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    if (editor && fileToRemove !== "") {
-      editor.closeBuffer(fileToRemove);
-    }
-  }, [fileToRemove, editor]);
-
-  useEffect(() => {
-    if (editor && activeFileName !== "") {
+    if (editor && activeFileName !== null) {
       editor.openBuffer(activeFileName);
     }
 
-    if (activeFileName === "" && editor) {
+    if (activeFileName === null && editor) {
       editor.dispose();
     }
   }, [activeFileName, editor]);
@@ -52,7 +56,7 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   return (
     <>
       <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
-      {activeFileName === "" ? (
+      {activeFileName === null ? (
         <WelcomeScreen />
       ) : (
         <MonacoEditor
