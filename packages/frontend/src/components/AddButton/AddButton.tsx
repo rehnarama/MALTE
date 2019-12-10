@@ -43,7 +43,6 @@ const AddButton: React.FC = () => {
     e => {
       if (e.key === "Enter") {
         addUser();
-        console.log(userName);
       } else if (e.key === "Escape") {
         e.stopPropagation();
         setUserName("");
