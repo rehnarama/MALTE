@@ -32,7 +32,6 @@ function useFileName() {
           setActiveFileName(newActiveFile);
         }
       }
-      console.log(activeFileName);
 
       setfileNames(newFiles);
       setFileToRemove(path);
