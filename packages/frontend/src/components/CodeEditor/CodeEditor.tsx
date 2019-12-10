@@ -20,6 +20,7 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
     if (editor) {
       editor.changeEditorInstance(codeEditor);
+      editor.initialize();
     } else {
       const e = new Editor(codeEditor);
       e.initialize();
