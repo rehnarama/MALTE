@@ -2,6 +2,7 @@ import * as React from "react";
 import classes from "./TopBar.module.css";
 import useUserList from "../../hooks/useUserList";
 import Avatar from "../Avatar";
+import AddButton from "../AddButton";
 import { useFileNameContext } from "../../context/FileNameContext";
 import CloseIcon from "@material-ui/icons/Close";
 
@@ -55,6 +56,7 @@ const TopBar: React.FC = () => {
           userList.users.map(user => (
             <Avatar key={user.id} url={user.avatar_url} name={user.login} />
           ))}
+        <AddButton />
       </div>
     </header>
   );
