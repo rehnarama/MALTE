@@ -25,10 +25,17 @@ export default class File {
   get model() {
     return this._model;
   }
+  private editor: editorType.ICodeEditor;
 
   private applyingRemote = false;
 
-  constructor(path: string, content: RGAJSON, model: editorType.ITextModel) {
+  constructor(
+    path: string,
+    content: RGAJSON,
+    model: editorType.ITextModel,
+    editor: editorType.ICodeEditor
+  ) {
+    this.editor = editor;
     this._path = path;
     this.rga = RGA.fromRGAJSON(content);
     this._model = model;

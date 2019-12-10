@@ -33,16 +33,7 @@ export default class Editor {
     socket.on("buffer/open", this.onOpenBuffer);
     socket.on("cursor/list", this.onCursorList);
 
-    this.editor.onDidChangeCursorPosition(e => {
-      if (this.activeFile) {
-        const rgaPosition = this.activeFile.getPositionRGA(e.position);
-        const movement: CursorMovement = {
-          path: this.activeFile.path,
-          id: rgaPosition
-        };
-        socket.emit("cursor/move", movement);
-      }
-    });
+    this.initCursorChangeListener();
   }
 
   private onCursorList = (data: CursorList) => {
@@ -57,6 +48,25 @@ export default class Editor {
     // Changed buffer? Let's update cursors
     this.onCursors(this.cursorList);
   };
+
+  private initCursorChangeListener() {
+    const socket = Socket.getInstance().getSocket();
+    this.editor.onDidChangeCursorPosition(e => {
+      if (this.activeFile) {
+        const rgaPosition = this.activeFile.getPositionRGA(e.position);
+        const movement: CursorMovement = {
+          path: this.activeFile.path,
+          id: rgaPosition
+        };
+        socket.emit("cursor/move", movement);
+      }
+    });
+  }
+
+  public changeEditorInstance(newEditor: editorType.ICodeEditor) {
+    this.editor.dispose();
+    this.editor = newEditor;
+  }
 
   private getFile(path: string): File | undefined {
     return this.files.find(f => f.path === path);
@@ -92,19 +102,29 @@ export default class Editor {
   }
 
   private openNewBuffer(path: string, content: RGAJSON) {
-    const Uri = Monaco.getInstance().getMonacoNamespace().Uri;
-    const newModel = this.editorNamespace.createModel(
-      "",
-      undefined,
-      Uri.file(path)
-    );
+    const newModel = this.getModelForBuffer(path);
     newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
-    const file = new File(path, content, newModel);
+    const file = new File(path, content, newModel, this.editor);
     this.files.push(file);
     this.activeFile = file;
 
     this.editor.setModel(newModel);
+  }
+
+  private getModelForBuffer(path: string) {
+    const Uri = Monaco.getInstance().getMonacoNamespace().Uri;
+    const model = this.editorNamespace.getModel(Uri.file(path));
+    if (model) {
+      return model;
+    } else {
+      const newModel = this.editorNamespace.createModel(
+        "",
+        undefined,
+        Uri.file(path)
+      );
+      return newModel;
+    }
   }
 
   private onCursors(cursors: CursorList): void {

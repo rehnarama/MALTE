@@ -17,10 +17,14 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const [editor, setEditor] = React.useState<Editor | undefined>();
   const { activeFileName, fileToRemove } = useFileNameContext();
 
-  const handler = (_: Function, editor: editorType.ICodeEditor): void => {
-    const e = new Editor(editor);
-    e.initialize();
-    setEditor(e);
+  const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
+    if (editor) {
+      editor.changeEditorInstance(codeEditor);
+    } else {
+      const e = new Editor(codeEditor);
+      e.initialize();
+      setEditor(e);
+    }
   };
 
   useEffect(() => {
