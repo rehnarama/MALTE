@@ -75,11 +75,17 @@ export default class File {
   private triggerSave(): void {
     if (this.isSaveScheduled()) {
       // Alright, let's clear the old handle
-      clearTimeout(this.saveTimeoutHandle);
-      this.saveTimeoutHandle = null;
+      this.cancelSave();
     }
     this.lastSave = Date.now();
     this.save();
+  }
+
+  public cancelSave(): void {
+    if (this.saveTimeoutHandle !== null) {
+      clearTimeout(this.saveTimeoutHandle);
+      this.saveTimeoutHandle = null;
+    }
   }
 
   public isSaveScheduled(): boolean {
