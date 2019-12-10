@@ -19,7 +19,11 @@ const AddButton: React.FC = () => {
     socket.on("authorized/list", (userList: string[]) => {
       setUsers(userList);
     });
-  }, [users]); 
+  }, [users]);
+
+  useEffect(() => {
+    socket.emit("authorized/fetch");
+  }, [open]);
 
   const handleFileNameChange = React.useCallback<
     React.ChangeEventHandler<HTMLInputElement>
@@ -49,7 +53,7 @@ const AddButton: React.FC = () => {
     if (userName && !users.includes(userName)) {
       setUsers(users.concat(userName));
       setUserName("");
-      socket.emit("authorized/add", {"login": userName});
+      socket.emit("authorized/add", { login: userName });
     }
   };
 
@@ -58,7 +62,7 @@ const AddButton: React.FC = () => {
     if (userName) {
       setUsers(users.filter(e => e !== userName));
       setUserName("");
-      socket.emit("authorized/remove", {"login": userName});
+      socket.emit("authorized/remove", { login: userName });
     }
   };
 

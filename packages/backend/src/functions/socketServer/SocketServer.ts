@@ -5,6 +5,11 @@ import { FileSystem } from "../filesystem";
 import Project from "../Project";
 import fsTree from "../fsTree";
 import GitHub from "../oauth/GitHub";
+import {
+  addPreApproved,
+  removePreApproved,
+  getAllPreapproved
+} from "../oauth/PreApprovedUser";
 import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import { isUser } from "malte-common/dist/oauth/isUser";
 import { isObject } from "util";
@@ -69,21 +74,22 @@ export default class SocketServer {
       });
       socket.on("authorized/add", async user => {
         if (user && user.login) {
-          console.log("User: ", user.login, "should be added to db");
-          this.server.to("authenticated").emit("authorized/list", [
-            /*fetch from db*/
-            "test1", "test2"
-          ]);
+          await addPreApproved(user.login);
+          this.server
+            .to("authenticated")
+            .emit("authorized/list", await getAllPreapproved());
         }
       });
       socket.on("authorized/remove", async user => {
         if (user && user.login) {
-          console.log("User: ", user.login, "should be removed from db");
-          this.server.to("authenticated").emit("authorized/list", [
-            /*fetch from db*/
-            "test1", "test2", "test3"
-          ]);
+          await removePreApproved(user.login);
+          this.server
+            .to("authenticated")
+            .emit("authorized/list", await getAllPreapproved());
         }
+      });
+      socket.on("authorized/fetch", async () => {
+          socket.emit("authorized/list", await getAllPreapproved());
       });
     } else {
       // Tell user authentication failed
