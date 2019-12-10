@@ -106,6 +106,7 @@ describe("File", function() {
       f.scheduleSave();
 
       assert.equal(saveCount, 1);
+      f.cancelSave();
     });
 
     async function wait(ms: number): Promise<void> {
@@ -131,6 +132,7 @@ describe("File", function() {
       }
 
       assert.equal(saveCount, 2);
+      f.cancelSave();
     });
 
     it("Should only save twice if triggering many times close to each other", async () => {
@@ -156,6 +158,7 @@ describe("File", function() {
       }
 
       assert.equal(saveCount, 2);
+      f.cancelSave();
     });
   });
 });
