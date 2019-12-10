@@ -12,18 +12,6 @@
     "lint": "eslint --ext .ts src/",
     "lint-fix": "eslint --fix --ext .ts src/"
   },
-  "nyc": {
-    "extension": [
-      ".ts"
-    ],
-    "exclude": [
-      "**/*.d.ts"
-    ],
-    "all": true,
-    "reporter": [
-      "html"
-    ]
-  },
   "author": "",
   "devDependencies": {
     "@types/chai": "^4.2.5",
