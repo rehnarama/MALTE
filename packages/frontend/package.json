@@ -33,9 +33,16 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "npm test -- --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .ts --ext .tsx src/",
     "lint-fix": "eslint --fix --ext .ts --ext .tsx src/"
+  },
+  "jest": {
+    "coverageReporters": [
+      "text",
+      "html"
+    ]
   },
   "eslintConfig": {
     "extends": "react-app"
