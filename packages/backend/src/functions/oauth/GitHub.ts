@@ -4,9 +4,10 @@ import { isUser } from "malte-common/dist/oauth/isUser";
 import { User as UserResponse } from "malte-common/dist/oauth/GitHub";
 import uuidv4 from "uuid/v4";
 import { AuthError } from "malte-common/dist/oauth/AuthError";
-import { updateUser, existUser } from "./user";
+import { updateUser } from "./user";
 import { filterUser } from "malte-common/dist/oauth/filterUser";
 import { isFirstTime, unsetFirstTime } from "./firstTime";
+import { addPreApproved, getAllPreapproved } from "../oauth/PreApprovedUser";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -117,13 +118,14 @@ export default class GitHub {
     if (isUser(user)) {
       if (await isFirstTime()) {
         updateUser(filterUser(user));
+        addPreApproved(user.login);
         unsetFirstTime();
-      } else if (!(await existUser(user))) {
-        this.userIdAccessTokenMap.delete(userId);
-        return res.sendStatus(401);
-        // eslint-disable-next-line no-constant-condition
-      } else if (false /* is in pre-approved list?*/) {
+      } else if ((await getAllPreapproved()).indexOf(user.login) !== -1) {
         // check if in pre-approved list and if yes call updateUser() to add it in database
+        updateUser(filterUser(user));
+      } else {
+        this.userIdAccessTokenMap.delete(userId);
+        return res.sendStatus(403);
       }
     } else if (user === AuthError.AuthNeeded) {
       return res.sendStatus(401);
