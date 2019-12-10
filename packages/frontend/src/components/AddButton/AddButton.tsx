@@ -34,7 +34,6 @@ const AddButton: React.FC = () => {
   const addUser = React.useCallback(() => {
     // This function will call backend
     if (userName && !users.includes(userName)) {
-      //setUsers(users.concat(userName));
       setUserName("");
       socket.emit("authorized/add", { login: userName });
     }
