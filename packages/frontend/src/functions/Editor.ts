@@ -63,11 +63,6 @@ export default class Editor {
     });
   }
 
-  public changeEditorInstance(newEditor: editorType.ICodeEditor) {
-    this.editor.dispose();
-    this.editor = newEditor;
-  }
-
   private getFile(path: string): File | undefined {
     return this.files.find(f => f.path === path);
   }
@@ -105,7 +100,7 @@ export default class Editor {
     const newModel = this.getModelForBuffer(path);
     newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
-    const file = new File(path, content, newModel, this.editor);
+    const file = new File(path, content, newModel);
     this.files.push(file);
     this.activeFile = file;
 
