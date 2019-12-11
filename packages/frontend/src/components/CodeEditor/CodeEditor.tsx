@@ -28,23 +28,14 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   }, [editor]);
 
   const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
-    if (editor) {
-      editor.changeEditorInstance(codeEditor);
-      editor.initialize();
-    } else {
-      const e = new Editor(codeEditor);
-      e.initialize();
-      setEditor(e);
-    }
+    const e = new Editor(codeEditor);
+    e.initialize();
+    setEditor(e);
   };
 
   useEffect(() => {
     if (editor && activeFileName !== null) {
       editor.openBuffer(activeFileName);
-    }
-
-    if (activeFileName === null && editor) {
-      editor.dispose();
     }
   }, [activeFileName, editor]);
 
@@ -53,19 +44,24 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
     setHeight(height);
   }
 
+  const showWelcomeScreen = activeFileName === null;
+  const displayWelcomeScreen = showWelcomeScreen ? "inline-block" : "none";
+  const displayEditor = !showWelcomeScreen ? "inline-block" : "none";
+
   return (
     <>
       <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
-      {activeFileName === null ? (
+      <div style={{ width, height, display: displayWelcomeScreen }}>
         <WelcomeScreen />
-      ) : (
+      </div>
+      <div style={{ width, height, display: displayEditor }}>
         <MonacoEditor
           width={width}
           height={height}
           editorDidMount={handler}
           theme={darkTheme ? "dark" : "light"}
         />
-      )}
+      </div>
     </>
   );
 };
