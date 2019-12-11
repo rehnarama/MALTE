@@ -1,4 +1,5 @@
 import { User } from "malte-common/dist/oauth/GitHub";
+import { isUser } from "malte-common/dist/oauth/isUser";
 import Database from "../db/Database";
 
 export async function updateUser(user: User): Promise<void> {
@@ -20,4 +21,18 @@ export async function existUser(user: User): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+export async function getUserFromId(id: number): Promise<User | undefined> {
+  const collection = Database.getInstance()
+    .getDb()
+    .collection("users");
+
+  const user = await collection.findOne({ id });
+
+  if (isUser(user)) {
+    return user;
+  } else {
+    return undefined;
+  }
 }
