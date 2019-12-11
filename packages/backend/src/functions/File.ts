@@ -97,9 +97,11 @@ export default class File {
   }
 
   private async save(): Promise<void> {
-    await fs.writeFile(this.path, this.rga.toString(), {
-      encoding: "utf8"
-    });
+    if (await this.fileExists()) {
+      await fs.writeFile(this.path, this.rga.toString(), {
+        encoding: "utf8"
+      });
+    }
   }
 
   /**
