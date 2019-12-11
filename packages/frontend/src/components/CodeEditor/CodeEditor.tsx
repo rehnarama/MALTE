@@ -15,27 +15,27 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const [width, setWidth] = React.useState<number | undefined>();
   const [height, setHeight] = React.useState<number | undefined>();
   const [editor, setEditor] = React.useState<Editor | undefined>();
-  const { activeFileName, fileToRemove } = useFileNameContext();
 
-  const handler = (_: Function, editor: editorType.ICodeEditor): void => {
-    const e = new Editor(editor);
+  const { activeFileName, setCallbacks } = useFileNameContext();
+  useEffect(() => {
+    setCallbacks({
+      onRemove: path => {
+        if (editor) {
+          editor.closeBuffer(path);
+        }
+      }
+    });
+  }, [editor]);
+
+  const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
+    const e = new Editor(codeEditor);
     e.initialize();
     setEditor(e);
   };
 
   useEffect(() => {
-    if (editor && fileToRemove !== "") {
-      editor.closeBuffer(fileToRemove);
-    }
-  }, [fileToRemove, editor]);
-
-  useEffect(() => {
-    if (editor && activeFileName !== "") {
+    if (editor && activeFileName !== null) {
       editor.openBuffer(activeFileName);
-    }
-
-    if (activeFileName === "" && editor) {
-      editor.dispose();
     }
   }, [activeFileName, editor]);
 
@@ -44,19 +44,24 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
     setHeight(height);
   }
 
+  const showWelcomeScreen = activeFileName === null;
+  const displayWelcomeScreen = showWelcomeScreen ? "inline-block" : "none";
+  const displayEditor = !showWelcomeScreen ? "inline-block" : "none";
+
   return (
     <>
       <ReactResizeDetector handleWidth handleHeight onResize={resizeTerminal} />
-      {activeFileName === "" ? (
+      <div style={{ width, height, display: displayWelcomeScreen }}>
         <WelcomeScreen />
-      ) : (
+      </div>
+      <div style={{ width, height, display: displayEditor }}>
         <MonacoEditor
           width={width}
           height={height}
           editorDidMount={handler}
           theme={darkTheme ? "dark" : "light"}
         />
-      )}
+      </div>
     </>
   );
 };
