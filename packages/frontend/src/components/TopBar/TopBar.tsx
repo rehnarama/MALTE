@@ -16,10 +16,10 @@ const TopBar: React.FC = () => {
   const userList = useUserList();
 
   const actualActiveFileName =
-    activeFileName.split(/\\|\//g).pop() || activeFileName;
+    activeFileName !== null ? activeFileName.split(/\\|\//g).pop() : null;
 
   const welcomeTab =
-    actualActiveFileName === "" ? (
+    actualActiveFileName === null ? (
       <p className={classes.fileName}>Welcome!</p>
     ) : null;
 
