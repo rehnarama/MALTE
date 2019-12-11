@@ -19,7 +19,9 @@ describe("Project", function() {
         return true;
       };
       prototypes["File.leave"] = File.prototype.leave;
-      File.prototype.leave = (): void => {};
+      File.prototype.leave = (s): boolean => {
+        return false;
+      };
       prototypes["File.initialize"] = File.prototype.initialize;
       File.prototype.initialize = async (): Promise<void> => {
         return;
@@ -28,6 +30,7 @@ describe("Project", function() {
       File.prototype.getContent = (): RGAJSON => {
         return { nodes: [] };
       };
+      prototypes["Project.closeFiles"] = Project.prototype["closeFiles"];
 
       SocketServer["instance"] = new MockSocketServer();
     });
@@ -37,6 +40,7 @@ describe("Project", function() {
       File.prototype.leave = prototypes["File.leave"];
       File.prototype.initialize = prototypes["File.initialize"];
       File.prototype.getContent = prototypes["File.getContent"];
+      Project.prototype["closeFiles"] = prototypes["Project.closeFiles"];
       SocketServer["instance"] = undefined;
     });
 
@@ -71,9 +75,29 @@ describe("Project", function() {
     });
 
     it("should allow a client to leave a buffer", (done: MochaDone) => {
-      File.prototype.leave = (): void => {
+      File.prototype.leave = (): boolean => {
         assert(true);
         done();
+        return false;
+      };
+
+      const projectPath = "dummy/path";
+      const filePath = "dummyFile.txt";
+      const project = new Project(projectPath);
+      const socket = new MockSocketUnTyped();
+      project.join(socket);
+
+      socket.socketClient.emit("buffer/join", { path: filePath });
+      socket.socketClient.emit("buffer/leave", { path: filePath });
+    });
+
+    it("should close a buffer on leave if no other client uses it", (done: MochaDone) => {
+      File.prototype.leave = (): boolean => {
+        return true;
+      };
+      File.prototype.close = async (): Promise<void> => {
+        done();
+        return;
       };
 
       const projectPath = "dummy/path";
