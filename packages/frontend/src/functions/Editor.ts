@@ -44,9 +44,6 @@ export default class Editor {
 
   private onOpenBuffer = (data: { path: string; content: RGAJSON }) => {
     this.openNewBuffer(data.path, data.content);
-
-    // Changed buffer? Let's update cursors
-    this.onCursors(this.cursorList);
   };
 
   private initCursorChangeListener() {
@@ -78,6 +75,8 @@ export default class Editor {
     } else {
       this.activeFile = file;
       this.editor.setModel(file.model);
+      // Changed buffer? Let's update cursors
+      this.onCursors(this.cursorList);
     }
   }
 
@@ -102,9 +101,9 @@ export default class Editor {
 
     const file = new File(path, content, newModel);
     this.files.push(file);
-    this.activeFile = file;
 
-    this.editor.setModel(newModel);
+    // Let's load this buffer now
+    this.openBuffer(path);
   }
 
   private getModelForBuffer(path: string) {
