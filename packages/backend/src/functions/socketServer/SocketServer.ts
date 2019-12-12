@@ -50,7 +50,9 @@ export default class SocketServer {
     userId: string
   ): Promise<void> {
     if (socket.rooms["authenticated"]) {
-      // Already authenticated, let's not join this one again
+      // Already authenticated, let's not join this one again but at least tell
+      // them they are authenticated in case client has lost its state
+      socket.emit("connection/auth-confirm");
       return;
     }
 
