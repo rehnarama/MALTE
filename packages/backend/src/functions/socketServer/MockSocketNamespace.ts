@@ -1,4 +1,6 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import SocketIO from "socket.io";
 import MockSocketIoServer from "./MockSocketIoServer";
 
