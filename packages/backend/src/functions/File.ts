@@ -73,12 +73,16 @@ export default class File {
   }
 
   private triggerSave(): void {
+    this.triggerSaveAsync();
+  }
+
+  private async triggerSaveAsync(): Promise<void> {
     if (this.isSaveScheduled()) {
       // Alright, let's clear the old handle
       this.cancelSave();
     }
     this.lastSave = Date.now();
-    this.save();
+    await this.save();
   }
 
   public cancelSave(): void {
@@ -93,9 +97,11 @@ export default class File {
   }
 
   private async save(): Promise<void> {
-    await fs.writeFile(this.path, this.rga.toString(), {
-      encoding: "utf8"
-    });
+    if (await this.fileExists()) {
+      await fs.writeFile(this.path, this.rga.toString(), {
+        encoding: "utf8"
+      });
+    }
   }
 
   /**
@@ -111,17 +117,24 @@ export default class File {
     }
     this.sockets.push(socket);
 
-    socket.on("disconnect", () => {
-      this.leave(socket);
-    });
     return true;
   }
 
-  public leave(socket: Socket): void {
+  /**
+   * Removes a socket from a file.
+   * @param socket socket to leave the file
+   * @returns true if there are no more sockets associated with the file.
+   */
+  public leave(socket: Socket): boolean {
     const i = this.sockets.findIndex(s => s.id === socket.id);
     if (i > -1) {
       this.sockets.splice(i, 1);
     }
+    return this.sockets.length === 0;
+  }
+
+  public async close(): Promise<void> {
+    await this.triggerSaveAsync();
   }
 
   public applyOperation(op: RGAOperationJSON, caller: Socket): void {
