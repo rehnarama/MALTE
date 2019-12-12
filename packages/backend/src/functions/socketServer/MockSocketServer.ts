@@ -1,7 +1,9 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/camelcase */
+
 import SocketServer from "./SocketServer";
 import MockSocketIoServer from "./MockSocketIoServer";
-import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import MockSocket from "./MockSocket";
 
 class MockSocketServer extends SocketServer {
@@ -11,7 +13,7 @@ class MockSocketServer extends SocketServer {
     this.setUpEvents();
   }
 
-  getInstance() {
+  getInstance(): SocketServer {
     if (!MockSocketServer.instance) {
       MockSocketServer.instance = new MockSocketServer();
     }

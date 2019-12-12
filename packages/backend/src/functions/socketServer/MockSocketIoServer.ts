@@ -1,4 +1,6 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import SocketIO from "socket.io";
 import MockSocket from "./MockSocket";
 import MockSocketNamespace from "./MockSocketNamespace";
@@ -14,7 +16,7 @@ export default class MockSocketIoServer implements SocketIO.Server {
     const socket = new MockSocket(this);
     this.allSockets.push(socket);
     this.sockets.sockets[socket.id] = socket;
-    this.sockets.onAny = (event: string, ...args: any[]) => {
+    this.sockets.onAny = (event: string, ...args: any[]): void => {
       const fns = this.eventFnMap.get(event);
       if (fns) {
         fns.forEach(fn => fn(...args));
