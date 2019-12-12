@@ -34,7 +34,7 @@ const TopBar: React.FC = () => {
               : classes.fileName;
           const closeFile =
             actualFile === actualActiveFileName ? (
-              <p className={classes.close} onClick={() => removeFile(file)}>
+              <p className={classes.close} onClick={() => removeFile([file])}>
                 <CloseIcon />
               </p>
             ) : null;
