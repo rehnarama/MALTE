@@ -16,7 +16,7 @@ interface State {
 interface Props {
   activeFileName: string;
   changeActiveFileName: (newName: string) => void;
-  removeFile: (newName: string) => void;
+  removeFile: (paths: string[]) => void;
   signOut: () => void;
 }
 
@@ -34,13 +34,13 @@ class SideBar extends React.Component<Props, State> {
     const oldData = treeToArray(this.state.data);
     const newData = treeToArray(data);
 
-    const removedFiles = oldData.filter(
+    const removedEntries = oldData.filter(
       oldNode => 0 > newData.findIndex(newNode => oldNode.path === newNode.path)
     );
+    const removedFiles = removedEntries.filter(n => n.type === "file");
 
-    if (removedFiles.length === 1) {
-      // Assuming that only one file can be removed per update
-      this.props.removeFile(removedFiles[0].path);
+    if (removedFiles.length > 0) {
+      this.props.removeFile(removedFiles.map(f => f.path));
     }
 
     this.setState(({ toggledKeys }) => ({
@@ -77,7 +77,7 @@ class SideBar extends React.Component<Props, State> {
       dir: parent.path,
       name: node.name
     });
-    this.props.removeFile(node.path);
+    this.props.removeFile([node.path]);
   };
 
   onCreateFolder = (node: TreeNode, name: string) => {

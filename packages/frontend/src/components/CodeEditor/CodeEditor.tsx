@@ -19,9 +19,11 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
   const { activeFileName, setCallbacks } = useFileNameContext();
   useEffect(() => {
     setCallbacks({
-      onRemove: path => {
+      onRemove: paths => {
         if (editor) {
-          editor.closeBuffer(path);
+          for (const path of paths) {
+            editor.closeBuffer(path);
+          }
         }
       }
     });
