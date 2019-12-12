@@ -7,7 +7,6 @@ import { RGAJSON } from "rga/dist/RGA";
 import SocketServer from "./socketServer/SocketServer";
 import MockSocketIoServer from "./socketServer/MockSocketIoServer";
 import MockSocketServer from "./socketServer/MockSocketServer";
-import MockSocket from "./socketServer/MockSocket";
 
 const prototypes = {};
 
