@@ -6,10 +6,11 @@ export interface Props {
   url?: string;
   name?: string;
   onSelect?: () => void;
+  className?: string;
 }
 
 const Avatar: React.SFC<Props> = props => {
-  const { url, name, onSelect } = props;
+  const { url, name, onSelect, className } = props;
   if (url && url.length > 0) {
     return (
       <Tooltip
@@ -24,6 +25,7 @@ const Avatar: React.SFC<Props> = props => {
             }
           }
         }}
+        className={className}
       >
         <img
           className={classes.circle}
