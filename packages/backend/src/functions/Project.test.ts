@@ -19,7 +19,7 @@ describe("Project", function() {
         return true;
       };
       prototypes["File.leave"] = File.prototype.leave;
-      File.prototype.leave = (s): boolean => {
+      File.prototype.leave = (): boolean => {
         return false;
       };
       prototypes["File.initialize"] = File.prototype.initialize;
