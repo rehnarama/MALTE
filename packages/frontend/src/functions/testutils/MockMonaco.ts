@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import monaco, {
   editor as editorType,
   IDisposable,
