@@ -100,7 +100,10 @@ export default class Project {
       const normalizedPath = data.path.replace(this.path, "");
       const path: string = normalizedPath;
       const file = await this.getFile(path);
-      file.leave(socket);
+      const canCloseFile = file.leave(socket);
+      if (canCloseFile) {
+        await this.closeFiles([file]);
+      }
     });
 
     socket.on(
@@ -157,7 +160,15 @@ export default class Project {
     this.broadcastCursorList();
   };
 
-  private removeSocket(socket: SocketIO.Socket): void {
+  private async closeFiles(files: File[]): Promise<void> {
+    for (const file of files) {
+      const i = this.files.findIndex(f => f.path === file.path);
+      this.files.splice(i, 1);
+      await file.close();
+    }
+  }
+
+  private async removeSocket(socket: SocketIO.Socket): Promise<void> {
     const index = this.sockets.findIndex(s => s.id === socket.id);
     if (index) {
       this.sockets.splice(index, 1);
@@ -167,6 +178,13 @@ export default class Project {
       delete this.cursorMap[socket.id];
       this.broadcastCursorList();
     }
+
+    const filesToClose: File[] = [];
+    for (const file of this.files) {
+      const canCloseFile = file.leave(socket);
+      if (canCloseFile) filesToClose.push(file);
+    }
+    await this.closeFiles(filesToClose);
   }
 
   private broadcastCursorList(): void {
