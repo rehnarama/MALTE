@@ -8,6 +8,7 @@ import { updateUser } from "./user";
 import { filterUser } from "malte-common/dist/oauth/filterUser";
 import { isFirstTime, unsetFirstTime } from "./firstTime";
 import { addPreApproved, getAllPreapproved } from "../oauth/PreApprovedUser";
+import { addSession } from "../session";
 
 interface AccessTokenResponse {
   access_token: string;
@@ -135,6 +136,9 @@ export default class GitHub {
       this.userIdAccessTokenMap.delete(userId);
       return res.sendStatus(401);
     }
+
+    // Register this session in db
+    await addSession(userId, user.id);
 
     // All done! This should have been opened in a popup window, as such
     // we can now close it
