@@ -3,7 +3,7 @@ Website: https://rehnarama.github.io/MALTE/index.html
 Live site reflecting master branch: https://malte-uu.herokuapp.com/
 # MALTE
 
-Multi Access Live Text Editor
+Multiple Access Live Text Editor
 
 Project in Software Engineering 2019 - Dream Team
 
@@ -19,9 +19,9 @@ in the folder `packages`.
 We manage all projects with node, which means you can install all dependencies
 by simply typing `npm install` in each project folder.
 
-# How to Run
+# How to Run (during development)
 
-Execute `npm run` in each folder. Depending on your setup, you may need to set enviroment variables.
+Execute `npm run` in each package folder, i.e. `packages/frontend` and `packages/backend`. Depending on your setup, you may need to set enviroment variables. Note that you need to compile (`npm run build`) both `packages/malte-common` and `packages/rga` before executing run.
 
 ## Dependencies
 
@@ -67,7 +67,7 @@ in a background job/tab.
 - `PROJECT_DIRECTORY` - name of the workspace. Will create folder in `/home/${PROJECT_USERNAME}/${PROJECT_USERNAME}`
 
 ## Environment Variables (Frontend)
-- `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000` during development, empty during production). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`
+- `REACT_APP_BACKEND_URL`: (default: `http://localhost:4000` during development). The backend URL. All requests and WebSocket connections will be established with this URL. e.g. `REACT_APP_BACKEND_URL=http://192.168.124.5:4000`
 
 # Code Styling
 
