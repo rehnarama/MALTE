@@ -38,8 +38,8 @@ const Main: React.FC = () => {
       <div
         className={classes.gridContainer}
         style={{
-          gridTemplateColumns: `${hsplit}px min-content auto`,
-          gridTemplateRows: `min-content auto min-content ${vsplit}px`
+          gridTemplateColumns: `${hsplit}px auto auto`,
+          gridTemplateRows: `auto 1fr auto ${vsplit}px`
         }}
       >
         <div className={classes.topBar}>
