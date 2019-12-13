@@ -43,7 +43,7 @@ class Terminal {
       name: "xterm-color",
       // We need SystemRoot in the case of windows and powershell. Simplest
       // solution is to symply pick it from current environment if it exists.
-      env: pick(process.env, ["SystemRoot"]),
+      env: pick(process.env, ["SystemRoot", "PS1"]),
       cwd: homeDirectory ? homeDirectory : process.env.HOME
     });
 
