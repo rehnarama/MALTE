@@ -39,7 +39,12 @@ export async function getUserFromId(id: number): Promise<User | undefined> {
   }
 }
 
-export function removeUser(user: User): void {
+export async function removeUser(u: User): Promise<void> {
+  const collectionUsers = Database.getInstance()
+    .getDb()
+    .collection("users");
+
+  const user = await collectionUsers.findOne({ login: u.login });
   const socketServer = SocketServer.getInstance();
   const userSocket = socketServer.getUserSocket(user);
   const socketId = socketServer.getSocketId(user);
@@ -50,4 +55,10 @@ export function removeUser(user: User): void {
     userSocket.leave("authenticated");
     socketServer.removeUser(socketId);
   }
+
+  const collectionSessions = Database.getInstance()
+    .getDb()
+    .collection("sessions");
+
+  collectionSessions.deleteMany({ id: user.id });
 }

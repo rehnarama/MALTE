@@ -12,6 +12,7 @@ import {
 } from "../oauth/PreApprovedUser";
 import { getSession, updateSessionTimestamp, removeSession } from "../session";
 import { User } from "malte-common/dist/oauth/GitHub";
+import { removeUser } from "../oauth/user";
 
 type SocketId = string;
 
@@ -98,6 +99,7 @@ export default class SocketServer {
         this.server
           .to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
+        removeUser(user);
       }
     });
     socket.on("authorized/fetch", async () => {
@@ -106,6 +108,7 @@ export default class SocketServer {
   }
 
   public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
+    console.log(gitHubUser);
     const socketId = this.getSocketId(gitHubUser);
     if (socketId) {
       return this.server.sockets.connected[socketId];
@@ -115,7 +118,9 @@ export default class SocketServer {
 
   public getSocketId(gitHubUser: User): SocketId | null {
     for (const e of this.userMap.entries()) {
-      if (e[1] === gitHubUser) {
+      console.log(e[1].id);
+      console.log(gitHubUser.id);
+      if (e[1].id === gitHubUser.id) {
         return e[0];
       }
     }
