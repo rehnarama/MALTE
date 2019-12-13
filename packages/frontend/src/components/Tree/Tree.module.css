@@ -1,3 +1,7 @@
+.root {
+  height: 80vh;
+  overflow-y: scroll;
+}
 .list {
   padding: 0;
   list-style: none;
