@@ -6,7 +6,7 @@ import Avatar from "../Avatar";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import classes from "./AddButton.module.css";
-import { Button } from "@material-ui/core";
+import { Button, Input, DialogContent } from "@material-ui/core";
 import Socket from "../../functions/Socket";
 
 const AddButton: React.FC = () => {
@@ -48,7 +48,7 @@ const AddButton: React.FC = () => {
         setUserName("");
       }
     },
-    [userName, addUser]
+    [addUser]
   );
 
   const onSelect = () => {
@@ -71,39 +71,50 @@ const AddButton: React.FC = () => {
         open={open}
       >
         <DialogTitle id="simple-dialog-title">Collaborators</DialogTitle>
-        <div className={classes.collaboratorList}>
-          {users.length > 0 ? (
-            <ul>
-              {users.map(collaborator => (
-                <li key={collaborator}>
-                  {collaborator}
-                  <img
-                    key="delete"
-                    src={deletesvg}
-                    onClick={() => removeUser(collaborator)}
-                    alt="Delete"
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No users</p>
-          )}
-        </div>
-        <input
-          type="text"
-          autoFocus
-          placeholder="Enter username"
-          onKeyDown={handleKeyDown}
-          onChange={handleFileNameChange}
-          value={userName}
-        />
-        <Button onClick={addUser}>Add User</Button>
-        <Button fullWidth variant={"outlined"} onClick={() => setOpen(false)}>
-          Close
-        </Button>
+        <DialogContent>
+          <div className={classes.collaboratorList}>
+            {users.length > 0 ? (
+              <ul>
+                {users.map(collaborator => (
+                  <li key={collaborator}>
+                    {collaborator}
+                    <img
+                      key="delete"
+                      src={deletesvg}
+                      onClick={() => removeUser(collaborator)}
+                      alt="Delete"
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No users</p>
+            )}
+          </div>
+          <Input
+            type="text"
+            autoFocus
+            placeholder="Enter username"
+            onKeyDown={handleKeyDown}
+            onChange={handleFileNameChange}
+            value={userName}
+            fullWidth
+            disableUnderline
+          />
+          <Button fullWidth onClick={addUser} variant={"outlined"}>
+            Add User
+          </Button>
+          <Button fullWidth onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </DialogContent>
       </Dialog>
-      <Avatar url={addsvg} name={"Add User"} onSelect={onSelect} />
+      <Avatar
+        url={addsvg}
+        name={"Add User"}
+        onSelect={onSelect}
+        className={classes.addButton}
+      />
     </>
   );
 };
