@@ -69,10 +69,6 @@ const AddButton: React.FC = () => {
         onClose={() => setOpen(false)}
         aria-labelledby="simple-dialog-title"
         open={open}
-        classes={{
-          root: classes.dialog,
-          paper: classes.paper
-        }}
       >
         <DialogTitle id="simple-dialog-title">Collaborators</DialogTitle>
         <DialogContent>
