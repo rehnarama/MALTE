@@ -21,8 +21,7 @@ function getCollection(): Collection<Session> {
       expireAfterSeconds: SESSION_EXPIRATION_SECONDS
     }
   );
-  collection.createIndex({ userId: 1 });
-  collection.createIndex({ id: 1 });
+  collection.createIndex({ userId: 1 }, { unique: true });
 
   return collection;
 }
@@ -39,34 +38,18 @@ export async function getSession(userId: string): Promise<Session[]> {
   return sessions;
 }
 
-export async function getUserSessions(id: number): Promise<Session[]> {
+export async function removeSession(userId: string): Promise<void> {
   const collection = getCollection();
 
-  const sessions = await collection
-    .find({
-      id
-    })
-    .toArray();
-
-  return sessions;
-}
-
-export async function removeSession(
-  userId: string
-): Promise<number | undefined> {
-  const collection = getCollection();
-
-  const res = await collection.deleteMany({
+  await collection.deleteOne({
     userId
   });
-
-  return res.deletedCount;
 }
 
 export async function updateSessionTimestamp(userId: string): Promise<void> {
   const collection = getCollection();
 
-  await collection.updateMany(
+  await collection.updateOne(
     {
       userId
     },
