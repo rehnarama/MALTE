@@ -260,7 +260,7 @@ const Tree: React.SFC<TreeProps> = props => {
     </li>
   );
   if (root) {
-    return <ul className={classes.list + " " + classes.root}>{content}</ul>;
+    return <ul className={classes.list}>{content}</ul>;
   } else {
     return content;
   }
