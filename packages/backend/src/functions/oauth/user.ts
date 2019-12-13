@@ -54,6 +54,7 @@ export async function removeUser(u: User): Promise<void> {
     GitHub.getInstance().removeUser(socketId);
     userSocket.leave("authenticated");
     socketServer.removeUser(socketId);
+    socketServer.removeSocket(userSocket);
   }
 
   const collectionSessions = Database.getInstance()

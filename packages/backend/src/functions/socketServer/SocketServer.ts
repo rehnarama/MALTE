@@ -107,6 +107,10 @@ export default class SocketServer {
     });
   }
 
+  public removeSocket(socket: SocketIO.Socket): void {
+    this.project.removeSocket(socket);
+  }
+
   public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
     console.log(gitHubUser);
     const socketId = this.getSocketId(gitHubUser);
