@@ -4,14 +4,14 @@ import { Terminal } from "../terminal";
 import { FileSystem } from "../filesystem";
 import Project from "../Project";
 import fsTree from "../fsTree";
-import GitHub from "../oauth/GitHub";
+import { getUserFromId } from "../oauth/user";
 import {
   addPreApproved,
   removePreApproved,
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
 import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
-import { isUser } from "malte-common/dist/oauth/isUser";
+import { getSession, updateSessionTimestamp, removeSession } from "../session";
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -39,7 +39,8 @@ export default class SocketServer {
     socket: SocketIO.Socket,
     userId: string
   ): Promise<void> {
-    this.userMap.delete(userId);
+    await removeSession(userId);
+    this.userMap.delete(socket.id);
     socket.emit("connection/signout");
     socket.leave("authenticated");
   }
@@ -48,55 +49,58 @@ export default class SocketServer {
     socket: SocketIO.Socket,
     userId: string
   ): Promise<void> {
-    const response = await GitHub.getInstance().getUser(userId);
-
     if (socket.rooms["authenticated"]) {
-      // Already authenticated, let's not join this one again
+      // Already authenticated, let's not join this one again but at least tell
+      // them they are authenticated in case client has lost its state
+      socket.emit("connection/auth-confirm");
       return;
     }
 
-    if (isUser(response)) {
-      socket.join("authenticated");
-      this.userMap.set(socket.id, response);
-
-      // Tell user they are authenticated
-      socket.emit("connection/auth-confirm");
-
-      this.project.join(socket);
-      new Terminal(socket, this.project.getPath());
-      new FileSystem(socket, this.project.getPath());
-
-      socket.on("file/tree-refresh", async () => {
-        // send file tree on request from client
-        socket.emit("file/tree", await fsTree(this.project.getPath()));
-      });
-      socket.on("authorized/add", async user => {
-        if (user && user.login) {
-          await addPreApproved(user.login);
-          this.server
-            .to("authenticated")
-            .emit("authorized/list", await getAllPreapproved());
-        }
-      });
-      socket.on("authorized/remove", async user => {
-        if (
-          user &&
-          user.login &&
-          this.getUser(socket.id).login !== user.login
-        ) {
-          await removePreApproved(user.login);
-          this.server
-            .to("authenticated")
-            .emit("authorized/list", await getAllPreapproved());
-        }
-      });
-      socket.on("authorized/fetch", async () => {
-        socket.emit("authorized/list", await getAllPreapproved());
-      });
+    const sessions = await getSession(userId);
+    if (sessions.length > 0) {
+      const user = await getUserFromId(sessions[0].id);
+      this.authorizeSocket(socket, user);
+      await updateSessionTimestamp(userId);
     } else {
-      // Tell user authentication failed
       socket.emit("connection/auth-fail");
     }
+  }
+
+  private async authorizeSocket(
+    socket: socketio.Socket,
+    user: GitHubUser
+  ): Promise<void> {
+    socket.join("authenticated");
+    this.userMap.set(socket.id, user);
+    // Tell user they are authenticated
+    socket.emit("connection/auth-confirm");
+    this.project.join(socket);
+    new Terminal(socket, this.project.getPath());
+    new FileSystem(socket, this.project.getPath());
+
+    socket.on("file/tree-refresh", async () => {
+      // send file tree on request from client
+      socket.emit("file/tree", await fsTree(this.project.getPath()));
+    });
+    socket.on("authorized/add", async user => {
+      if (user && user.login) {
+        await addPreApproved(user.login);
+        this.server
+          .to("authenticated")
+          .emit("authorized/list", await getAllPreapproved());
+      }
+    });
+    socket.on("authorized/remove", async user => {
+      if (user && user.login && this.getUser(socket.id).login !== user.login) {
+        await removePreApproved(user.login);
+        this.server
+          .to("authenticated")
+          .emit("authorized/list", await getAllPreapproved());
+      }
+    });
+    socket.on("authorized/fetch", async () => {
+      socket.emit("authorized/list", await getAllPreapproved());
+    });
   }
 
   public getUser(socketId: string): GitHubUser | undefined {

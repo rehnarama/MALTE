@@ -15,6 +15,8 @@ export default function useAuthenticationStatus() {
     socket.on("connection/auth-confirm", onUpdate);
     socket.on("connection/auth-fail", onUpdate);
     socket.on("connection/signout", onUpdate);
+    socket.on("disconnect", onUpdate);
+    socket.on("reconnect", onUpdate);
 
     return () => {
       socket.removeListener("connection/auth-confirm", onUpdate);
