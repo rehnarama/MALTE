@@ -11,6 +11,17 @@ class Socket {
   private constructor() {
     this.s = io(getBackendUrl());
 
+    this.s.on("disconnect", () => {
+      this.authenticationStatus = AuthenticationStatus.Unknown;
+    });
+    this.s.on("reconnect", () => {
+      if (typeof this.getAuthCookie() === "string") {
+        this.authenticateConnection();
+      } else {
+        this.authenticationStatus = AuthenticationStatus.Unauthenticated;
+      }
+    });
+
     this.s.on("connection/auth-confirm", () => {
       this.authenticationStatus = AuthenticationStatus.Authenticated;
     });
@@ -22,7 +33,6 @@ class Socket {
     });
 
     this.s.on("connection/signout", () => {
-      console.log("signed out!");
       document.cookie = "userId=;Max-Age=0;";
       this.authenticationStatus = AuthenticationStatus.Unauthenticated;
     });
@@ -47,15 +57,24 @@ class Socket {
     return this.s;
   }
 
+  private getAuthCookie(): string | undefined {
+    // cookies are stored in a ; separated list
+    // regex used to filter out the text on the right side of "userId=" where the id is
+    const regex = /(userId)=([^;]+)/g;
+    const userId = regex.exec(document.cookie);
+    if (userId && userId[2]) {
+      return userId[2];
+    } else {
+      return undefined;
+    }
+  }
+
   public authenticateConnection() {
     if (this.authenticationStatus !== AuthenticationStatus.Authenticated) {
-      // cookies are stored in a ; separated list
-      // regex used to filter out the text on the right side of "userId=" where the id is
-      const regex = /(userId)=([^;]+)/g;
-      const userId = regex.exec(document.cookie);
-      if (userId && userId[2]) {
+      const authCookie = this.getAuthCookie();
+      if (authCookie) {
         this.authenticationStatus = AuthenticationStatus.Unknown;
-        this.s.emit("connection/auth", userId[2]);
+        this.s.emit("connection/auth", authCookie);
       }
     }
   }
