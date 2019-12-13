@@ -2,3 +2,6 @@
   overflow: scroll;
   height: 10em;
 }
+.addButton {
+  background: #c5c5c5;
+}
