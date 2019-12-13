@@ -64,9 +64,18 @@ export async function updateSessionTimestamp(userId: string): Promise<void> {
 export async function addSession(userId: string, id: number): Promise<void> {
   const collection = getCollection();
 
-  await collection.insertOne({
-    userId,
-    id,
-    lastSeen: new Date()
-  });
+  try {
+    await collection.insertOne({
+      userId,
+      id,
+      lastSeen: new Date()
+    });
+  } catch (e) {
+    const isDuplicateSession = e?.code === 11000;
+    if (!isDuplicateSession) {
+      // Duplicate sessions is no big deal, that means the user has a session
+      // anyway. Another error, however, is unexpected
+      throw e;
+    }
+  }
 }

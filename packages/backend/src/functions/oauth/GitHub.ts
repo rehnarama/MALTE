@@ -141,13 +141,8 @@ export default class GitHub {
       // Register this session in db
       await addSession(userId, user.id);
     } catch (e) {
-      const isDuplicateSession = e?.code === 11000;
-      if (!isDuplicateSession) {
-        // Duplicate sessions is no big deal, that means the user has a session
-        // anyway. Another error, however, is unexpected
-        console.error(e);
-        return res.sendStatus(500);
-      }
+      console.error(e);
+      return res.sendStatus(500);
     }
 
     // All done! This should have been opened in a popup window, as such
