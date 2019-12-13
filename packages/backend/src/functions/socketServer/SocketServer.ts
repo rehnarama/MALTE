@@ -112,7 +112,6 @@ export default class SocketServer {
   }
 
   public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
-    console.log(gitHubUser);
     const socketId = this.getSocketId(gitHubUser);
     if (socketId) {
       return this.server.sockets.connected[socketId];
@@ -122,8 +121,6 @@ export default class SocketServer {
 
   public getSocketId(gitHubUser: User): SocketId | null {
     for (const e of this.userMap.entries()) {
-      console.log(e[1].id);
-      console.log(gitHubUser.id);
       if (e[1].id === gitHubUser.id) {
         return e[0];
       }
