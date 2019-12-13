@@ -1,11 +1,10 @@
 .root {
-  height: 80vh;
-  overflow-y: scroll;
+  overflow-y: auto;
+  height: 100%;
 }
 .list {
   padding: 0;
   list-style: none;
-  background: #fafafa;
 }
 .list .list {
   padding-left: 1em;
