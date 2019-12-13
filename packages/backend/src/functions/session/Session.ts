@@ -22,6 +22,7 @@ function getCollection(): Collection<Session> {
     }
   );
   collection.createIndex({ userId: 1 }, { unique: true });
+  collection.createIndex({ id: 1 }, { unique: true });
 
   return collection;
 }
