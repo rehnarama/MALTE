@@ -27,6 +27,7 @@ RUN apt-get update -yq \
 RUN apt-get update
 
 RUN npm install -g npm@latest
+USER root
 
 RUN useradd -ms /bin/bash app_service
 
@@ -35,8 +36,6 @@ COPY packages/ /home/app_service
 
 WORKDIR /home/app_service
 RUN chown -R app_service:app_service .
-
-USER app_service
 
 WORKDIR /home/app_service/malte-common
 RUN npm ci
@@ -54,4 +53,5 @@ RUN cp -r build/* /home/app_service/backend/public_frontend
 
 WORKDIR /home/app_service/backend
 RUN npm ci
+
 CMD export NODE_ENV="production" && npm start
