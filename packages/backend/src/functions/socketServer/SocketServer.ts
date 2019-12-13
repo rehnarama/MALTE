@@ -10,8 +10,10 @@ import {
   removePreApproved,
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
-import { User as GitHubUser } from "malte-common/dist/oauth/GitHub";
 import { getSession, updateSessionTimestamp, removeSession } from "../session";
+import { User } from "malte-common/dist/oauth/GitHub";
+
+type SocketId = string;
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -19,7 +21,7 @@ export default class SocketServer {
   protected project: Project;
   public server: SocketIO.Server;
 
-  protected userMap = new Map<string, GitHubUser>();
+  protected userMap = new Map<SocketId, User>();
 
   protected setUpEvents(): void {
     this.server.on("connection", this.onConnection.bind(this));
@@ -68,7 +70,7 @@ export default class SocketServer {
 
   private async authorizeSocket(
     socket: socketio.Socket,
-    user: GitHubUser
+    user: User
   ): Promise<void> {
     socket.join("authenticated");
     this.userMap.set(socket.id, user);
@@ -103,8 +105,29 @@ export default class SocketServer {
     });
   }
 
-  public getUser(socketId: string): GitHubUser | undefined {
+  public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
+    const socketId = this.getSocketId(gitHubUser);
+    if (socketId) {
+      return this.server.sockets.connected[socketId];
+    }
+    return null;
+  }
+
+  public getSocketId(gitHubUser: User): SocketId | null {
+    for (const e of this.userMap.entries()) {
+      if (e[1] === gitHubUser) {
+        return e[0];
+      }
+    }
+    return null;
+  }
+
+  public getUser(socketId: string): User | undefined {
     return this.userMap.get(socketId);
+  }
+
+  public removeUser(socketId: string): void {
+    this.userMap.delete(socketId);
   }
 
   public static initialize(

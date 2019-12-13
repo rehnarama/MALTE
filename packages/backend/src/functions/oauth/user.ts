@@ -1,6 +1,8 @@
 import { User } from "malte-common/dist/oauth/GitHub";
 import { isUser } from "malte-common/dist/oauth/isUser";
 import Database from "../db/Database";
+import SocketServer from "../socketServer/SocketServer";
+import GitHub from "./GitHub";
 
 export async function updateUser(user: User): Promise<void> {
   const collection = Database.getInstance()
@@ -34,5 +36,18 @@ export async function getUserFromId(id: number): Promise<User | undefined> {
     return user;
   } else {
     return undefined;
+  }
+}
+
+export function removeUser(user: User): void {
+  const socketServer = SocketServer.getInstance();
+  const userSocket = socketServer.getUserSocket(user);
+  const socketId = socketServer.getSocketId(user);
+
+  if (userSocket && socketId) {
+    userSocket.emit("authorized/removed");
+    GitHub.getInstance().removeUser(socketId);
+    userSocket.leave("authenticated");
+    socketServer.removeUser(socketId);
   }
 }
