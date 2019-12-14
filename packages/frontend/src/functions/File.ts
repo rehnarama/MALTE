@@ -12,7 +12,7 @@ import Monaco from "../functions/Monaco";
 
 interface BufferOperationData {
   path: string;
-  operation: RGAOperationJSON;
+  operations: RGAOperationJSON[];
 }
 
 export default class File {
@@ -55,36 +55,43 @@ export default class File {
 
   private onBufferOperation = (data: BufferOperationData) => {
     if (data.path === this.path) {
-      const operation = rgaOperationFromJSON(data.operation);
-      const Range = Monaco.getInstance().getMonacoNamespace().Range;
-      let edit: editorType.IIdentifiedSingleEditOperation;
-      if ("content" in operation) {
-        this.rga.insert(operation);
+      const edits: editorType.IIdentifiedSingleEditOperation[] = [];
 
-        // Have to apply operation before creating edit
-        const index = this.rga.findPos(operation.id);
-        const position = this.model.getPositionAt(index);
-        const range = Range.fromPositions(position);
-        edit = {
-          range,
-          text: operation.content,
-          forceMoveMarkers: true
-        };
-      } else {
-        // We have to create edit before applying RGA operation
-        const index = this.rga.findPos(operation.reference);
-        const position = this.model.getPositionAt(index);
-        const nextPosition = this.model.getPositionAt(index + 1);
-        const range = Range.fromPositions(position, nextPosition);
-        edit = {
-          range,
-          text: null
-        };
+      for (const op of data.operations) {
+        const operation = rgaOperationFromJSON(op);
+        const Range = Monaco.getInstance().getMonacoNamespace().Range;
+        let edit: editorType.IIdentifiedSingleEditOperation;
+        if ("content" in operation) {
+          this.rga.insert(operation);
 
-        this.rga.remove(operation);
+          // Have to apply operation before creating edit
+          const index = this.rga.findPos(operation.id);
+          const position = this.model.getPositionAt(index);
+          const range = Range.fromPositions(position);
+          edit = {
+            range,
+            text: operation.content,
+            forceMoveMarkers: true
+          };
+          edits.push(edit);
+        } else {
+          // We have to create edit before applying RGA operation
+          const index = this.rga.findPos(operation.reference);
+          const position = this.model.getPositionAt(index);
+          const nextPosition = this.model.getPositionAt(index + 1);
+          const range = Range.fromPositions(position, nextPosition);
+          edit = {
+            range,
+            text: null
+          };
+          edits.push(edit);
+
+          this.rga.remove(operation);
+        }
       }
+
       this.applyingRemote = true;
-      this.model.applyEdits([edit]);
+      this.model.applyEdits(edits);
       this.applyingRemote = false;
     }
   };
@@ -98,12 +105,17 @@ export default class File {
   }
 
   private applyLocalOperations(ops: InternalOperation[]) {
+    const data: BufferOperationData = {
+      path: this.path,
+      operations: []
+    };
     for (const op of ops) {
       const rgaOp = this.internalToRGA(op);
       this.rga.applyOperation(rgaOp);
-      const socket = Socket.getInstance().getSocket();
-      socket.emit("buffer/operation", { path: this.path, operation: rgaOp });
+      data.operations.push(rgaOp);
     }
+    const socket = Socket.getInstance().getSocket();
+    socket.emit("buffer/operation", data);
   }
 
   public close() {

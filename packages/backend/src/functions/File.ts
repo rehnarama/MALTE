@@ -137,14 +137,23 @@ export default class File {
     await this.triggerSaveAsync();
   }
 
-  public applyOperation(op: RGAOperationJSON, caller: Socket): void {
-    const rgaOp = rgaOperationFromJSON(op);
-    this.rga.applyOperation(rgaOp);
+  public applyOperations(
+    ops: RGAOperationJSON[] | RGAOperationJSON,
+    caller: Socket
+  ): void {
+    if (!Array.isArray(ops)) {
+      ops = [ops];
+    }
+
+    for (const op of ops) {
+      const rgaOp = rgaOperationFromJSON(op);
+      this.rga.applyOperation(rgaOp);
+    }
     this.scheduleSave();
 
     for (const s of this.sockets) {
       if (s.id !== caller.id) {
-        s.emit("buffer/operation", { path: this.path, operation: rgaOp });
+        s.emit("buffer/operation", { path: this.path, operations: ops });
       }
     }
   }

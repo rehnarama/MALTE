@@ -108,14 +108,14 @@ export default class Project {
 
     socket.on(
       "buffer/operation",
-      async (data: { path: string; operation: RGAOperationJSON }) => {
+      async (data: { path: string; operations: RGAOperationJSON[] }) => {
         if (socket.rooms["authenticated"]) {
           const normalizedPath = data.path.replace(this.path, "");
           const file = this.files.find(
             f => f.path === this.absolutePath(normalizedPath)
           );
           if (file) {
-            file.applyOperation(data.operation, socket);
+            file.applyOperations(data.operations, socket);
           }
         }
       }

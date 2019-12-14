@@ -67,7 +67,7 @@ describe("File", function() {
         );
 
         const op = file["rga"].createInsertPos(0, "a");
-        file.applyOperation(op, sourceSocket);
+        file.applyOperations(op, sourceSocket);
       });
     });
 
