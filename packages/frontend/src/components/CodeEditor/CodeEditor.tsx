@@ -27,7 +27,7 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
         }
       }
     });
-  }, [editor]);
+  }, [editor, setCallbacks]);
 
   const handler = (_: Function, codeEditor: editorType.ICodeEditor): void => {
     const e = new Editor(codeEditor);

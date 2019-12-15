@@ -45,7 +45,7 @@ function useFileName() {
         callbacks.onRemove(paths);
       }
     },
-    [callbacks.onRemove, fileNames, activeFileName]
+    [callbacks, fileNames, activeFileName]
   );
 
   return {
