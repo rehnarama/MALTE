@@ -76,7 +76,7 @@ export default class File {
           edits.push(edit);
         } else {
           // We have to create edit before applying RGA operation
-          const index = this.rga.findPos(operation.reference);
+          const index = this.rga.findPos(operation.reference, operation.offset);
           const position = this.model.getPositionAt(index);
           const nextPosition = this.model.getPositionAt(index + 1);
           const range = Range.fromPositions(position, nextPosition);

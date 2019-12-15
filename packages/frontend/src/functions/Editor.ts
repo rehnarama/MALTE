@@ -92,7 +92,6 @@ export default class Editor {
 
   private openNewBuffer(path: string, content: RGAJSON) {
     const newModel = this.getModelForBuffer(path);
-    newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
     this.files.push(file);

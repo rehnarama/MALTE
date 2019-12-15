@@ -8,14 +8,17 @@ export default class RGAInsert {
 
   public id: RGAIdentifier;
   public content: string;
+  public offset: number;
 
   public constructor(
     reference: RGAIdentifier,
     id: RGAIdentifier,
-    content: string
+    content: string,
+    offset = 0
   ) {
     this.reference = reference;
     this.id = id;
     this.content = content;
+    this.offset = offset;
   }
 }

@@ -22,15 +22,14 @@ function mapRemoveOperation(
 function mapInsertOperation(
   op: editor.IModelContentChange
 ): InternalOperation[] {
-  const newOps: InternalOperation[] = [];
   const text = op.text;
-  for (let i = 0; i < text.length; i++) {
-    newOps.push({
+  const newOps: InternalOperation[] = [
+    {
       type: Operation.Insert,
-      position: op.rangeOffset + i,
-      character: text.charAt(i)
-    });
-  }
+      position: op.rangeOffset,
+      character: text
+    }
+  ];
   return newOps;
 }
 

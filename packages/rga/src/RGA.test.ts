@@ -185,7 +185,9 @@ describe("RGA", function() {
         for (let operation = 0; operation < N_OPERATIONS; operation++) {
           if (Math.random() <= 0.5 && currentLength > 0) {
             // Do removal
-            const op = rga.createRemovePos(Math.random() * currentLength);
+            const op = rga.createRemovePos(
+              Math.floor(Math.random() * currentLength)
+            );
             rga.remove(op);
 
             removals.push(op);
@@ -193,7 +195,7 @@ describe("RGA", function() {
           } else {
             // Do insertion
             const op = rga.createInsertPos(
-              Math.random() * currentLength,
+              Math.round(Math.random() * currentLength),
               randomLetter()
             );
             rga.insert(op);
@@ -257,21 +259,21 @@ describe("RGA", function() {
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a single character RGA", () => {
       const s = "a";
       const rga = RGA.fromString(s);
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a multiple character RGA", () => {
       const s = "abcde";
       const rga = RGA.fromString(s);
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a multiple line RGA", () => {
       const s = "abcde\nabcde\nabcde";
       const rga = RGA.fromString(s);
@@ -279,7 +281,7 @@ describe("RGA", function() {
       assert.equal(rga.toString(), s);
     });
   });
-  
+
   describe("to/fromRGAJSON", function() {
     it("should parse an empty RGA", () => {
       const oldRGA = new RGA();
@@ -289,7 +291,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 0);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse a single node RGA", () => {
       const oldRGA = new RGA();
       const insert = oldRGA.createInsertPos(0, "a");
@@ -300,7 +302,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 1);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should store nodes in nodemap", () => {
       const oldRGA = new RGA();
       const insert = oldRGA.createInsertPos(0, "a");
@@ -310,7 +312,7 @@ describe("RGA", function() {
 
       assert.equal(oldRGA["nodeMap"].size, newRGA["nodeMap"].size);
     });
-    
+
     it("should parse multiple node RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -324,7 +326,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse deleted nodes in RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -341,7 +343,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse all deleted nodes in RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -360,7 +362,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should update clock on parse", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -416,7 +418,7 @@ describe("RGA", function() {
       const insert2 = oldRGA.createInsertPos(1, "b");
       oldRGA.insert(insert2);
       const rgaJSON = oldRGA.toRGAJSON();
-      
+
       assert.equal(oldRGA.toString(), "ab");
     });
   });
@@ -446,15 +448,14 @@ describe("RGA", function() {
       assert.equal(pos, -1);
     });
 
-
     it("should return correct position in simple case with no tombstones", () => {
       const rga = new RGA();
       let insert1: RGAInsert;
       let insert2: RGAInsert;
       let insert3: RGAInsert;
-      rga.insert(insert1 = rga.createInsertPos(0, "a"));
-      rga.insert(insert2 = rga.createInsertPos(1, "b"));
-      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+      rga.insert((insert1 = rga.createInsertPos(0, "a")));
+      rga.insert((insert2 = rga.createInsertPos(1, "b")));
+      rga.insert((insert3 = rga.createInsertPos(2, "c")));
 
       const pos1 = rga.findPos(insert1.id);
       const pos2 = rga.findPos(insert2.id);
@@ -470,9 +471,9 @@ describe("RGA", function() {
       let insert1: RGAInsert;
       let insert2: RGAInsert;
       let insert3: RGAInsert;
-      rga.insert(insert1 = rga.createInsertPos(0, "a"));
-      rga.insert(insert2 = rga.createInsertPos(1, "b"));
-      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+      rga.insert((insert1 = rga.createInsertPos(0, "a")));
+      rga.insert((insert2 = rga.createInsertPos(1, "b")));
+      rga.insert((insert3 = rga.createInsertPos(2, "c")));
       rga.remove(rga.createRemove(insert2.id));
 
       const pos1 = rga.findPos(insert1.id);
@@ -483,6 +484,94 @@ describe("RGA", function() {
       assert.equal(pos2, -1);
       assert.equal(pos3, 1);
     });
+  });
 
+  describe("chunk insertions", () => {
+    it("should support simple insert with chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+
+      assert.equal(rga.toString(), "abc");
+    });
+
+    it("should support inserting new character in-between chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+
+      assert.equal(rga.toString(), "a!bc");
+    });
+
+    it("should support inserting new character in-between chunk multiple times", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+      rga.insert(rga.createInsertPos(3, "@"));
+
+      assert.equal(rga.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+
+      const insert1 = rga.createInsertPos(1, "!");
+      const insert2 = rga.createInsertPos(2, "@");
+      rga.insert(insert1);
+      rga.insert(insert2);
+
+      assert.equal(rga.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently, in another order", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+
+      const insert1 = rga.createInsertPos(1, "!");
+      const insert2 = rga.createInsertPos(2, "@");
+      rga.insert(insert2);
+      rga.insert(insert1);
+
+      assert.equal(rga.toString(), "a!b@c");
+    });
+
+    it("should remove character in start of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(0));
+
+      assert.equal(rga.toString(), "bc");
+    });
+
+    it("should remove character in middle of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(1));
+
+      assert.equal(rga.toString(), "ac");
+    });
+
+    it("should remove character in end of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(2));
+
+      assert.equal(rga.toString(), "ab");
+    });
+
+    it("should correctly remove after split", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+      rga.insert(rga.createInsertPos(3, "!"));
+      assert.equal(rga.toString(), "a!b!c");
+
+      rga.remove(rga.createRemovePos(4));
+      assert.equal(rga.toString(), "a!b!");
+      rga.remove(rga.createRemovePos(2));
+      assert.equal(rga.toString(), "a!!");
+      rga.remove(rga.createRemovePos(0));
+      assert.equal(rga.toString(), "!!");
+    });
   });
 });
