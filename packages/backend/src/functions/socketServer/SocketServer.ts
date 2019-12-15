@@ -140,6 +140,7 @@ export default class SocketServer {
     this.userMap.delete(socketId);
     userSocket.emit("authorized/removed");
     userSocket.leave("authenticated");
+    this.removeSocket(userSocket);
     GitHub.getInstance().removeUser(socketId);
 
     const collectionSessions = Database.getInstance()
