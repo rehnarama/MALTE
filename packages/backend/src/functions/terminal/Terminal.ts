@@ -86,6 +86,7 @@ class Terminal {
       this.socket.off("pty/resize", this.onPtyResize);
       this.socket.off("connection/signout", this.kill);
       this.socket.off("disconnect", this.kill);
+      console.log("killing terminal");
     }
   };
 }

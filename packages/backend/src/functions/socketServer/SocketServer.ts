@@ -3,20 +3,19 @@ import http from "http";
 import { Terminal } from "../terminal";
 import { FileSystem } from "../filesystem";
 import Project from "../Project";
-import fsTree from "../fsTree";
 import { getUserFromId } from "../oauth/user";
+import { getSession, updateSessionTimestamp } from "../session";
+import { User } from "../user";
+import { User as UserData } from "malte-common/dist/oauth/GitHub";
 import {
   addPreApproved,
   removePreApproved,
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
-import { getSession, updateSessionTimestamp, removeSession } from "../session";
-import { User } from "malte-common/dist/oauth/GitHub";
-import { removeUser } from "../oauth/user";
-import GitHub from "../oauth/GitHub";
-import Database from "../db/Database";
 
 type SocketId = string;
+
+type listener = (...args: any[]) => void; //eslint-disable-line
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -25,29 +24,29 @@ export default class SocketServer {
   public server: SocketIO.Server;
 
   protected userMap = new Map<SocketId, User>();
+  private listenerMap: {
+    [socketId: string]: { [event: string]: listener };
+  } = {};
 
   protected setUpEvents(): void {
     this.server.on("connection", this.onConnection.bind(this));
   }
 
   private onConnection(socket: SocketIO.Socket): void {
-    // everyone must be able to request to join, otherwise no one can join
-    socket.on("connection/auth", userId => this.onAuth(socket, userId));
-    socket.on("connection/signout", userId => this.signOut(socket, userId));
+    this.userMap.set(socket.id, new User(socket));
 
-    socket.on("disconnect", () => {
+    const listeners = (this.listenerMap[socket.id] = {});
+
+    listeners["connection/auth"] = (userId: string): void => {
+      this.onAuth(socket, userId);
+    };
+    listeners["disconnect"] = (): void => {
       this.userMap.delete(socket.id);
-    });
-  }
+    };
 
-  private async signOut(
-    socket: SocketIO.Socket,
-    userId: string
-  ): Promise<void> {
-    await removeSession(userId);
-    this.userMap.delete(socket.id);
-    socket.emit("connection/signout");
-    socket.leave("authenticated");
+    // everyone must be able to request to join, otherwise no one can join
+    socket.on("connection/auth", listeners["connection/auth"]);
+    socket.on("disconnect", listeners["disconnect"]);
   }
 
   protected async onAuth(
@@ -64,7 +63,7 @@ export default class SocketServer {
     const sessions = await getSession(userId);
     if (sessions.length > 0) {
       const user = await getUserFromId(sessions[0].id);
-      this.authorizeSocket(socket, user);
+      this.authorizeSocket(socket, userId, user);
       await updateSessionTimestamp(userId);
     } else {
       socket.emit("connection/auth-fail");
@@ -73,80 +72,111 @@ export default class SocketServer {
 
   private async authorizeSocket(
     socket: socketio.Socket,
-    user: User
+    userId: string,
+    userData: UserData
   ): Promise<void> {
-    socket.join("authenticated");
-    this.userMap.set(socket.id, user);
-    // Tell user they are authenticated
-    socket.emit("connection/auth-confirm");
-    this.project.join(socket);
-    new Terminal(socket, this.project.getPath());
-    new FileSystem(socket, this.project.getPath());
+    if (socket.rooms["authenticated"]) {
+      // Already authenticated, let's not join this one again but at least tell
+      // them they are authenticated in case client has lost its state
+      socket.emit("connection/auth-confirm");
+      return;
+    }
 
-    socket.on("file/tree-refresh", async () => {
-      // send file tree on request from client
-      socket.emit("file/tree", await fsTree(this.project.getPath()));
-    });
-    socket.on("authorized/add", async user => {
+    const user = this.userMap.get(socket.id);
+    user.authorizeUser(
+      userId,
+      userData,
+      new Terminal(socket, this.project.getPath()),
+      new FileSystem(socket, this.project.getPath()),
+      this.project
+    );
+
+    const listeners = this.listenerMap[socket.id];
+
+    listeners["authorized/add"] = async (user: {
+      login: string;
+    }): Promise<void> => {
       if (user && user.login) {
         await addPreApproved(user.login);
-        this.server
-          .to("authenticated")
+        SocketServer.getInstance()
+          .server.to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
       }
-    });
-    socket.on("authorized/remove", async user => {
-      if (user && user.login && this.getUser(socket.id).login !== user.login) {
-        await removePreApproved(user.login);
-        this.server
-          .to("authenticated")
+    };
+
+    listeners["authorized/remove"] = async (data: {
+      login: string;
+    }): Promise<void> => {
+      if (data && data.login && this.getUserLogin(socket.id) !== data.login) {
+        await removePreApproved(data.login);
+        SocketServer.getInstance()
+          .server.to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
-        removeUser(user);
+
+        const removedUsers = this.getUsersWithLogin(data.login);
+        for (const u of removedUsers) {
+          this.destroyUser(u);
+          u.getSocket().emit("authorized/removed");
+        }
       }
-    });
-    socket.on("authorized/fetch", async () => {
+    };
+
+    listeners["connection/signout"] = (): void => {
+      console.log("signing out");
+      this.destroyUser(this.userMap.get(socket.id));
+      socket.emit("connection/signout");
+    };
+
+    listeners["authorized/fetch"] = async (): Promise<void> => {
       socket.emit("authorized/list", await getAllPreapproved());
-    });
+    };
+
+    socket.on("connection/signout", listeners["connection/signout"]);
+    socket.on("authorized/add", listeners["authorized/add"]);
+    socket.on("authorized/remove", listeners["authorized/remove"]);
+    socket.on("authorized/fetch", listeners["authorized/fetch"]);
   }
 
-  public removeSocket(socket: SocketIO.Socket): void {
-    this.project.removeSocket(socket);
+  public getUserLogin(socketId: string): string | undefined {
+    return this.userMap.get(socketId).getUserData().login;
   }
 
-  public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
-    const socketId = this.getSocketId(gitHubUser);
-    if (socketId) {
-      return this.server.sockets.connected[socketId];
+  public getUserData(socketId: string): UserData | undefined {
+    return this.userMap.get(socketId)?.getUserData();
+  }
+
+  public destroyUser(login: string): void;
+  public destroyUser(user: User): void;
+  public destroyUser(user: User | string): void {
+    const sessions = [];
+    if (user instanceof User) {
+      sessions.push(user);
+    } else if (typeof user === "string") {
+      sessions.push(...this.getUsersWithLogin(user));
     }
-    return null;
+
+    for (const session of sessions) {
+      const socket = session.getSocket();
+
+      session.destroyUser();
+      const listeners = this.listenerMap[session.getSocketId()];
+      socket.off("authorized/add", listeners["authorized/add"]);
+      socket.off("authorized/remove", listeners["authorized/remove"]);
+      socket.off("authorized/fetch", listeners["authorized/fetch"]);
+      socket.off("connection/signout", listeners["connection/signout"]);
+
+      console.log(session?.getSocket().eventNames());
+    }
   }
 
-  public getSocketId(gitHubUser: User): SocketId | null {
-    for (const e of this.userMap.entries()) {
-      if (e[1].id === gitHubUser.id) {
-        return e[0];
+  private getUsersWithLogin(user: string): User[] {
+    const sessions = [];
+    this.userMap.forEach(u => {
+      if (u.getUserData().login === user) {
+        sessions.push(u);
       }
-    }
-    return null;
-  }
-
-  public getUser(socketId: string): User | undefined {
-    return this.userMap.get(socketId);
-  }
-
-  public removeUser(user: User): void {
-    const socketId = this.getSocketId(user);
-    const userSocket = this.getUserSocket(user);
-    this.userMap.delete(socketId);
-    userSocket.emit("authorized/removed");
-    userSocket.leave("authenticated");
-    GitHub.getInstance().removeUser(socketId);
-
-    const collectionSessions = Database.getInstance()
-      .getDb()
-      .collection("sessions");
-
-    collectionSessions.deleteMany({ id: user.id });
+    });
+    return sessions;
   }
 
   public static initialize(

@@ -11,6 +11,8 @@ import {
 import { User, UserList } from "malte-common/dist/UserList";
 import SocketServer from "./socketServer/SocketServer";
 
+type listener = (...args: any[]) => void; //eslint-disable-line
+
 export default class Project {
   private path: string;
   private watcher: chokidar.FSWatcher;
@@ -18,6 +20,10 @@ export default class Project {
   private sockets: SocketIO.Socket[] = [];
 
   private cursorMap: { [socketId: string]: CursorInfo } = {};
+
+  private listenerMap: {
+    [socketId: string]: { [event: string]: listener };
+  } = {};
 
   constructor(path: string) {
     this.path = path;
@@ -84,7 +90,10 @@ export default class Project {
     this.sockets.push(socket);
     this.broadcastUserList();
 
-    socket.on("buffer/join", async (data: { path: string }) => {
+    const listeners = (this.listenerMap[socket.id] = {});
+    listeners["buffer/join"] = async (data: {
+      path: string;
+    }): Promise<void> => {
       if (socket.rooms["authenticated"]) {
         const path: string = data.path;
         const file = await this.getFile(path);
@@ -94,9 +103,11 @@ export default class Project {
           this.sendCursorList(socket);
         }
       }
-    });
+    };
 
-    socket.on("buffer/leave", async (data: { path: string }) => {
+    listeners["buffer/leave"] = async (data: {
+      path: string;
+    }): Promise<void> => {
       const normalizedPath = data.path.replace(this.path, "");
       const path: string = normalizedPath;
       const file = await this.getFile(path);
@@ -104,32 +115,29 @@ export default class Project {
       if (canCloseFile) {
         await this.closeFiles([file]);
       }
-    });
-
-    socket.on(
-      "buffer/operation",
-      async (data: { path: string; operation: RGAOperationJSON }) => {
-        if (socket.rooms["authenticated"]) {
-          const normalizedPath = data.path.replace(this.path, "");
-          const file = this.files.find(
-            f => f.path === this.absolutePath(normalizedPath)
-          );
-          if (file) {
-            file.applyOperation(data.operation, socket);
-          }
+    };
+    listeners["buffer/operation"] = async (data: {
+      path: string;
+      operation: RGAOperationJSON;
+    }): Promise<void> => {
+      if (socket.rooms["authenticated"]) {
+        const normalizedPath = data.path.replace(this.path, "");
+        const file = this.files.find(
+          f => f.path === this.absolutePath(normalizedPath)
+        );
+        if (file) {
+          file.applyOperation(data.operation, socket);
         }
       }
-    );
+    };
+    listeners["cursor/move"] = (data: CursorMovement): void => {
+      this.onCursorMove(socket, data);
+    };
 
-    socket.on("cursor/move", (data: CursorMovement) =>
-      this.onCursorMove(socket, data)
-    );
-    socket.on("disconnect", () => {
-      this.removeSocket(socket);
-    });
-    socket.on("connection/signout", () => {
-      this.removeSocket(socket);
-    });
+    socket.on("buffer/join", listeners["buffer/join"]);
+    socket.on("buffer/leave", listeners["buffer/leave"]);
+    socket.on("buffer/operation", listeners["buffer/operation"]);
+    socket.on("cursor/move", listeners["cursor/move"]);
 
     return true;
   }
@@ -138,7 +146,7 @@ export default class Project {
     const socketServer = SocketServer.getInstance();
     const users: User[] = this.sockets
       .map(s => {
-        const ghUser = socketServer.getUser(s.id);
+        const ghUser = socketServer.getUserData(s.id);
         if (ghUser) {
           return { ...ghUser, socketId: s.id };
         } else {
@@ -154,7 +162,7 @@ export default class Project {
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
     this.cursorMap[socket.id] = {
       ...data,
-      login: SocketServer.getInstance().getUser(socket.id).login,
+      login: SocketServer.getInstance().getUserData(socket.id).login,
       socketId: socket.id
     };
     this.broadcastCursorList();
@@ -171,13 +179,20 @@ export default class Project {
   public removeSocket(socket: SocketIO.Socket): boolean {
     const index = this.sockets.findIndex(s => s.id === socket.id);
     if (index !== -1) {
-      this.sockets.splice(index, 1);
-      if (this.cursorMap[socket.id]) {
-        delete this.cursorMap[socket.id];
-        this.broadcastCursorList();
-      }
+      const socket = this.sockets.splice(index, 1)[0];
       this.broadcastUserList();
 
+      const listeners = this.listenerMap[socket.id];
+      socket.off("buffer/join", listeners["buffer/join"]);
+      socket.off("buffer/leave", listeners["buffer/leave"]);
+      socket.off("buffer/operation", listeners["buffer/operation"]);
+      socket.off("cursor/move", listeners["cursor/move"]);
+    }
+    if (this.cursorMap[socket.id]) {
+      delete this.cursorMap[socket.id];
+      this.broadcastCursorList();
+    }
+    
       const filesToClose: File[] = [];
       for (const file of this.files) {
         const canCloseFile = file.leave(socket);

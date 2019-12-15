@@ -19,10 +19,18 @@ const AddButton: React.FC = () => {
     socket.on("authorized/list", (userList: string[]) => {
       setUsers(userList);
     });
+
+    return () => {
+      socket.off("authorized/list");
+    };
   }, [users, socket]);
 
   useEffect(() => {
     socket.emit("authorized/fetch");
+
+    return () => {
+      socket.off("authorized/fetch");
+    };
   }, [open, socket]);
 
   const handleFileNameChange = React.useCallback<

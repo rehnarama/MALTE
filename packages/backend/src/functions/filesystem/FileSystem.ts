@@ -8,16 +8,24 @@ import path from "path";
  * using a specified API (see Wiki pages on Github for
  * specification, https://github.com/rehnarama/MALTE/wiki/API-File)
  */
+
+type listener = (...args: any[]) => void; //eslint-disable-line
+
 class FileSystem {
   private projectRoot: string;
   private static WORKSPACE_ROOT = "./";
 
+  private socket: socketio.Socket;
+  private fileOperationListener: listener;
+
   constructor(socket: socketio.Socket, projectRoot: string) {
+    this.socket = socket;
     this.projectRoot = projectRoot;
 
-    socket.on("file/operation", data => {
+    this.fileOperationListener = (data: FileOperation): void => {
       this.parseData(data);
-    });
+    };
+    socket.on("file/operation", this.fileOperationListener);
   }
 
   private parseData(data: FileOperation): void {
@@ -142,6 +150,10 @@ class FileSystem {
    */
   public static getWorkspaceRoot(): string {
     return FileSystem.WORKSPACE_ROOT;
+  }
+
+  public destroy(): void {
+    this.socket.off("file/operation", this.fileOperationListener);
   }
 }
 export default FileSystem;
