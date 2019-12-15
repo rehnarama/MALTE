@@ -13,6 +13,8 @@ import {
 import { getSession, updateSessionTimestamp, removeSession } from "../session";
 import { User } from "malte-common/dist/oauth/GitHub";
 import { removeUser } from "../oauth/user";
+import GitHub from "../oauth/GitHub";
+import Database from "../db/Database";
 
 type SocketId = string;
 
@@ -132,8 +134,19 @@ export default class SocketServer {
     return this.userMap.get(socketId);
   }
 
-  public removeUser(socketId: string): void {
+  public removeUser(user: User): void {
+    const socketId = this.getSocketId(user);
+    const userSocket = this.getUserSocket(user);
     this.userMap.delete(socketId);
+    userSocket.emit("authorized/removed");
+    userSocket.leave("authenticated");
+    GitHub.getInstance().removeUser(socketId);
+
+    const collectionSessions = Database.getInstance()
+      .getDb()
+      .collection("sessions");
+
+    collectionSessions.deleteMany({ id: user.id });
   }
 
   public static initialize(
