@@ -7,7 +7,7 @@ import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyzåäö";
-function randomLetter() {
+function randomLetter(): string {
   return LETTERS.substr(Math.random() * LETTERS.length, 1);
 }
 
@@ -177,7 +177,9 @@ describe("RGA", function() {
        * doRound - Performs a series of random operations on a RGA and returns them
        * @param rga The RGA of which to perform random opeartions on
        */
-      function doRound(rga: RGA) {
+      function doRound(
+        rga: RGA
+      ): { insertions: RGAInsert[]; removals: RGARemove[] } {
         const insertions: RGAInsert[] = [];
         const removals: RGARemove[] = [];
 
@@ -257,21 +259,21 @@ describe("RGA", function() {
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a single character RGA", () => {
       const s = "a";
       const rga = RGA.fromString(s);
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a multiple character RGA", () => {
       const s = "abcde";
       const rga = RGA.fromString(s);
 
       assert.equal(rga.toString(), s);
     });
-    
+
     it("should create a multiple line RGA", () => {
       const s = "abcde\nabcde\nabcde";
       const rga = RGA.fromString(s);
@@ -279,7 +281,7 @@ describe("RGA", function() {
       assert.equal(rga.toString(), s);
     });
   });
-  
+
   describe("to/fromRGAJSON", function() {
     it("should parse an empty RGA", () => {
       const oldRGA = new RGA();
@@ -289,7 +291,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 0);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse a single node RGA", () => {
       const oldRGA = new RGA();
       const insert = oldRGA.createInsertPos(0, "a");
@@ -300,7 +302,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 1);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should store nodes in nodemap", () => {
       const oldRGA = new RGA();
       const insert = oldRGA.createInsertPos(0, "a");
@@ -310,7 +312,7 @@ describe("RGA", function() {
 
       assert.equal(oldRGA["nodeMap"].size, newRGA["nodeMap"].size);
     });
-    
+
     it("should parse multiple node RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -324,7 +326,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse deleted nodes in RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -341,7 +343,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should parse all deleted nodes in RGA", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -360,7 +362,7 @@ describe("RGA", function() {
       assert.equal(rgaJSON.nodes.length, 5);
       assert.equal(oldRGA.toString(), newRGA.toString());
     });
-    
+
     it("should update clock on parse", () => {
       const oldRGA = new RGA();
       const letters = ["a", "b", "c", "d", "e"];
@@ -415,8 +417,7 @@ describe("RGA", function() {
       oldRGA.insert(insert);
       const insert2 = oldRGA.createInsertPos(1, "b");
       oldRGA.insert(insert2);
-      const rgaJSON = oldRGA.toRGAJSON();
-      
+
       assert.equal(oldRGA.toString(), "ab");
     });
   });
@@ -446,15 +447,14 @@ describe("RGA", function() {
       assert.equal(pos, -1);
     });
 
-
     it("should return correct position in simple case with no tombstones", () => {
       const rga = new RGA();
       let insert1: RGAInsert;
       let insert2: RGAInsert;
       let insert3: RGAInsert;
-      rga.insert(insert1 = rga.createInsertPos(0, "a"));
-      rga.insert(insert2 = rga.createInsertPos(1, "b"));
-      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+      rga.insert((insert1 = rga.createInsertPos(0, "a")));
+      rga.insert((insert2 = rga.createInsertPos(1, "b")));
+      rga.insert((insert3 = rga.createInsertPos(2, "c")));
 
       const pos1 = rga.findPos(insert1.id);
       const pos2 = rga.findPos(insert2.id);
@@ -470,9 +470,9 @@ describe("RGA", function() {
       let insert1: RGAInsert;
       let insert2: RGAInsert;
       let insert3: RGAInsert;
-      rga.insert(insert1 = rga.createInsertPos(0, "a"));
-      rga.insert(insert2 = rga.createInsertPos(1, "b"));
-      rga.insert(insert3 = rga.createInsertPos(2, "c"));
+      rga.insert((insert1 = rga.createInsertPos(0, "a")));
+      rga.insert((insert2 = rga.createInsertPos(1, "b")));
+      rga.insert((insert3 = rga.createInsertPos(2, "c")));
       rga.remove(rga.createRemove(insert2.id));
 
       const pos1 = rga.findPos(insert1.id);
@@ -483,6 +483,5 @@ describe("RGA", function() {
       assert.equal(pos2, -1);
       assert.equal(pos3, 1);
     });
-
   });
 });
