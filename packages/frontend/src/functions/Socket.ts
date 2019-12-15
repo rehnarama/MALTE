@@ -36,6 +36,11 @@ class Socket {
       document.cookie = "userId=;Max-Age=0;";
       this.authenticationStatus = AuthenticationStatus.Unauthenticated;
     });
+
+    this.s.on("authorized/removed", () => {
+      document.cookie = "userId=;Max-Age=0;";
+      this.authenticationStatus = AuthenticationStatus.Unauthenticated;
+    });
   }
 
   static getInstance(): Socket {
