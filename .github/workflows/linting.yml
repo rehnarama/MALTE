@@ -34,6 +34,11 @@ jobs:
       run: |
         npm ci
         npm run lint
+    - name: npm install and check styling errors in rga
+      working-directory: packages/rga
+      run: |
+        npm ci
+        npm run lint
       env:
         CI: true
 

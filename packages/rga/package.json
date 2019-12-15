@@ -8,7 +8,9 @@
     "build:watch": "tsc --watch",
     "test": "mocha",
     "test:watch": "mocha --watch",
-    "test:coverage": "nyc mocha"
+    "test:coverage": "nyc mocha",
+    "lint": "eslint --ext .ts src/",
+    "lint-fix": "eslint --fix --ext .ts src/"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,12 @@
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.6.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^1.19.1",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
