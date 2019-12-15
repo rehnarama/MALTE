@@ -44,22 +44,10 @@ export async function removeUser(u: User): Promise<void> {
     .getDb()
     .collection("users");
 
-  const user = await collectionUsers.findOne({ login: u.login });
-  const socketServer = SocketServer.getInstance();
-  const userSocket = socketServer.getUserSocket(user);
-  const socketId = socketServer.getSocketId(user);
-
-  if (userSocket && socketId) {
-    userSocket.emit("authorized/removed");
-    GitHub.getInstance().removeUser(socketId);
-    userSocket.leave("authenticated");
-    socketServer.removeUser(socketId);
-    socketServer.removeSocket(userSocket);
+  try {
+    const user = await collectionUsers.findOne({ login: u.login });
+    SocketServer.getInstance().removeUser(user);
+  } catch (e) {
+    console.log(e);
   }
-
-  const collectionSessions = Database.getInstance()
-    .getDb()
-    .collection("sessions");
-
-  collectionSessions.deleteMany({ id: user.id });
 }
