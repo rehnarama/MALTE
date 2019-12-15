@@ -204,4 +204,8 @@ export default class GitHub {
     const data = (await response.json()) as UserResponse;
     return data;
   }
+
+  public removeUser(userId: string): void {
+    this.userIdAccessTokenMap.delete(userId);
+  }
 }
