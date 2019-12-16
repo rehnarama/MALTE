@@ -23,6 +23,9 @@ function mapInsertOperation(
   op: editor.IModelContentChange
 ): InternalOperation[] {
   const text = op.text;
+  if (text === "") {
+    return [];
+  }
   const newOps: InternalOperation[] = [
     {
       type: Operation.Insert,
