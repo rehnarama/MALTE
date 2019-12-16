@@ -130,6 +130,10 @@ export class MockModel {
       }
     };
   }
+
+  public dispose() {
+    // eslint-disable-line
+  }
 }
 
 /**

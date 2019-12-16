@@ -417,9 +417,26 @@ describe("RGA", function() {
       oldRGA.insert(insert);
       const insert2 = oldRGA.createInsertPos(1, "b");
       oldRGA.insert(insert2);
-      const rgaJSON = oldRGA.toRGAJSON();
 
+      oldRGA.toRGAJSON();
       assert.equal(oldRGA.toString(), "ab");
+    });
+
+    it("should correctly set up split links", () => {
+      const oldRGA = new RGA();
+      oldRGA.insert(oldRGA.createInsertPos(0, "abc"));
+      oldRGA.insert(oldRGA.createInsertPos(2, "@"));
+      oldRGA.insert(oldRGA.createInsertPos(1, "!"));
+
+      const newRGA = RGA.fromRGAJSON(oldRGA.toRGAJSON());
+
+      const head = newRGA["head"];
+      assert.exists(head);
+      assert(head?.next?.content === "a");
+      assert(head?.next?.split?.content === "b");
+      assert(head?.next?.split?.offset === 1);
+      assert(head?.next?.split?.split?.content === "c");
+      assert(head?.next?.split?.split?.offset === 2);
     });
   });
 
