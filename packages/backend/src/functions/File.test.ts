@@ -56,11 +56,15 @@ describe("File", function() {
 
         destinationSocket.socketClient.on(
           "buffer/operation",
-          (data: { path: string; operation: RGAInsert | RGARemove }) => {
-            const op = data.operation;
-            assert(data.operation instanceof RGAInsert);
-            if (op instanceof RGAInsert) {
-              assert(op.content === "a");
+          (data: {
+            path: string;
+            operations: Array<RGAInsert | RGARemove>;
+          }) => {
+            for (const op of data.operations) {
+              assert(op instanceof RGAInsert);
+              if (op instanceof RGAInsert) {
+                assert(op.content === "a");
+              }
             }
             done();
           }
