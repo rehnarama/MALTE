@@ -56,6 +56,7 @@ class Terminal {
     socket.on("pty/data", this.onPtyData);
     socket.on("pty/resize", this.onPtyResize);
     socket.on("connection/signout", this.kill);
+    socket.on("authorized/removed", this.kill);
     socket.on("disconnect", this.kill);
   }
 
