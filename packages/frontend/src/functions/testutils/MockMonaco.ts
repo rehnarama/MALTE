@@ -49,7 +49,6 @@ export class MockModel {
   }
 
   public applyEdits(edits: editorType.IIdentifiedSingleEditOperation[]) {
-    const operations = [];
     for (const edit of edits) {
       let monacoOp = {};
       if (edit.text) {
@@ -83,18 +82,16 @@ export class MockModel {
           forceMoveMarkers: false
         };
       }
-      operations.push(monacoOp);
-    }
-
-    if (this.listener) {
-      this.listener({
-        changes: operations,
-        eol: "",
-        isFlush: false,
-        isRedoing: false,
-        isUndoing: false,
-        versionId: 1
-      });
+      if (this.listener) {
+        this.listener({
+          changes: [monacoOp],
+          eol: "",
+          isFlush: false,
+          isRedoing: false,
+          isUndoing: false,
+          versionId: 1
+        });
+      }
     }
   }
 
