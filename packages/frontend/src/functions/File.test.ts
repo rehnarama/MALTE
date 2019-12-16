@@ -336,29 +336,6 @@ describe("File", function() {
     expect(m1.value).toBe("a!@c");
   });
 
-  it("should be able to remove a letter an already split block", () => {
-    const m1 = new MockModel("");
-    const rga1 = new RGA();
-    rga1.insert(rga1.createInsertPos(0, "abc"));
-    const rga2 = RGA.fromRGAJSON(rga1.toRGAJSON());
-
-    const file = new File(
-      "dummy/path.js",
-      rga1.toRGAJSON(),
-      (m1 as unknown) as editorType.ITextModel
-    );
-
-    const op1 = rga1.createInsertPos(1, "!");
-    const op2 = rga2.createInsertPos(2, "@");
-    serverSocket.emit("buffer/operation", {
-      path: "dummy/path.js",
-      operations: [op1, op2]
-    });
-
-    expect(file.toString()).toBe("a!b@c");
-    expect(m1.value).toBe("a!b@c");
-  });
-
   it("should conevrge on concurrent deletions to a block", () => {
     const m1 = new MockModel("");
     const m2 = new MockModel("");
