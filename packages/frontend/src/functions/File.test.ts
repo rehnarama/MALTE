@@ -49,7 +49,7 @@ describe("File", function() {
     const op = rga.createInsertPos(0, "a");
     serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
-      operation: op
+      operations: [op]
     });
 
     expect(m1.value).toBe("a");
@@ -68,7 +68,7 @@ describe("File", function() {
     const op = rga.createRemovePos(0);
     serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
-      operation: op
+      operations: [op]
     });
 
     expect(m1.value).toBe("");
@@ -86,13 +86,15 @@ describe("File", function() {
 
     serverSocket.on(
       "buffer/operation",
-      (data: { path: string; operation: RGAInsert | RGARemove }) => {
+      (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
         expect(data.path).toBe("dummy/path.js");
-        expect(data.operation).toHaveProperty("content");
-        if (data.operation instanceof RGAInsert) {
-          expect(data.operation.content).toBe("b");
-          done();
-        }
+        data.operations.forEach(op => {
+          expect(op).toHaveProperty("content");
+          if (op instanceof RGAInsert) {
+            expect(op.content).toBe("b");
+            done();
+          }
+        });
       }
     );
 
@@ -111,7 +113,7 @@ describe("File", function() {
 
     serverSocket.on(
       "buffer/operation",
-      (data: { path: string; operation: RGAInsert | RGARemove }) => {
+      (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
         expect(data).toBeUndefined();
       }
     );
@@ -119,7 +121,7 @@ describe("File", function() {
     const op = rga.createInsertPos(0, "a");
     serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
-      operation: op
+      operations: [op]
     });
   });
 
@@ -140,13 +142,15 @@ describe("File", function() {
 
     serverSocket.on(
       "buffer/operation",
-      (data: { path: string; operation: RGAInsert | RGARemove }) => {
+      (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
         expect(data.path).toBe("dummy/path.js");
-        expect(data.operation).toHaveProperty("content");
-        if (data.operation instanceof RGAInsert) {
-          expect(data.operation.content).toBe("x");
-          done();
-        }
+        data.operations.forEach(op => {
+          expect(op).toHaveProperty("content");
+          if (op instanceof RGAInsert) {
+            expect(op.content).toBe("x");
+            done();
+          }
+        });
       }
     );
 
@@ -159,5 +163,64 @@ describe("File", function() {
     } as unknown) as editorType.IIdentifiedSingleEditOperation;
     m1.applyEdits([edit]);
     expect(m1.value).toBe("abcxd\ne");
+  });
+
+  it("should insert block-wise edits", () => {
+    const m1 = new MockModel("");
+    const rga = new RGA();
+    new File(
+      "dummy/path.js",
+      rga.toRGAJSON(),
+      (m1 as unknown) as editorType.ITextModel
+    );
+
+    const op = rga.createInsertPos(0, "abc");
+    serverSocket.emit("buffer/operation", {
+      path: "dummy/path.js",
+      operations: [op]
+    });
+
+    expect(m1.value).toBe("abc");
+  });
+
+  it("should insert block-wise edits", () => {
+    const m1 = new MockModel("");
+    const rga = new RGA();
+    new File(
+      "dummy/path.js",
+      rga.toRGAJSON(),
+      (m1 as unknown) as editorType.ITextModel
+    );
+
+    const op = rga.createInsertPos(0, "abc");
+    serverSocket.emit("buffer/operation", {
+      path: "dummy/path.js",
+      operations: [op]
+    });
+
+    expect(m1.value).toBe("abc");
+  });
+
+  it("should split block-wise chunks multiple times", () => {
+    const m1 = new MockModel("");
+    const rga = new RGA();
+    rga.insert(rga.createInsertPos(0, "abc"));
+    const file = new File(
+      "dummy/path.js",
+      rga.toRGAJSON(),
+      (m1 as unknown) as editorType.ITextModel
+    );
+
+    const op1 = rga.createInsertPos(1, "!");
+    rga.insert(op1);
+    const op2 = rga.createInsertPos(3, "@");
+    rga.insert(op2);
+    serverSocket.emit("buffer/operation", {
+      path: "dummy/path.js",
+      operations: [op1, op2]
+    });
+
+    expect(file.toString()).toBe("a!b@c");
+    expect(m1.value).toBe("a!b@c");
   });
 });
