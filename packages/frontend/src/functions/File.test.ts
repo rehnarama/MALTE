@@ -183,24 +183,6 @@ describe("File", function() {
     expect(m1.value).toBe("abc");
   });
 
-  it("should insert block-wise edits", () => {
-    const m1 = new MockModel("");
-    const rga = new RGA();
-    new File(
-      "dummy/path.js",
-      rga.toRGAJSON(),
-      (m1 as unknown) as editorType.ITextModel
-    );
-
-    const op = rga.createInsertPos(0, "abc");
-    serverSocket.emit("buffer/operation", {
-      path: "dummy/path.js",
-      operations: [op]
-    });
-
-    expect(m1.value).toBe("abc");
-  });
-
   it("should split block-wise chunks multiple times", () => {
     const m1 = new MockModel("");
     const rga = new RGA();
@@ -228,8 +210,90 @@ describe("File", function() {
     expect(true);
   });
 
-  it("upstream insert", () => {
-    expect(true);
+  describe("Upstream insert block-wise", function() {
+    it("should send single operation for a block of text", done => {
+      const m1 = new MockModel("");
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "a"));
+      new File(
+        "dummy/path.js",
+        rga.toRGAJSON(),
+        (m1 as unknown) as editorType.ITextModel
+      );
+
+      serverSocket.on(
+        "buffer/operation",
+        (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
+          expect(data.path).toBe("dummy/path.js");
+          expect(data.operations.length === 1);
+          const op = data.operations[0];
+          expect(op).toHaveProperty("content");
+          if (op instanceof RGAInsert) {
+            expect(op.content).toBe("xyz");
+            done();
+          }
+        }
+      );
+
+      const position = m1.getPositionAt(1);
+      const range = mockMonacoNamespace.Range.fromPositions(position);
+      const edit = ({
+        range: range,
+        text: "xyz",
+        forceMoveMarkers: true
+      } as unknown) as editorType.IIdentifiedSingleEditOperation;
+      m1.applyEdits([edit]);
+      expect(m1.value).toBe("axyz");
+    });
+
+    it("should send multiple operations with one package", done => {
+      const m1 = new MockModel("");
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abcde"));
+      new File(
+        "dummy/path.js",
+        rga.toRGAJSON(),
+        (m1 as unknown) as editorType.ITextModel
+      );
+
+      serverSocket.on(
+        "buffer/operation",
+        (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
+          expect(data.path).toBe("dummy/path.js");
+          expect(data.operations.length === 2);
+
+          const op1 = data.operations[0];
+          expect(op1).toHaveProperty("content");
+          if (op1 instanceof RGAInsert) {
+            expect(op1.content).toBe("!");
+          }
+
+          const op2 = data.operations[1];
+          expect(op2).toHaveProperty("content");
+          if (op2 instanceof RGAInsert) {
+            expect(op2.content).toBe("#");
+            done();
+          }
+        }
+      );
+
+      const position1 = m1.getPositionAt(3);
+      const range1 = mockMonacoNamespace.Range.fromPositions(position1);
+      const edit1 = ({
+        range: range1,
+        text: "!",
+        forceMoveMarkers: true
+      } as unknown) as editorType.IIdentifiedSingleEditOperation;
+      const position2 = m1.getPositionAt(5);
+      const range2 = mockMonacoNamespace.Range.fromPositions(position2);
+      const edit2 = ({
+        range: range2,
+        text: "#",
+        forceMoveMarkers: true
+      } as unknown) as editorType.IIdentifiedSingleEditOperation;
+      m1.applyEdits([edit1, edit2]);
+      expect(m1.value).toBe("abc!d#e");
+    });
   });
 
   it("upstream remove", () => {
