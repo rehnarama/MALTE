@@ -208,7 +208,6 @@ describe("File", function() {
 
   it("should converge on concurrent insertions into block", () => {
     const m1 = new MockModel("");
-    const m2 = new MockModel("");
     const rga1 = new RGA();
     rga1.insert(rga1.createInsertPos(0, "abc"));
     const rga2 = RGA.fromRGAJSON(rga1.toRGAJSON());
@@ -228,21 +227,29 @@ describe("File", function() {
 
     expect(file1.toString()).toBe("a!b@c");
     expect(m1.value).toBe("a!b@c");
+  });
 
-    file1.close();
+  it("should converge on concurrent insertions into block, other order", () => {
+    const m1 = new MockModel("");
+    const rga1 = new RGA();
+    rga1.insert(rga1.createInsertPos(0, "abc"));
+    const rga2 = RGA.fromRGAJSON(rga1.toRGAJSON());
 
-    const file2 = new File(
+    const file1 = new File(
       "dummy/path.js",
-      rga2.toRGAJSON(),
-      (m2 as unknown) as editorType.ITextModel
+      rga1.toRGAJSON(),
+      (m1 as unknown) as editorType.ITextModel
     );
+
+    const op1 = rga1.createInsertPos(1, "!");
+    const op2 = rga2.createInsertPos(2, "@");
     serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
       operations: [op2, op1]
     });
 
-    expect(file2.toString()).toBe("a!b@c");
-    expect(m2.value).toBe("a!b@c");
+    expect(file1.toString()).toBe("a!b@c");
+    expect(m1.value).toBe("a!b@c");
   });
 
   it("should be able to remove a letter from the start of a block", () => {
@@ -338,7 +345,6 @@ describe("File", function() {
 
   it("should conevrge on concurrent deletions to a block", () => {
     const m1 = new MockModel("");
-    const m2 = new MockModel("");
     const rga1 = new RGA();
     rga1.insert(rga1.createInsertPos(0, "abc"));
     const rga2 = RGA.fromRGAJSON(rga1.toRGAJSON());
@@ -358,21 +364,29 @@ describe("File", function() {
 
     expect(file1.toString()).toBe("b");
     expect(m1.value).toBe("b");
+  });
 
-    file1.close();
+  it("should conevrge on concurrent deletions to a block, other order", () => {
+    const m1 = new MockModel("");
+    const rga1 = new RGA();
+    rga1.insert(rga1.createInsertPos(0, "abc"));
+    const rga2 = RGA.fromRGAJSON(rga1.toRGAJSON());
 
-    const file2 = new File(
+    const file1 = new File(
       "dummy/path.js",
-      rga2.toRGAJSON(),
-      (m2 as unknown) as editorType.ITextModel
+      rga1.toRGAJSON(),
+      (m1 as unknown) as editorType.ITextModel
     );
+
+    const op1 = rga1.createRemovePos(0);
+    const op2 = rga2.createRemovePos(2);
     serverSocket.emit("buffer/operation", {
       path: "dummy/path.js",
       operations: [op2, op1]
     });
 
-    expect(file2.toString()).toBe("b");
-    expect(m2.value).toBe("b");
+    expect(file1.toString()).toBe("b");
+    expect(m1.value).toBe("b");
   });
 
   describe("Upstream insert block-wise", function() {
