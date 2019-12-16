@@ -50,11 +50,11 @@ export default class RGA {
     this.setToNodeMap(this.head);
   }
 
-  private getFromNodeMap(identifier: RGAIdentifier) {
+  private getFromNodeMap(identifier: RGAIdentifier): RGANode | undefined {
     return this.nodeMap.get(identifier.sid)?.get(identifier.sum);
   }
 
-  private setToNodeMap(node: RGANode) {
+  private setToNodeMap(node: RGANode): void {
     let sidSet = this.nodeMap.get(node.id.sid);
     if (sidSet === undefined) {
       sidSet = new Map();
@@ -67,7 +67,7 @@ export default class RGA {
    * Finds a RGANode at the given position
    * @param position The position of the node
    */
-  public findNodePos(position: number) {
+  public findNodePos(position: number): RGANode {
     let count = 0;
     let cursor: RGANode | null = this.head;
     while (count < position && cursor.next !== null) {
@@ -97,7 +97,6 @@ export default class RGA {
     let position = -1;
     let cursor: RGANode | null = this.head;
     while (cursor !== null) {
-
       if (!cursor.tombstone && cursor.id.compareTo(id) === 0) {
         return position;
       } else if (!cursor.tombstone) {
@@ -115,7 +114,7 @@ export default class RGA {
    * @param position The position of which to create the insertion
    * @param content The content to insert. Should be a single charcater with length 1
    */
-  public createInsertPos(position: number, content: string) {
+  public createInsertPos(position: number, content: string): RGAInsert {
     return this.createInsert(this.findNodePos(position).id, content);
   }
 
@@ -125,7 +124,7 @@ export default class RGA {
    * The insertion will be to the right of the reference noded
    * @param content The content to insert. Should be a single character with length 1
    */
-  public createInsert(reference: RGAIdentifier, content: string) {
+  public createInsert(reference: RGAIdentifier, content: string): RGAInsert {
     return new RGAInsert(
       reference,
       new RGAIdentifier(this.sid, this.clock),
@@ -137,7 +136,7 @@ export default class RGA {
    * Creates a removal at the given position, zero based indexing
    * @param position The position of the node to remove
    */
-  public createRemovePos(position: number) {
+  public createRemovePos(position: number): RGARemove {
     return this.createRemove(this.findNodePos(position + 1).id);
   }
 
@@ -145,7 +144,7 @@ export default class RGA {
    * Creates a removal at the given identifier
    * @param id Creates a removal of the given id
    */
-  public createRemove(id: RGAIdentifier) {
+  public createRemove(id: RGAIdentifier): RGARemove {
     return new RGARemove(id);
   }
 
@@ -153,7 +152,7 @@ export default class RGA {
    * Applies an insert operation
    * @param insertion The insertion to apply
    */
-  public insert(insertion: RGAInsert) {
+  public insert(insertion: RGAInsert): RGAInsert {
     let target: RGANode | null =
       this.getFromNodeMap(insertion.reference) || null;
 
@@ -187,7 +186,7 @@ export default class RGA {
    * Applies the remove operation
    * @param removal The removal to apply
    */
-  remove(removal: RGARemove) {
+  remove(removal: RGARemove): RGARemove {
     const node = this.getFromNodeMap(removal.reference);
     if (node === undefined) {
       throw new Error(
@@ -215,7 +214,7 @@ export default class RGA {
   /**
    * Converts the RGA to a plain old string
    */
-  public toString() {
+  public toString(): string {
     let str = "";
     let cursor = this.head.next;
     while (cursor !== null) {
