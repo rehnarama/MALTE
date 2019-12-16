@@ -56,7 +56,6 @@ class Terminal {
     socket.on("pty/data", this.onPtyData);
     socket.on("pty/resize", this.onPtyResize);
     socket.on("connection/signout", this.kill);
-    socket.on("authorized/removed", this.kill);
     socket.on("disconnect", this.kill);
   }
 
@@ -87,6 +86,7 @@ class Terminal {
       this.socket.off("pty/resize", this.onPtyResize);
       this.socket.off("connection/signout", this.kill);
       this.socket.off("disconnect", this.kill);
+      console.log("killing terminal");
     }
   };
 }

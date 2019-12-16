@@ -8,6 +8,9 @@ import path from "path";
  * using a specified API (see Wiki pages on Github for
  * specification, https://github.com/rehnarama/MALTE/wiki/API-File)
  */
+
+let fileOperation: (...args: any[]) => void;
+
 class FileSystem {
   private projectRoot: string;
   private static WORKSPACE_ROOT = "./";
@@ -15,9 +18,12 @@ class FileSystem {
   constructor(socket: socketio.Socket, projectRoot: string) {
     this.projectRoot = projectRoot;
 
-    socket.on("file/operation", data => {
-      this.parseData(data);
-    });
+    socket.on(
+      "file/operation",
+      (fileOperation = data => {
+        this.parseData(data);
+      })
+    );
   }
 
   private parseData(data: FileOperation): void {
