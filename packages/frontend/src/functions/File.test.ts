@@ -483,8 +483,4 @@ describe("File", function() {
       expect(m1.value).toBe("abc!d#e");
     });
   });
-
-  it("upstream remove", () => {
-    expect(true);
-  });
 });
