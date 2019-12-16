@@ -74,12 +74,23 @@ export default class Editor {
           path
         });
     } else {
-      this.activeFile = file;
-      this.editor.setModel(file.model);
-      // Changed buffer? Let's update cursors
-      this.onCursors(this.cursorList);
-      this.focus();
+      this.changeTab(file);
     }
+  }
+
+  private changeTab(file: File) {
+    if (this.activeFile) {
+      this.activeFile.setViewState(this.editor.saveViewState());
+    }
+    this.activeFile = file;
+    this.editor.setModel(file.model);
+    this.onCursors(this.cursorList);
+
+    const activeFileViewState = this.activeFile.getViewState();
+    if (activeFileViewState) {
+      this.editor.restoreViewState(activeFileViewState);
+    }
+    this.focus();
   }
 
   private removeFile(file: File) {
@@ -104,8 +115,7 @@ export default class Editor {
     const file = new File(path, content, newModel);
     this.files.push(file);
 
-    // Let's load this buffer now
-    this.openBuffer(path);
+    this.changeTab(file);
   }
 
   private getModelForBuffer(path: string) {
