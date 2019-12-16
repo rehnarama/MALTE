@@ -47,6 +47,10 @@ class User {
   public getSocketId(): string {
     return this.socket.id;
   }
+
+  public getSocket(): SocketIO.Socket {
+    return this.socket;
+  }
 }
 
 export default User;

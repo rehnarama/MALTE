@@ -16,6 +16,8 @@ import { User as UserData } from "malte-common/dist/oauth/GitHub";
 
 type SocketId = string;
 
+let fileTreeRefresh: (...args: any[]) => void;
+
 export default class SocketServer {
   protected static instance: SocketServer;
 
@@ -94,10 +96,13 @@ export default class SocketServer {
     socket.emit("connection/auth-confirm");
     this.project.join(socket);
 
-    socket.on("file/tree-refresh", async () => {
-      // send file tree on request from client
-      socket.emit("file/tree", await fsTree(this.project.getPath()));
-    });
+    socket.on(
+      "file/tree-refresh",
+      (fileTreeRefresh = async () => {
+        // send file tree on request from client
+        socket.emit("file/tree", await fsTree(this.project.getPath()));
+      })
+    );
 
     socket.on("authorized/add", async user => {
       if (user && user.login) {
@@ -132,13 +137,16 @@ export default class SocketServer {
   }
 
   public destroyUser(userData: UserData): void {
-    console.log(userData);
+    let socket: SocketIO.Socket | undefined;
     this.userMap.forEach(value => {
       if (value.getUserData().login === userData.login) {
+        socket = value.getSocket();
         this.userMap.delete(value.getSocketId());
+        value.getSocket().off("file/tree-refresh", fileTreeRefresh);
         value.destoryUser();
       }
     });
+    console.log(socket?.eventNames());
   }
 
   public static initialize(
