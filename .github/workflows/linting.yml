@@ -41,7 +41,6 @@ jobs:
       - name: npm install and check styling errors in malte-common
         working-directory: packages/malte-common
         run: |
-          npm ci
           npm run lint
         env:
           CI: true
