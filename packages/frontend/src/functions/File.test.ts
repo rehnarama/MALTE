@@ -223,4 +223,16 @@ describe("File", function() {
     expect(file.toString()).toBe("a!b@c");
     expect(m1.value).toBe("a!b@c");
   });
+
+  it("downstream remove", () => {
+    expect(true);
+  });
+
+  it("upstream insert", () => {
+    expect(true);
+  });
+
+  it("upstream remove", () => {
+    expect(true);
+  });
 });
