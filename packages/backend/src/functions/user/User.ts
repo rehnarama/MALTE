@@ -30,6 +30,7 @@ class User {
     this.socket.emit("authorized/removed");
     this.socket.leave("authenticated");
     this.project.removeSocket(this.socket);
+    this.fileSystem.destroy();
     GitHub.getInstance().removeUser(this.socket.id);
 
     const collectionSessions = Database.getInstance()
