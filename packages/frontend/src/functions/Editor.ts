@@ -44,6 +44,7 @@ export default class Editor {
 
   private onOpenBuffer = (data: { path: string; content: RGAJSON }) => {
     this.openNewBuffer(data.path, data.content);
+    this.focus();
   };
 
   private initCursorChangeListener() {
@@ -77,6 +78,7 @@ export default class Editor {
       this.editor.setModel(file.model);
       // Changed buffer? Let's update cursors
       this.onCursors(this.cursorList);
+      this.focus();
     }
   }
 
@@ -151,6 +153,13 @@ export default class Editor {
     }
 
     this.widgets = newWidgets;
+  }
+
+  /**
+   * Bring browser focus to the text editor
+   */
+  private focus() {
+    this.editor.focus();
   }
 
   public dispose() {
