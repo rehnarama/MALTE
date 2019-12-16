@@ -1,5 +1,6 @@
 import { User } from "./GitHub";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isUser(arg: any): arg is User {
   return (
     arg?.login &&
