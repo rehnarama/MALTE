@@ -7,7 +7,9 @@ let CLIENT_LISTENERS: any = {};
 let SERVER_LISTENERS: any = {};
 
 function clientEmit(event: string, ...args: any): SocketIOClient.Socket {
-  SERVER_LISTENERS[event].forEach((func: Function) => func(...args));
+  if (SERVER_LISTENERS[event]) {
+    SERVER_LISTENERS[event].forEach((func: Function) => func(...args));
+  }
   return socket;
 }
 
@@ -67,9 +69,9 @@ export function cleanup() {
   SERVER_LISTENERS = {};
 }
 
-
 jest.mock("socket.io-client");
 const ioMock = (io as unknown) as jest.Mock<SocketIOClient.Socket>;
 ioMock.mockImplementation((...args) => {
   return socket;
 });
+
