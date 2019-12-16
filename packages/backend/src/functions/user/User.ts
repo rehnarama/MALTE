@@ -62,14 +62,14 @@ class User {
     }
     socket.join("authenticated");
 
+    // Tell user they are authenticated
+    socket.emit("connection/auth-confirm");
+
     // Listen on refresh reqeusts
     socket.on("file/tree-refresh", this.onFileTreeRefresh);
 
     // Join the project to allow editing of files
     this.project.join(socket);
-
-    // Tell user they are authenticated
-    socket.emit("connection/auth-confirm");
   }
 
   public onFileTreeRefresh = async (): Promise<void> => {
