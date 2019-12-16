@@ -529,27 +529,41 @@ describe("RGA", function() {
     });
 
     it("should support inserting new character in-between chunk concurrently", () => {
-      const rga = new RGA();
-      rga.insert(rga.createInsertPos(0, "abc"));
+      const rga1 = new RGA();
+      const rga2 = new RGA();
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
 
-      const insert1 = rga.createInsertPos(1, "!");
-      const insert2 = rga.createInsertPos(2, "@");
-      rga.insert(insert1);
-      rga.insert(insert2);
+      let insert1: RGAInsert;
+      let insert2: RGAInsert;
+      rga1.insert((insert1 = rga1.createInsertPos(1, "!")));
+      rga2.insert((insert2 = rga2.createInsertPos(2, "@")));
 
-      assert.equal(rga.toString(), "a!b@c");
+      rga2.insert(insert1);
+      rga1.insert(insert2);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
     });
 
     it("should support inserting new character in-between chunk concurrently, in another order", () => {
-      const rga = new RGA();
-      rga.insert(rga.createInsertPos(0, "abc"));
+      const rga1 = new RGA();
+      const rga2 = new RGA();
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
 
-      const insert1 = rga.createInsertPos(1, "!");
-      const insert2 = rga.createInsertPos(2, "@");
-      rga.insert(insert2);
-      rga.insert(insert1);
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
 
-      assert.equal(rga.toString(), "a!b@c");
+      rga2.insert(insert1);
+      rga2.insert(insert2);
+      rga1.insert(insert2);
+      rga1.insert(insert1);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
     });
 
     it("should remove character in start of chunk", () => {
