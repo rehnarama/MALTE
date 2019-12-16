@@ -138,7 +138,7 @@ export default class Project {
     const socketServer = SocketServer.getInstance();
     const users: User[] = this.sockets
       .map(s => {
-        const ghUser = socketServer.getUser(s.id);
+        const ghUser = socketServer.getUserData(s.id);
         if (ghUser) {
           return ghUser;
         } else {
@@ -154,7 +154,7 @@ export default class Project {
   onCursorMove = (socket: SocketIO.Socket, data: CursorMovement): void => {
     this.cursorMap[socket.id] = {
       ...data,
-      login: SocketServer.getInstance().getUser(socket.id).login,
+      login: SocketServer.getInstance().getUserData(socket.id).login,
       socketId: socket.id
     };
     this.broadcastCursorList();

@@ -11,10 +11,8 @@ import {
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
 import { getSession, updateSessionTimestamp, removeSession } from "../session";
-import { User } from "malte-common/dist/oauth/GitHub";
-import { removeUser } from "../oauth/user";
-import GitHub from "../oauth/GitHub";
-import Database from "../db/Database";
+import { User } from "../user";
+import { User as UserData } from "malte-common/dist/oauth/GitHub";
 
 type SocketId = string;
 
@@ -73,20 +71,34 @@ export default class SocketServer {
 
   private async authorizeSocket(
     socket: socketio.Socket,
-    user: User
+    user: UserData
   ): Promise<void> {
+    if (socket.rooms["authenticated"]) {
+      // Already authenticated, let's not join this one again but at least tell
+      // them they are authenticated in case client has lost its state
+      socket.emit("connection/auth-confirm");
+      return;
+    }
     socket.join("authenticated");
-    this.userMap.set(socket.id, user);
+
+    const authorizedUser = new User(
+      user,
+      socket,
+      new Terminal(socket, this.project.getPath()),
+      new FileSystem(socket, this.project.getPath()),
+      this.project
+    );
+
+    this.userMap.set(socket.id, authorizedUser);
     // Tell user they are authenticated
     socket.emit("connection/auth-confirm");
     this.project.join(socket);
-    new Terminal(socket, this.project.getPath());
-    new FileSystem(socket, this.project.getPath());
 
     socket.on("file/tree-refresh", async () => {
       // send file tree on request from client
       socket.emit("file/tree", await fsTree(this.project.getPath()));
     });
+
     socket.on("authorized/add", async user => {
       if (user && user.login) {
         await addPreApproved(user.login);
@@ -95,59 +107,38 @@ export default class SocketServer {
           .emit("authorized/list", await getAllPreapproved());
       }
     });
+
     socket.on("authorized/remove", async user => {
-      if (user && user.login && this.getUser(socket.id).login !== user.login) {
+      if (user && user.login && this.getUserLogin(socket.id) !== user.login) {
         await removePreApproved(user.login);
         this.server
           .to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
-        removeUser(user);
+        this.destroyUser(user);
       }
     });
+
     socket.on("authorized/fetch", async () => {
       socket.emit("authorized/list", await getAllPreapproved());
     });
   }
 
-  public removeSocket(socket: SocketIO.Socket): void {
-    this.project.removeSocket(socket);
+  public getUserLogin(socketId: string): string | undefined {
+    return this.userMap.get(socketId).getUserData().login;
   }
 
-  public getUserSocket(gitHubUser: User): SocketIO.Socket | null {
-    const socketId = this.getSocketId(gitHubUser);
-    if (socketId) {
-      return this.server.sockets.connected[socketId];
-    }
-    return null;
+  public getUserData(socketId: string): UserData | undefined {
+    return this.userMap.get(socketId)?.getUserData();
   }
 
-  public getSocketId(gitHubUser: User): SocketId | null {
-    for (const e of this.userMap.entries()) {
-      if (e[1].id === gitHubUser.id) {
-        return e[0];
+  public destroyUser(userData: UserData): void {
+    console.log(userData);
+    this.userMap.forEach(value => {
+      if (value.getUserData().login === userData.login) {
+        this.userMap.delete(value.getSocketId());
+        value.destoryUser();
       }
-    }
-    return null;
-  }
-
-  public getUser(socketId: string): User | undefined {
-    return this.userMap.get(socketId);
-  }
-
-  public removeUser(user: User): void {
-    const socketId = this.getSocketId(user);
-    const userSocket = this.getUserSocket(user);
-    this.userMap.delete(socketId);
-    userSocket.emit("authorized/removed");
-    userSocket.leave("authenticated");
-    this.removeSocket(userSocket);
-    GitHub.getInstance().removeUser(socketId);
-
-    const collectionSessions = Database.getInstance()
-      .getDb()
-      .collection("sessions");
-
-    collectionSessions.deleteMany({ id: user.id });
+    });
   }
 
   public static initialize(
