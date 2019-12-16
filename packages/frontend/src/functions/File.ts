@@ -25,6 +25,7 @@ export default class File {
   get model() {
     return this._model;
   }
+  private _viewState: editorType.ICodeEditorViewState | null = null;
 
   private applyingRemote = false;
 
@@ -123,5 +124,12 @@ export default class File {
 
   public getPositionRGA(position: IPosition): RGAIdentifier {
     return this.rga.findNodePos(this.model.getOffsetAt(position)).id;
+  }
+
+  public getViewState(): editorType.ICodeEditorViewState | null {
+    return this._viewState;
+  }
+  public setViewState(newViewState: editorType.ICodeEditorViewState | null) {
+    this._viewState = newViewState;
   }
 }
