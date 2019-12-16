@@ -168,11 +168,14 @@ export default class Project {
     }
   }
 
-  private async removeSocket(socket: SocketIO.Socket): Promise<boolean> {
+  private removeSocket(socket: SocketIO.Socket): Promise<boolean> {
     const index = this.sockets.findIndex(s => s.id === socket.id);
     if (index !== -1) {
       this.sockets.splice(index, 1);
-      if (this.cursorMap[socket.id]) delete this.cursorMap[socket.id];
+      if (this.cursorMap[socket.id]) {
+        delete this.cursorMap[socket.id];
+        this.broadcastCursorList();
+      }
       this.broadcastUserList();
 
       const filesToClose: File[] = [];
