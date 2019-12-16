@@ -1,45 +1,78 @@
 import { User as UserData } from "malte-common/dist/oauth/GitHub";
 import { Terminal } from "../terminal";
 import { FileSystem } from "../filesystem";
-import Database from "../db/Database";
+import { removeSession } from "../session";
 import Project from "../Project";
 import GitHub from "../oauth/GitHub";
+import fsTree from "../fsTree";
 
 class User {
-  private userData: UserData;
-  private socket: SocketIO.Socket;
-  private terminal: Terminal;
-  private fileSystem: FileSystem;
-  private project: Project;
+  private userId: string | null = null;
+  private userData: UserData | null = null;
+  private socket: SocketIO.Socket | null = null;
+  private terminal: Terminal | null = null;
+  private fileSystem: FileSystem | null = null;
+  private project: Project | null = null;
 
-  constructor(
+  constructor(socket: SocketIO.Socket) {
+    this.socket = socket;
+  }
+
+  public async destroyUser(): Promise<void> {
+    this.project.removeSocket(this.socket);
+    this.fileSystem.destroy();
+    this.terminal.kill();
+    GitHub.getInstance().removeUser(this.socket.id);
+
+    this.socket.off("file/tree-refresh", this.onFileTreeRefresh);
+
+    this.socket.leave("authenticated");
+
+    await removeSession(this.userId);
+
+    this.userId = null;
+    this.userData = null;
+    this.terminal = null;
+    this.fileSystem = null;
+    this.project = null;
+  }
+
+  public authorizeUser(
+    userId: string,
     userData: UserData,
-    socket: SocketIO.Socket,
     terminal: Terminal,
     fileSystem: FileSystem,
     project: Project
-  ) {
+  ): void {
+    this.userId = userId;
     this.userData = userData;
-    this.socket = socket;
     this.terminal = terminal;
     this.fileSystem = fileSystem;
     this.project = project;
+
+    const socket = this.socket;
+
+    if (socket.rooms["authenticated"]) {
+      // Already authenticated, let's not join this one again but at least tell
+      // them they are authenticated in case client has lost its state
+      socket.emit("connection/auth-confirm");
+      return;
+    }
+    socket.join("authenticated");
+
+    // Listen on refresh reqeusts
+    socket.on("file/tree-refresh", this.onFileTreeRefresh);
+
+    // Join the project to allow editing of files
+    this.project.join(socket);
+
+    // Tell user they are authenticated
+    socket.emit("connection/auth-confirm");
   }
 
-  public destoryUser() {
-    this.socket.emit("authorized/removed");
-    this.socket.leave("authenticated");
-    this.project.removeSocket(this.socket);
-    this.fileSystem.destroy();
-    GitHub.getInstance().removeUser(this.socket.id);
-
-    const collectionSessions = Database.getInstance()
-      .getDb()
-      .collection("sessions");
-
-    collectionSessions.deleteMany({ id: this.userData.id });
-    this.terminal.kill();
-  }
+  public onFileTreeRefresh = async (): Promise<void> => {
+    this.socket.emit("file/tree", await fsTree(this.project.getPath()));
+  };
 
   public getUserData(): UserData {
     return this.userData;

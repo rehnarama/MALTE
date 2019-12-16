@@ -3,20 +3,19 @@ import http from "http";
 import { Terminal } from "../terminal";
 import { FileSystem } from "../filesystem";
 import Project from "../Project";
-import fsTree from "../fsTree";
 import { getUserFromId } from "../oauth/user";
+import { getSession, updateSessionTimestamp } from "../session";
+import { User } from "../user";
+import { User as UserData } from "malte-common/dist/oauth/GitHub";
 import {
   addPreApproved,
   removePreApproved,
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
-import { getSession, updateSessionTimestamp, removeSession } from "../session";
-import { User } from "../user";
-import { User as UserData } from "malte-common/dist/oauth/GitHub";
 
 type SocketId = string;
 
-let fileTreeRefresh: (...args: any[]) => void;
+type listener = (...args: any[]) => void; //eslint-disable-line
 
 export default class SocketServer {
   protected static instance: SocketServer;
@@ -25,24 +24,29 @@ export default class SocketServer {
   public server: SocketIO.Server;
 
   protected userMap = new Map<SocketId, User>();
+  private listenerMap: {
+    [socketId: string]: { [event: string]: listener };
+  } = {};
 
   protected setUpEvents(): void {
     this.server.on("connection", this.onConnection.bind(this));
   }
 
   private onConnection(socket: SocketIO.Socket): void {
-    // everyone must be able to request to join, otherwise no one can join
-    socket.on("connection/auth", userId => this.onAuth(socket, userId));
-    socket.on("connection/signout", () => this.signOut(socket));
+    this.userMap.set(socket.id, new User(socket));
 
-    socket.on("disconnect", () => {
+    const listeners = (this.listenerMap[socket.id] = {});
+
+    listeners["connection/auth"] = (userId: string): void => {
+      this.onAuth(socket, userId);
+    };
+    listeners["disconnect"] = (): void => {
       this.userMap.delete(socket.id);
-    });
-  }
+    };
 
-  private async signOut(socket: SocketIO.Socket): Promise<void> {
-    socket.emit("connection/signout");
-    this.destroyUser(this.userMap.get(socket.id).getUserData());
+    // everyone must be able to request to join, otherwise no one can join
+    socket.on("connection/auth", listeners["connection/auth"]);
+    socket.on("disconnect", listeners["disconnect"]);
   }
 
   protected async onAuth(
@@ -59,7 +63,7 @@ export default class SocketServer {
     const sessions = await getSession(userId);
     if (sessions.length > 0) {
       const user = await getUserFromId(sessions[0].id);
-      this.authorizeSocket(socket, user);
+      this.authorizeSocket(socket, userId, user);
       await updateSessionTimestamp(userId);
     } else {
       socket.emit("connection/auth-fail");
@@ -68,7 +72,8 @@ export default class SocketServer {
 
   private async authorizeSocket(
     socket: socketio.Socket,
-    user: UserData
+    userId: string,
+    userData: UserData
   ): Promise<void> {
     if (socket.rooms["authenticated"]) {
       // Already authenticated, let's not join this one again but at least tell
@@ -76,51 +81,60 @@ export default class SocketServer {
       socket.emit("connection/auth-confirm");
       return;
     }
-    socket.join("authenticated");
 
-    const authorizedUser = new User(
-      user,
-      socket,
+    const user = this.userMap.get(socket.id);
+    user.authorizeUser(
+      userId,
+      userData,
       new Terminal(socket, this.project.getPath()),
       new FileSystem(socket, this.project.getPath()),
       this.project
     );
 
-    this.userMap.set(socket.id, authorizedUser);
-    // Tell user they are authenticated
-    socket.emit("connection/auth-confirm");
-    this.project.join(socket);
+    const listeners = this.listenerMap[socket.id];
 
-    socket.on(
-      "file/tree-refresh",
-      (fileTreeRefresh = async () => {
-        // send file tree on request from client
-        socket.emit("file/tree", await fsTree(this.project.getPath()));
-      })
-    );
-
-    socket.on("authorized/add", async user => {
+    listeners["authorized/add"] = async (user: {
+      login: string;
+    }): Promise<void> => {
       if (user && user.login) {
         await addPreApproved(user.login);
-        this.server
-          .to("authenticated")
+        SocketServer.getInstance()
+          .server.to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
       }
-    });
+    };
 
-    socket.on("authorized/remove", async user => {
-      if (user && user.login && this.getUserLogin(socket.id) !== user.login) {
-        await removePreApproved(user.login);
-        this.server
-          .to("authenticated")
+    listeners["authorized/remove"] = async (data: {
+      login: string;
+    }): Promise<void> => {
+      if (data && data.login && this.getUserLogin(socket.id) !== data.login) {
+        await removePreApproved(data.login);
+        SocketServer.getInstance()
+          .server.to("authenticated")
           .emit("authorized/list", await getAllPreapproved());
-        this.destroyUser(user);
-      }
-    });
 
-    socket.on("authorized/fetch", async () => {
+        const removedUsers = this.getUsersWithLogin(data.login);
+        for (const u of removedUsers) {
+          this.destroyUser(u);
+          u.getSocket().emit("authorized/removed");
+        }
+      }
+    };
+
+    listeners["connection/signout"] = (): void => {
+      console.log("signing out");
+      this.destroyUser(this.userMap.get(socket.id));
+      socket.emit("connection/signout");
+    };
+
+    listeners["authorized/fetch"] = async (): Promise<void> => {
       socket.emit("authorized/list", await getAllPreapproved());
-    });
+    };
+
+    socket.on("connection/signout", listeners["connection/signout"]);
+    socket.on("authorized/add", listeners["authorized/add"]);
+    socket.on("authorized/remove", listeners["authorized/remove"]);
+    socket.on("authorized/fetch", listeners["authorized/fetch"]);
   }
 
   public getUserLogin(socketId: string): string | undefined {
@@ -131,17 +145,38 @@ export default class SocketServer {
     return this.userMap.get(socketId)?.getUserData();
   }
 
-  public destroyUser(userData: UserData): void {
-    let socket: SocketIO.Socket | undefined;
-    this.userMap.forEach(value => {
-      if (value.getUserData().login === userData.login) {
-        socket = value.getSocket();
-        this.userMap.delete(value.getSocketId());
-        value.getSocket().off("file/tree-refresh", fileTreeRefresh);
-        value.destoryUser();
+  public destroyUser(login: string): void;
+  public destroyUser(user: User): void;
+  public destroyUser(user: User | string): void {
+    const sessions = [];
+    if (user instanceof User) {
+      sessions.push(user);
+    } else if (typeof user === "string") {
+      sessions.push(...this.getUsersWithLogin(user));
+    }
+
+    for (const session of sessions) {
+      const socket = session.getSocket();
+
+      session.destroyUser();
+      const listeners = this.listenerMap[session.getSocketId()];
+      socket.off("authorized/add", listeners["authorized/add"]);
+      socket.off("authorized/remove", listeners["authorized/remove"]);
+      socket.off("authorized/fetch", listeners["authorized/fetch"]);
+      socket.off("connection/signout", listeners["connection/signout"]);
+
+      console.log(session?.getSocket().eventNames());
+    }
+  }
+
+  private getUsersWithLogin(user: string): User[] {
+    const sessions = [];
+    this.userMap.forEach(u => {
+      if (u.getUserData().login === user) {
+        sessions.push(u);
       }
     });
-    console.log(socket?.eventNames());
+    return sessions;
   }
 
   public static initialize(
