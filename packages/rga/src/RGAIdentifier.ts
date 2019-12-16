@@ -10,7 +10,7 @@ export default class RGAIdentifier {
     this.sum = sum;
   }
 
-  compareTo(other: RGAIdentifier) {
+  compareTo(other: RGAIdentifier): number {
     if (this.sum != other.sum) {
       return this.sum - other.sum;
     } else {

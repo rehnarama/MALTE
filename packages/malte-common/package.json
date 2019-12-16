@@ -3,13 +3,21 @@
   "version": "1.0.0",
   "scripts": {
     "build": "ttsc",
-    "build:watch": "ttsc --watch"
+    "build:watch": "ttsc --watch",
+    "lint": "eslint --ext .ts src/",
+    "lint-fix": "eslint --fix --ext .ts src/"
   },
   "dependencies": {
     "ts-transformer-keys": "^0.4.1"
   },
   "devDependencies": {
     "ttypescript": "^1.5.8",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.6.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^1.19.1"
   }
 }
