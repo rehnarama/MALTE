@@ -7,9 +7,10 @@ import GitHub from "../oauth/GitHub";
 import fsTree from "../fsTree";
 
 class User {
+  private socket: SocketIO.Socket;
+
   private userId: string | null = null;
   private userData: UserData | null = null;
-  private socket: SocketIO.Socket | null = null;
   private terminal: Terminal | null = null;
   private fileSystem: FileSystem | null = null;
   private project: Project | null = null;
@@ -19,16 +20,17 @@ class User {
   }
 
   public async destroyUser(): Promise<void> {
-    this.project.removeSocket(this.socket);
-    this.fileSystem.destroy();
-    this.terminal.kill();
-    GitHub.getInstance().removeUser(this.socket.id);
+    this.fileSystem?.destroy();
+    this.terminal?.kill();
+    this.project?.removeSocket(this.socket);
 
     this.socket.off("file/tree-refresh", this.onFileTreeRefresh);
-
     this.socket.leave("authenticated");
 
-    await removeSession(this.userId);
+    if (this.userId) {
+      GitHub.getInstance().removeUser(this.userId);
+      await removeSession(this.userId);
+    }
 
     this.userId = null;
     this.userData = null;
