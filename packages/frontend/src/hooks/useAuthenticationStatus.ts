@@ -20,9 +20,12 @@ export default function useAuthenticationStatus() {
     socket.on("authorized/removed", onUpdate);
 
     return () => {
-      socket.removeListener("connection/auth-confirm", onUpdate);
-      socket.removeListener("connection/auth-fail", onUpdate);
-      socket.removeListener("connection/signout", onUpdate);
+      socket.off("connection/auth-confirm", onUpdate);
+      socket.off("connection/auth-fail", onUpdate);
+      socket.off("connection/signout", onUpdate);
+      socket.off("disconnect", onUpdate);
+      socket.off("reconnect", onUpdate);
+      socket.off("authorized/removed", onUpdate);
     };
   });
 

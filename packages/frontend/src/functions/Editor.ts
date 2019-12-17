@@ -176,6 +176,9 @@ export default class Editor {
     const socket = Socket.getInstance().getSocket();
     socket.off("buffer/open", this.onOpenBuffer);
     socket.off("cursor/list", this.onCursorList);
+    for (const file of this.files) {
+      file.close();
+    }
     this.editor.dispose();
   }
 }
