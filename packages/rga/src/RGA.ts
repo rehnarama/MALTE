@@ -57,15 +57,15 @@ export default class RGA {
     this.setToNodeMap(this.head);
   }
 
-  private hasNodeWithId(identifier: RGAIdentifier) {
-    return this.getFromNodeMap(identifier) !== null;
-  }
-
-  private getFromNodeMap(identifier: RGAIdentifier) {
+  private getFromNodeMap(identifier: RGAIdentifier): RGANode | null {
     return this.findOffset(identifier, 0);
   }
 
-  public findOffset(identifier: RGAIdentifier, offset: number, before = true) {
+  public findOffset(
+    identifier: RGAIdentifier,
+    offset: number,
+    before = true
+  ): RGANode | null {
     let node = this.nodeMap.get(identifier.sid)?.get(identifier.sum) || null;
 
     while (
@@ -216,7 +216,7 @@ export default class RGA {
     return new RGARemove(id, offset);
   }
 
-  private split(node: RGANode, offset: number) {
+  private split(node: RGANode, offset: number): void {
     const length = offset - node.offset;
     if (length > 0) {
       const splitNode = new RGANode(
@@ -353,7 +353,7 @@ export default class RGA {
       node.id = new RGAIdentifier(node.id.sid, node.id.sum);
       newRga.head.next = node;
 
-      let lastSplit = newRga.getFromNodeMap(node.id);
+      const lastSplit = newRga.getFromNodeMap(node.id);
       if (lastSplit !== null) {
         node.split = lastSplit;
         let cursor = node;
