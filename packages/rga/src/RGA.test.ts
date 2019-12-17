@@ -529,18 +529,43 @@ describe("RGA", function() {
     });
 
     it("should support inserting new character in-between chunk concurrently", () => {
-      const rga1 = new RGA();
-      const rga2 = new RGA();
+      const rga1 = new RGA(1);
+      const rga2 = new RGA(2);
       let op1: RGAInsert;
       rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
       rga2.insert(op1);
 
-      let insert1: RGAInsert;
-      let insert2: RGAInsert;
-      rga1.insert((insert1 = rga1.createInsertPos(1, "!")));
-      rga2.insert((insert2 = rga2.createInsertPos(2, "@")));
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
 
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
+
+      rga2.insert(insert2);
       rga2.insert(insert1);
+      rga1.insert(insert1);
+      rga1.insert(insert2);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently, with differing ids", () => {
+      const rga1 = new RGA(2);
+      const rga2 = new RGA(1);
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
+
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
+
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
+
+      rga2.insert(insert2);
+      rga2.insert(insert1);
+      rga1.insert(insert1);
       rga1.insert(insert2);
 
       assert.equal(rga1.toString(), "a!b@c");
@@ -548,11 +573,14 @@ describe("RGA", function() {
     });
 
     it("should support inserting new character in-between chunk concurrently, in another order", () => {
-      const rga1 = new RGA();
-      const rga2 = new RGA();
+      const rga1 = new RGA(1);
+      const rga2 = new RGA(2);
       let op1: RGAInsert;
       rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
       rga2.insert(op1);
+
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
 
       const insert1 = rga1.createInsertPos(1, "!");
       const insert2 = rga2.createInsertPos(2, "@");

@@ -47,7 +47,9 @@ export default class RGA {
    * Constructs a new RGA structure
    * @param sid The identifier for this replica of RGA
    */
-  public constructor(sid: number = Math.random() * Number.MAX_SAFE_INTEGER) {
+  public constructor(
+    sid: number = Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
+  ) {
     this.head = new RGANode(RGAIdentifier.NullIdentifier, "");
     this.sid = sid;
     this.clock = 0;
@@ -248,7 +250,8 @@ export default class RGA {
       );
     }
 
-    while (target.next && target.next.id.compareTo(insertion.id) > 0) {
+    const isEnd = target.content.length + target.offset === insertion.offset;
+    while (isEnd && target.next && target.next.id.compareTo(insertion.id) > 0) {
       target = target.next;
     }
 
