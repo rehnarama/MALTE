@@ -5,8 +5,10 @@ import RGAIdentifier from "./RGAIdentifier";
  */
 export default class RGARemove {
   public reference: RGAIdentifier;
+  public offset: number;
 
-  public constructor(reference: RGAIdentifier) {
+  public constructor(reference: RGAIdentifier, offset = 0) {
     this.reference = reference;
+    this.offset = offset;
   }
 }

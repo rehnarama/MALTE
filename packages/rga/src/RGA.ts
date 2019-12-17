@@ -11,6 +11,7 @@ export interface RGAOperationJSON {
   reference: RGAIdentifier;
   id?: RGAIdentifier;
   content?: string;
+  offset: number;
 }
 
 export function rgaOperationFromJSON(
@@ -20,10 +21,14 @@ export function rgaOperationFromJSON(
     return new RGAInsert(
       new RGAIdentifier(op.reference.sid, op.reference.sum),
       new RGAIdentifier(op.id.sid, op.id.sum),
-      op.content
+      op.content,
+      op.offset
     );
   } else {
-    return new RGARemove(new RGAIdentifier(op.reference.sid, op.reference.sum));
+    return new RGARemove(
+      new RGAIdentifier(op.reference.sid, op.reference.sum),
+      op.offset
+    );
   }
 }
 
@@ -42,7 +47,9 @@ export default class RGA {
    * Constructs a new RGA structure
    * @param sid The identifier for this replica of RGA
    */
-  public constructor(sid: number = Math.random() * Number.MAX_SAFE_INTEGER) {
+  public constructor(
+    sid: number = Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
+  ) {
     this.head = new RGANode(RGAIdentifier.NullIdentifier, "");
     this.sid = sid;
     this.clock = 0;
@@ -50,8 +57,31 @@ export default class RGA {
     this.setToNodeMap(this.head);
   }
 
-  private getFromNodeMap(identifier: RGAIdentifier): RGANode | undefined {
-    return this.nodeMap.get(identifier.sid)?.get(identifier.sum);
+  private getFromNodeMap(identifier: RGAIdentifier): RGANode | null {
+    return this.findOffset(identifier, 0);
+  }
+
+  public findOffset(
+    identifier: RGAIdentifier,
+    offset: number,
+    before = true
+  ): RGANode | null {
+    let node = this.nodeMap.get(identifier.sid)?.get(identifier.sum) || null;
+
+    while (
+      node !== null &&
+      (before
+        ? node.offset + node.content.length < offset
+        : node.offset + node.content.length <= offset)
+    ) {
+      node = node.split;
+
+      if (!node) {
+        throw new Error("No more splits. Is something off?");
+      }
+    }
+
+    return node;
   }
 
   private setToNodeMap(node: RGANode): void {
@@ -61,6 +91,33 @@ export default class RGA {
       this.nodeMap.set(node.id.sid, sidSet);
     }
     sidSet.set(node.id.sum, node);
+  }
+
+  /**
+   * Finds a RGANode at the given position
+   * @param position The position of the node
+   * @returns [RGANode, offset]
+   */
+  public findNodePosOffset(position: number): [RGANode, number] {
+    let count = 0;
+    let cursor: RGANode | null = this.head;
+    while (count < position && cursor.next !== null) {
+      cursor = cursor.next;
+      if (!cursor.tombstone) {
+        count += cursor.content.length;
+      }
+    }
+
+    if (cursor === null) {
+      throw new Error(
+        "Couldn't find node at position '" +
+          position +
+          "'. Is something out of sync?"
+      );
+    }
+
+    const startPos = count - cursor.content.length;
+    return [cursor, cursor.offset + (position - startPos)];
   }
 
   /**
@@ -93,14 +150,18 @@ export default class RGA {
    * @param The id to find
    * @return The zero-based index of the given identifier
    */
-  public findPos(id: RGAIdentifier): number {
-    let position = -1;
+  public findPos(id: RGAIdentifier, offset = 0): number {
+    let position = 0;
     let cursor: RGANode | null = this.head;
     while (cursor !== null) {
-      if (!cursor.tombstone && cursor.id.compareTo(id) === 0) {
-        return position;
+      if (
+        !cursor.tombstone &&
+        cursor.id.compareTo(id) === 0 &&
+        cursor.offset + cursor.content.length > offset
+      ) {
+        return position + offset - cursor.offset;
       } else if (!cursor.tombstone) {
-        position++;
+        position += cursor.content.length;
       }
 
       cursor = cursor.next;
@@ -115,7 +176,8 @@ export default class RGA {
    * @param content The content to insert. Should be a single charcater with length 1
    */
   public createInsertPos(position: number, content: string): RGAInsert {
-    return this.createInsert(this.findNodePos(position).id, content);
+    const [node, offset] = this.findNodePosOffset(position);
+    return this.createInsert(node.id, content, offset);
   }
 
   /**
@@ -124,11 +186,16 @@ export default class RGA {
    * The insertion will be to the right of the reference noded
    * @param content The content to insert. Should be a single character with length 1
    */
-  public createInsert(reference: RGAIdentifier, content: string): RGAInsert {
+  public createInsert(
+    reference: RGAIdentifier,
+    content: string,
+    offset = 0
+  ): RGAInsert {
     return new RGAInsert(
       reference,
       new RGAIdentifier(this.sid, this.clock),
-      content
+      content,
+      offset
     );
   }
 
@@ -137,15 +204,32 @@ export default class RGA {
    * @param position The position of the node to remove
    */
   public createRemovePos(position: number): RGARemove {
-    return this.createRemove(this.findNodePos(position + 1).id);
+    const [node, offset] = this.findNodePosOffset(position + 1);
+    return this.createRemove(node.id, offset - 1);
   }
 
   /**
    * Creates a removal at the given identifier
    * @param id Creates a removal of the given id
    */
-  public createRemove(id: RGAIdentifier): RGARemove {
-    return new RGARemove(id);
+  public createRemove(id: RGAIdentifier, offset = 0): RGARemove {
+    return new RGARemove(id, offset);
+  }
+
+  private split(node: RGANode, offset: number): void {
+    const length = offset - node.offset;
+    if (length > 0) {
+      const splitNode = new RGANode(
+        node.id,
+        node.content.substr(length),
+        offset
+      );
+      node.content = node.content.substr(0, offset - node.offset);
+      splitNode.next = node.next;
+      splitNode.split = node.split;
+      node.next = splitNode;
+      node.split = splitNode;
+    }
   }
 
   /**
@@ -154,7 +238,7 @@ export default class RGA {
    */
   public insert(insertion: RGAInsert): RGAInsert {
     let target: RGANode | null =
-      this.getFromNodeMap(insertion.reference) || null;
+      this.findOffset(insertion.reference, insertion.offset) || null;
 
     if (!target) {
       throw new Error(
@@ -162,12 +246,17 @@ export default class RGA {
       );
     }
 
-    while (target.next && target.next.id.compareTo(insertion.id) > 0) {
+    const isEnd = target.content.length + target.offset === insertion.offset;
+    while (isEnd && target.next && target.next.id.compareTo(insertion.id) > 0) {
       target = target.next;
     }
 
     if (!target) {
       throw new Error("Whoops, this should never happen! My bad.");
+    }
+
+    if (target.offset + target.content.length > insertion.offset) {
+      this.split(target, insertion.offset);
     }
 
     const node = new RGANode(insertion.id, insertion.content);
@@ -187,11 +276,27 @@ export default class RGA {
    * @param removal The removal to apply
    */
   remove(removal: RGARemove): RGARemove {
-    const node = this.getFromNodeMap(removal.reference);
-    if (node === undefined) {
+    let node = this.findOffset(removal.reference, removal.offset, false);
+    if (node === null) {
       throw new Error(
         "Could not find reference node. Has operations been delivered out of order?"
       );
+    }
+
+    if (node.content.length > 1) {
+      const isStart = removal.offset === node.offset;
+      const isEnd = removal.offset === node.offset + node.content.length - 1;
+      const isMiddle = !(isStart || isEnd);
+      if (isStart) {
+        this.split(node, 1);
+      } else if (isEnd) {
+        this.split(node, removal.offset);
+        node = node.split as RGANode;
+      } else if (isMiddle) {
+        this.split(node, removal.offset);
+        node = node.split as RGANode;
+        this.split(node, removal.offset + 1);
+      }
     }
 
     node.tombstone = true;
@@ -232,10 +337,7 @@ export default class RGA {
    */
   public static fromString(s: string): RGA {
     const rga: RGA = new RGA();
-    for (let i = s.length - 1; i >= 0; i--) {
-      const insert = rga.createInsertPos(0, s[i]);
-      rga.insert(insert);
-    }
+    rga.insert(rga.createInsertPos(0, s));
     return rga;
   }
 
@@ -246,6 +348,18 @@ export default class RGA {
       node.next = newRga.head.next;
       node.id = new RGAIdentifier(node.id.sid, node.id.sum);
       newRga.head.next = node;
+
+      const lastSplit = newRga.getFromNodeMap(node.id);
+      if (lastSplit !== null) {
+        node.split = lastSplit;
+        let cursor = node;
+        while (cursor.split !== null) {
+          // Update offsets
+          cursor.split.offset = cursor.offset + cursor.content.length;
+          cursor = cursor.split;
+        }
+      }
+
       newRga.setToNodeMap(node);
     }
     newRga.clock = rgaJSON.nodes.length;
