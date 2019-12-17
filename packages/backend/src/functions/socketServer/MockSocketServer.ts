@@ -5,6 +5,7 @@
 import SocketServer from "./SocketServer";
 import MockSocketIoServer from "./MockSocketIoServer";
 import MockSocket from "./MockSocket";
+import { User } from "../user";
 
 class MockSocketServer extends SocketServer {
   constructor() {
@@ -24,12 +25,20 @@ class MockSocketServer extends SocketServer {
     // In tests, we should always allow confirmation
     socket.join("authenticated");
     socket.emit("connection/auth-confirm");
-    this.userMap.set(socket.id, {
-      id: 123,
-      url: "https://github.com/my-user",
-      login: "my-user",
-      avatar_url: "myavatar.png"
-    });
+    const fakeUser = new User(socket);
+    fakeUser.authorizeUser(
+      "fakeUserId",
+      {
+        id: 123,
+        url: "https://github.com/my-user",
+        login: "my-user",
+        avatar_url: "myavatar.png"
+      },
+      null,
+      null,
+      null
+    );
+    this.userMap.set(socket.id, fakeUser);
   }
 }
 
