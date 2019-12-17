@@ -21,6 +21,7 @@ const Terminal: React.FC = () => {
       socket.getSocket().off("pty/data", writeData);
       socket.getSocket().off("connection/signout", dispose);
       socket.getSocket().off("disconnect", dispose);
+      socket.getSocket().off("authorized/removed", dispose);
     }
 
     if (node !== null) {
@@ -37,7 +38,7 @@ const Terminal: React.FC = () => {
       });
 
       socket.getSocket().on("pty/data", writeData);
-
+      socket.getSocket().on("authorized/removed", dispose);
       socket.getSocket().on("connection/signout", dispose);
       socket.getSocket().on("disconnect", dispose);
     }
