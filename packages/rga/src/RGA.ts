@@ -337,10 +337,6 @@ export default class RGA {
    */
   public static fromString(s: string): RGA {
     const rga: RGA = new RGA();
-    // for (let i = s.length - 1; i >= 0; i--) {
-    //   const insert = rga.createInsertPos(0, s[i]);
-    //   rga.insert(insert);
-    // }
     rga.insert(rga.createInsertPos(0, s));
     return rga;
   }
