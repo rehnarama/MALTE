@@ -424,5 +424,54 @@ describe("File", function() {
       m1.applyEdits([edit]);
       expect(m1.value).toBe("axyz");
     });
+
+    it("should send multiple operations with one package", done => {
+      const m1 = new MockModel("");
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abcde"));
+      new File(
+        "dummy/path.js",
+        rga.toRGAJSON(),
+        (m1 as unknown) as editorType.ITextModel
+      );
+
+      serverSocket.on(
+        "buffer/operation",
+        (data: { path: string; operations: Array<RGAInsert | RGARemove> }) => {
+          expect(data.path).toBe("dummy/path.js");
+          expect(data.operations.length === 2);
+
+          const op1 = data.operations[0];
+          expect(op1).toHaveProperty("content");
+          if (op1 instanceof RGAInsert) {
+            expect(op1.content).toBe("!");
+          }
+
+          const op2 = data.operations[1];
+          expect(op2).toHaveProperty("content");
+          if (op2 instanceof RGAInsert) {
+            expect(op2.content).toBe("#");
+            done();
+          }
+        }
+      );
+
+      const position1 = m1.getPositionAt(3);
+      const range1 = mockMonacoNamespace.Range.fromPositions(position1);
+      const edit1 = ({
+        range: range1,
+        text: "!",
+        forceMoveMarkers: true
+      } as unknown) as editorType.IIdentifiedSingleEditOperation;
+      const position2 = m1.getPositionAt(5);
+      const range2 = mockMonacoNamespace.Range.fromPositions(position2);
+      const edit2 = ({
+        range: range2,
+        text: "#",
+        forceMoveMarkers: true
+      } as unknown) as editorType.IIdentifiedSingleEditOperation;
+      m1.applyEdits([edit1, edit2]);
+      expect(m1.value).toBe("abc!d#e");
+    });
   });
 });
