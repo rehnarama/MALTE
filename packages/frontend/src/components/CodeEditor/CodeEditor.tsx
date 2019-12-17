@@ -41,6 +41,14 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
     }
   }, [activeFileName, editor]);
 
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.dispose();
+      }
+    }
+  }, [editor])
+
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
     setHeight(height);
