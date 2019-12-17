@@ -54,7 +54,11 @@ const TopBar: React.FC = () => {
       <div className={classes.rightSide}>
         {userList &&
           userList.users.map(user => (
-            <Avatar key={user.id} url={user.avatar_url} name={user.login} />
+            <Avatar
+              key={user.socketId}
+              url={user.avatar_url}
+              name={user.login}
+            />
           ))}
         <AddButton />
       </div>
