@@ -108,8 +108,8 @@ class SideBar extends React.Component<Props, State> {
   render() {
     return (
       <div className={classes.sideBar}>
+        <p>Files</p>
         <div className={classes.fileTree}>
-          <p>Files</p>
           {this.state.data ? (
             <Tree
               node={this.state.data}

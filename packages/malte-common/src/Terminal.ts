@@ -1,4 +1,4 @@
 export default interface TerminalSize {
-    columns: number;
-    rows: number;
+  columns: number;
+  rows: number;
 }

@@ -65,10 +65,15 @@ export default class RGA {
     return this.findOffset(identifier, 0);
   }
 
-  public findOffset(identifier: RGAIdentifier, offset: number) {
+  public findOffset(identifier: RGAIdentifier, offset: number, before = true) {
     let node = this.nodeMap.get(identifier.sid)?.get(identifier.sum) || null;
 
-    while (node !== null && node.offset + node.content.length < offset) {
+    while (
+      node !== null &&
+      (before
+        ? node.offset + node.content.length < offset
+        : node.offset + node.content.length <= offset)
+    ) {
       node = node.split;
 
       if (!node) {
@@ -79,20 +84,7 @@ export default class RGA {
     return node;
   }
 
-  public findOffset2(identifier: RGAIdentifier, offset: number) {
-    let node = this.nodeMap.get(identifier.sid)?.get(identifier.sum) || null;
-    while (node !== null && node.offset + node.content.length <= offset) {
-      node = node.split;
-
-      if (!node) {
-        throw new Error("No more splits. Is something off?");
-      }
-    }
-
-    return node;
-  }
-
-  private setToNodeMap(node: RGANode) {
+  private setToNodeMap(node: RGANode): void {
     let sidSet = this.nodeMap.get(node.id.sid);
     if (sidSet === undefined) {
       sidSet = new Map();
@@ -132,7 +124,7 @@ export default class RGA {
    * Finds a RGANode at the given position
    * @param position The position of the node
    */
-  public findNodePos(position: number) {
+  public findNodePos(position: number): RGANode {
     let count = 0;
     let cursor: RGANode | null = this.head;
     while (count < position && cursor.next !== null) {
@@ -183,7 +175,7 @@ export default class RGA {
    * @param position The position of which to create the insertion
    * @param content The content to insert. Should be a single charcater with length 1
    */
-  public createInsertPos(position: number, content: string) {
+  public createInsertPos(position: number, content: string): RGAInsert {
     const [node, offset] = this.findNodePosOffset(position);
     return this.createInsert(node.id, content, offset);
   }
@@ -194,7 +186,11 @@ export default class RGA {
    * The insertion will be to the right of the reference noded
    * @param content The content to insert. Should be a single character with length 1
    */
-  public createInsert(reference: RGAIdentifier, content: string, offset = 0) {
+  public createInsert(
+    reference: RGAIdentifier,
+    content: string,
+    offset = 0
+  ): RGAInsert {
     return new RGAInsert(
       reference,
       new RGAIdentifier(this.sid, this.clock),
@@ -207,7 +203,7 @@ export default class RGA {
    * Creates a removal at the given position, zero based indexing
    * @param position The position of the node to remove
    */
-  public createRemovePos(position: number) {
+  public createRemovePos(position: number): RGARemove {
     const [node, offset] = this.findNodePosOffset(position + 1);
     return this.createRemove(node.id, offset - 1);
   }
@@ -216,7 +212,7 @@ export default class RGA {
    * Creates a removal at the given identifier
    * @param id Creates a removal of the given id
    */
-  public createRemove(id: RGAIdentifier, offset = 0) {
+  public createRemove(id: RGAIdentifier, offset = 0): RGARemove {
     return new RGARemove(id, offset);
   }
 
@@ -240,7 +236,7 @@ export default class RGA {
    * Applies an insert operation
    * @param insertion The insertion to apply
    */
-  public insert(insertion: RGAInsert) {
+  public insert(insertion: RGAInsert): RGAInsert {
     let target: RGANode | null =
       this.findOffset(insertion.reference, insertion.offset) || null;
 
@@ -279,8 +275,8 @@ export default class RGA {
    * Applies the remove operation
    * @param removal The removal to apply
    */
-  remove(removal: RGARemove) {
-    let node = this.findOffset2(removal.reference, removal.offset);
+  remove(removal: RGARemove): RGARemove {
+    let node = this.findOffset(removal.reference, removal.offset, false);
     if (node === null) {
       throw new Error(
         "Could not find reference node. Has operations been delivered out of order?"
@@ -323,7 +319,7 @@ export default class RGA {
   /**
    * Converts the RGA to a plain old string
    */
-  public toString() {
+  public toString(): string {
     let str = "";
     let cursor = this.head.next;
     while (cursor !== null) {

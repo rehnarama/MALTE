@@ -7,7 +7,7 @@ import RGAInsert from "./RGAInsert";
 import RGARemove from "./RGARemove";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyzåäö";
-function randomLetter() {
+function randomLetter(): string {
   return LETTERS.substr(Math.random() * LETTERS.length, 1);
 }
 
@@ -177,7 +177,9 @@ describe("RGA", function() {
        * doRound - Performs a series of random operations on a RGA and returns them
        * @param rga The RGA of which to perform random opeartions on
        */
-      function doRound(rga: RGA) {
+      function doRound(
+        rga: RGA
+      ): { insertions: RGAInsert[]; removals: RGARemove[] } {
         const insertions: RGAInsert[] = [];
         const removals: RGARemove[] = [];
 

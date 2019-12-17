@@ -15,4 +15,3 @@ export interface InsertOperation {
 }
 
 export type InternalOperation = RemoveOperation | InsertOperation;
-

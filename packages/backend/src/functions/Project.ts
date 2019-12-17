@@ -140,7 +140,7 @@ export default class Project {
       .map(s => {
         const ghUser = socketServer.getUser(s.id);
         if (ghUser) {
-          return ghUser;
+          return { ...ghUser, socketId: s.id };
         } else {
           return null;
         }
@@ -168,23 +168,25 @@ export default class Project {
     }
   }
 
-  private async removeSocket(socket: SocketIO.Socket): Promise<void> {
+  public removeSocket(socket: SocketIO.Socket): boolean {
     const index = this.sockets.findIndex(s => s.id === socket.id);
-    if (index) {
+    if (index !== -1) {
       this.sockets.splice(index, 1);
+      if (this.cursorMap[socket.id]) {
+        delete this.cursorMap[socket.id];
+        this.broadcastCursorList();
+      }
       this.broadcastUserList();
-    }
-    if (this.cursorMap[socket.id]) {
-      delete this.cursorMap[socket.id];
-      this.broadcastCursorList();
-    }
 
-    const filesToClose: File[] = [];
-    for (const file of this.files) {
-      const canCloseFile = file.leave(socket);
-      if (canCloseFile) filesToClose.push(file);
+      const filesToClose: File[] = [];
+      for (const file of this.files) {
+        const canCloseFile = file.leave(socket);
+        if (canCloseFile) filesToClose.push(file);
+      }
+      this.closeFiles(filesToClose);
+      return true;
     }
-    await this.closeFiles(filesToClose);
+    return false;
   }
 
   private broadcastCursorList(): void {
