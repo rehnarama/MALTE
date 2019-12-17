@@ -187,7 +187,9 @@ describe("RGA", function() {
         for (let operation = 0; operation < N_OPERATIONS; operation++) {
           if (Math.random() <= 0.5 && currentLength > 0) {
             // Do removal
-            const op = rga.createRemovePos(Math.random() * currentLength);
+            const op = rga.createRemovePos(
+              Math.floor(Math.random() * currentLength)
+            );
             rga.remove(op);
 
             removals.push(op);
@@ -195,7 +197,7 @@ describe("RGA", function() {
           } else {
             // Do insertion
             const op = rga.createInsertPos(
-              Math.random() * currentLength,
+              Math.round(Math.random() * currentLength),
               randomLetter()
             );
             rga.insert(op);
@@ -418,7 +420,25 @@ describe("RGA", function() {
       const insert2 = oldRGA.createInsertPos(1, "b");
       oldRGA.insert(insert2);
 
+      oldRGA.toRGAJSON();
       assert.equal(oldRGA.toString(), "ab");
+    });
+
+    it("should correctly set up split links", () => {
+      const oldRGA = new RGA();
+      oldRGA.insert(oldRGA.createInsertPos(0, "abc"));
+      oldRGA.insert(oldRGA.createInsertPos(2, "@"));
+      oldRGA.insert(oldRGA.createInsertPos(1, "!"));
+
+      const newRGA = RGA.fromRGAJSON(oldRGA.toRGAJSON());
+
+      const head = newRGA["head"];
+      assert.exists(head);
+      assert(head?.next?.content === "a");
+      assert(head?.next?.split?.content === "b");
+      assert(head?.next?.split?.offset === 1);
+      assert(head?.next?.split?.split?.content === "c");
+      assert(head?.next?.split?.split?.offset === 2);
     });
   });
 
@@ -482,6 +502,137 @@ describe("RGA", function() {
       assert.equal(pos1, 0);
       assert.equal(pos2, -1);
       assert.equal(pos3, 1);
+    });
+  });
+
+  describe("chunk insertions", () => {
+    it("should support simple insert with chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+
+      assert.equal(rga.toString(), "abc");
+    });
+
+    it("should support inserting new character in-between chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+
+      assert.equal(rga.toString(), "a!bc");
+    });
+
+    it("should support inserting new character in-between chunk multiple times", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+      rga.insert(rga.createInsertPos(3, "@"));
+
+      assert.equal(rga.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently", () => {
+      const rga1 = new RGA(1);
+      const rga2 = new RGA(2);
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
+
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
+
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
+
+      rga2.insert(insert2);
+      rga2.insert(insert1);
+      rga1.insert(insert1);
+      rga1.insert(insert2);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently, with differing ids", () => {
+      const rga1 = new RGA(2);
+      const rga2 = new RGA(1);
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
+
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
+
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
+
+      rga2.insert(insert2);
+      rga2.insert(insert1);
+      rga1.insert(insert1);
+      rga1.insert(insert2);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
+    });
+
+    it("should support inserting new character in-between chunk concurrently, in another order", () => {
+      const rga1 = new RGA(1);
+      const rga2 = new RGA(2);
+      let op1: RGAInsert;
+      rga1.insert((op1 = rga1.createInsertPos(0, "abc")));
+      rga2.insert(op1);
+
+      assert.equal(rga1.toString(), "abc");
+      assert.equal(rga2.toString(), "abc");
+
+      const insert1 = rga1.createInsertPos(1, "!");
+      const insert2 = rga2.createInsertPos(2, "@");
+
+      rga2.insert(insert1);
+      rga2.insert(insert2);
+      rga1.insert(insert2);
+      rga1.insert(insert1);
+
+      assert.equal(rga1.toString(), "a!b@c");
+      assert.equal(rga2.toString(), "a!b@c");
+    });
+
+    it("should remove character in start of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(0));
+
+      assert.equal(rga.toString(), "bc");
+    });
+
+    it("should remove character in middle of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(1));
+
+      assert.equal(rga.toString(), "ac");
+    });
+
+    it("should remove character in end of chunk", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.remove(rga.createRemovePos(2));
+
+      assert.equal(rga.toString(), "ab");
+    });
+
+    it("should correctly remove after split", () => {
+      const rga = new RGA();
+      rga.insert(rga.createInsertPos(0, "abc"));
+      rga.insert(rga.createInsertPos(1, "!"));
+      rga.insert(rga.createInsertPos(3, "!"));
+      assert.equal(rga.toString(), "a!b!c");
+
+      rga.remove(rga.createRemovePos(4));
+      assert.equal(rga.toString(), "a!b!");
+      rga.remove(rga.createRemovePos(2));
+      assert.equal(rga.toString(), "a!!");
+      rga.remove(rga.createRemovePos(0));
+      assert.equal(rga.toString(), "!!");
     });
   });
 });

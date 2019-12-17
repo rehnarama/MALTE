@@ -1,16 +1,11 @@
 import { editor as editorType } from "monaco-editor";
 import File from "./File";
 import Monaco from "./Monaco";
-import { RGAJSON, RGAOperationJSON } from "rga/dist/RGA";
+import { RGAJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
 import RGAIdentifier from "rga/dist/RGAIdentifier";
 import CursorWidget from "./CursorWidget/CursorWidget";
 import { CursorMovement, CursorList } from "malte-common/dist/Cursor";
-
-interface BufferOperationData {
-  path: string;
-  operation: RGAOperationJSON;
-}
 
 export default class Editor {
   private editor: editorType.ICodeEditor;
@@ -110,7 +105,6 @@ export default class Editor {
 
   private openNewBuffer(path: string, content: RGAJSON) {
     const newModel = this.getModelForBuffer(path);
-    newModel.setEOL(this.editorNamespace.EndOfLineSequence.LF);
 
     const file = new File(path, content, newModel);
     this.files.push(file);
