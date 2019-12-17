@@ -46,8 +46,8 @@ const CodeEditor: React.FC<Props> = (props: Props) => {
       if (editor) {
         editor.dispose();
       }
-    }
-  }, [editor])
+    };
+  }, [editor]);
 
   function resizeTerminal(width: number, height: number) {
     setWidth(width);
