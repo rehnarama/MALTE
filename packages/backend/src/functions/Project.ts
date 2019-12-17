@@ -168,7 +168,7 @@ export default class Project {
     }
   }
 
-  private removeSocket(socket: SocketIO.Socket): Promise<boolean> {
+  private removeSocket(socket: SocketIO.Socket): boolean {
     const index = this.sockets.findIndex(s => s.id === socket.id);
     if (index !== -1) {
       this.sockets.splice(index, 1);
