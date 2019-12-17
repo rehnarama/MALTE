@@ -163,7 +163,6 @@ export default class SocketServer {
       socket.off("authorized/remove", listeners["authorized/remove"]);
       socket.off("authorized/fetch", listeners["authorized/fetch"]);
       socket.off("connection/signout", listeners["connection/signout"]);
-
     }
   }
 
