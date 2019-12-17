@@ -122,7 +122,6 @@ export default class SocketServer {
     };
 
     listeners["connection/signout"] = (): void => {
-      console.log("signing out");
       this.destroyUser(this.userMap.get(socket.id));
       socket.emit("connection/signout");
     };
@@ -165,7 +164,6 @@ export default class SocketServer {
       socket.off("authorized/fetch", listeners["authorized/fetch"]);
       socket.off("connection/signout", listeners["connection/signout"]);
 
-      console.log(session?.getSocket().eventNames());
     }
   }
 
