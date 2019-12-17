@@ -187,12 +187,12 @@ export default class Project {
       socket.off("buffer/leave", listeners["buffer/leave"]);
       socket.off("buffer/operation", listeners["buffer/operation"]);
       socket.off("cursor/move", listeners["cursor/move"]);
-    }
-    if (this.cursorMap[socket.id]) {
-      delete this.cursorMap[socket.id];
-      this.broadcastCursorList();
-    }
-    
+
+      if (this.cursorMap[socket.id]) {
+        delete this.cursorMap[socket.id];
+        this.broadcastCursorList();
+      }
+
       const filesToClose: File[] = [];
       for (const file of this.files) {
         const canCloseFile = file.leave(socket);
