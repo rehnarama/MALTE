@@ -221,7 +221,6 @@ describe("MapOperations", function() {
   });
 
   describe("Multiple character deletion", function() {
-    // TODO: delete newline
     it("should delete two first characters", () => {
       const monacoOp = {
         range: range(1, 1, 1, 3),
@@ -286,16 +285,11 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(2);
+      expect(ops.length).toBe(1);
       expect(ops[0]).toEqual({
         type: Operation.Insert,
         position: 0,
-        character: "a"
-      });
-      expect(ops[1]).toEqual({
-        type: Operation.Insert,
-        position: 1,
-        character: "b"
+        character: "ab"
       });
     });
 
@@ -310,31 +304,11 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(5);
+      expect(ops.length).toBe(1);
       expect(ops[0]).toEqual({
         type: Operation.Insert,
         position: 8,
-        character: "a"
-      });
-      expect(ops[1]).toEqual({
-        type: Operation.Insert,
-        position: 9,
-        character: "b"
-      });
-      expect(ops[2]).toEqual({
-        type: Operation.Insert,
-        position: 10,
-        character: "c"
-      });
-      expect(ops[3]).toEqual({
-        type: Operation.Insert,
-        position: 11,
-        character: "d"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 12,
-        character: "e"
+        character: "abcde"
       });
     });
 
@@ -349,31 +323,11 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(5);
+      expect(ops.length).toBe(1);
       expect(ops[0]).toEqual({
         type: Operation.Insert,
         position: 0,
-        character: "a"
-      });
-      expect(ops[1]).toEqual({
-        type: Operation.Insert,
-        position: 1,
-        character: "b"
-      });
-      expect(ops[2]).toEqual({
-        type: Operation.Insert,
-        position: 2,
-        character: "\n"
-      });
-      expect(ops[3]).toEqual({
-        type: Operation.Insert,
-        position: 3,
-        character: "d"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 4,
-        character: "e"
+        character: "ab\nde"
       });
     });
 
@@ -388,32 +342,12 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(6);
+      expect(ops.length).toBe(2);
       expect(ops[0]).toEqual({ type: Operation.Remove, position: 0 });
       expect(ops[1]).toEqual({
         type: Operation.Insert,
         position: 0,
-        character: "a"
-      });
-      expect(ops[2]).toEqual({
-        type: Operation.Insert,
-        position: 1,
-        character: "l"
-      });
-      expect(ops[3]).toEqual({
-        type: Operation.Insert,
-        position: 2,
-        character: "e"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 3,
-        character: "r"
-      });
-      expect(ops[5]).toEqual({
-        type: Operation.Insert,
-        position: 4,
-        character: "t"
+        character: "alert"
       });
     });
 
@@ -428,33 +362,13 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(7);
+      expect(ops.length).toBe(3);
       expect(ops[0]).toEqual({ type: Operation.Remove, position: 1 });
       expect(ops[1]).toEqual({ type: Operation.Remove, position: 0 });
       expect(ops[2]).toEqual({
         type: Operation.Insert,
         position: 0,
-        character: "a"
-      });
-      expect(ops[3]).toEqual({
-        type: Operation.Insert,
-        position: 1,
-        character: "l"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 2,
-        character: "e"
-      });
-      expect(ops[5]).toEqual({
-        type: Operation.Insert,
-        position: 3,
-        character: "r"
-      });
-      expect(ops[6]).toEqual({
-        type: Operation.Insert,
-        position: 4,
-        character: "t"
+        character: "alert"
       });
     });
 
@@ -469,23 +383,13 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(5);
+      expect(ops.length).toBe(3);
       expect(ops[0]).toEqual({ type: Operation.Remove, position: 1 });
       expect(ops[1]).toEqual({ type: Operation.Remove, position: 0 });
       expect(ops[2]).toEqual({
         type: Operation.Insert,
         position: 0,
-        character: "f"
-      });
-      expect(ops[3]).toEqual({
-        type: Operation.Insert,
-        position: 1,
-        character: "o"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 2,
-        character: "r"
+        character: "for"
       });
     });
 
@@ -500,39 +404,14 @@ describe("MapOperations", function() {
 
       const ops = mapOperations(monacoOp);
 
-      expect(ops.length).toBe(9);
+      expect(ops.length).toBe(4);
       expect(ops[0]).toEqual({ type: Operation.Remove, position: 13 });
       expect(ops[1]).toEqual({ type: Operation.Remove, position: 12 });
       expect(ops[2]).toEqual({ type: Operation.Remove, position: 11 });
       expect(ops[3]).toEqual({
         type: Operation.Insert,
         position: 11,
-        character: "i"
-      });
-      expect(ops[4]).toEqual({
-        type: Operation.Insert,
-        position: 12,
-        character: "m"
-      });
-      expect(ops[5]).toEqual({
-        type: Operation.Insert,
-        position: 13,
-        character: "p"
-      });
-      expect(ops[6]).toEqual({
-        type: Operation.Insert,
-        position: 14,
-        character: "o"
-      });
-      expect(ops[7]).toEqual({
-        type: Operation.Insert,
-        position: 15,
-        character: "r"
-      });
-      expect(ops[8]).toEqual({
-        type: Operation.Insert,
-        position: 16,
-        character: "t"
+        character: "import"
       });
     });
   });

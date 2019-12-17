@@ -116,9 +116,10 @@ export default class Project {
         await this.closeFiles([file]);
       }
     };
+
     listeners["buffer/operation"] = async (data: {
       path: string;
-      operation: RGAOperationJSON;
+      operations: RGAOperationJSON[];
     }): Promise<void> => {
       if (socket.rooms["authenticated"]) {
         const normalizedPath = data.path.replace(this.path, "");
@@ -126,10 +127,11 @@ export default class Project {
           f => f.path === this.absolutePath(normalizedPath)
         );
         if (file) {
-          file.applyOperation(data.operation, socket);
+          file.applyOperations(data.operations, socket);
         }
       }
     };
+
     listeners["cursor/move"] = (data: CursorMovement): void => {
       this.onCursorMove(socket, data);
     };
