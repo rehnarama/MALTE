@@ -41,7 +41,8 @@ export default class SocketServer {
       this.onAuth(socket, userId);
     };
     listeners["disconnect"] = (): void => {
-      this.userMap.delete(socket.id);
+      this.destroyUser(this.userMap.get(socket.id), false);
+      delete this.listenerMap[socket.id];
     };
 
     // everyone must be able to request to join, otherwise no one can join
@@ -115,14 +116,14 @@ export default class SocketServer {
 
         const removedUsers = this.getUsersWithLogin(data.login);
         for (const u of removedUsers) {
-          this.destroyUser(u);
+          this.destroyUser(u, true);
           u.getSocket().emit("authorized/removed");
         }
       }
     };
 
     listeners["connection/signout"] = (): void => {
-      this.destroyUser(this.userMap.get(socket.id));
+      this.destroyUser(this.userMap.get(socket.id), true);
       socket.emit("connection/signout");
     };
 
@@ -144,9 +145,9 @@ export default class SocketServer {
     return this.userMap.get(socketId)?.getUserData();
   }
 
-  public destroyUser(login: string): void;
-  public destroyUser(user: User): void;
-  public destroyUser(user: User | string): void {
+  public destroyUser(login: string, clearSession: boolean): void;
+  public destroyUser(user: User, clearSession: boolean): void;
+  public destroyUser(user: User | string, clearSession = true): void {
     const sessions = [];
     if (user instanceof User) {
       sessions.push(user);
@@ -157,7 +158,7 @@ export default class SocketServer {
     for (const session of sessions) {
       const socket = session.getSocket();
 
-      session.destroyUser();
+      session.destroyUser(clearSession);
       const listeners = this.listenerMap[session.getSocketId()];
       socket.off("authorized/add", listeners["authorized/add"]);
       socket.off("authorized/remove", listeners["authorized/remove"]);
