@@ -145,26 +145,15 @@ export default class SocketServer {
     return this.userMap.get(socketId)?.getUserData();
   }
 
-  public destroyUser(login: string, clearSession: boolean): void;
-  public destroyUser(user: User, clearSession: boolean): void;
-  public destroyUser(user: User | string, clearSession = true): void {
-    const sessions = [];
-    if (user instanceof User) {
-      sessions.push(user);
-    } else if (typeof user === "string") {
-      sessions.push(...this.getUsersWithLogin(user));
-    }
+  public destroyUser(user: User, clearSession = true): void {
+    const socket = user.getSocket();
 
-    for (const session of sessions) {
-      const socket = session.getSocket();
-
-      session.destroyUser(clearSession);
-      const listeners = this.listenerMap[session.getSocketId()];
-      socket.off("authorized/add", listeners["authorized/add"]);
-      socket.off("authorized/remove", listeners["authorized/remove"]);
-      socket.off("authorized/fetch", listeners["authorized/fetch"]);
-      socket.off("connection/signout", listeners["connection/signout"]);
-    }
+    user.destroyUser(clearSession);
+    const listeners = this.listenerMap[user.getSocketId()];
+    socket.off("authorized/add", listeners["authorized/add"]);
+    socket.off("authorized/remove", listeners["authorized/remove"]);
+    socket.off("authorized/fetch", listeners["authorized/fetch"]);
+    socket.off("connection/signout", listeners["connection/signout"]);
   }
 
   private getUsersWithLogin(user: string): User[] {
