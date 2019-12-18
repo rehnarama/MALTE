@@ -19,7 +19,7 @@ class User {
     this.socket = socket;
   }
 
-  public async destroyUser(): Promise<void> {
+  public async destroyUser(clearSession: boolean): Promise<void> {
     this.fileSystem?.destroy();
     this.terminal?.kill();
     this.project?.removeSocket(this.socket);
@@ -29,7 +29,10 @@ class User {
 
     if (this.userId) {
       GitHub.getInstance().removeUser(this.userId);
-      await removeSession(this.userId);
+
+      if (clearSession) {
+        await removeSession(this.userId);
+      }
     }
 
     this.userId = null;
