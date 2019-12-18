@@ -46,10 +46,11 @@ export default class Editor {
     const socket = Socket.getInstance().getSocket();
     this.editor.onDidChangeCursorPosition(e => {
       if (this.activeFile) {
-        const rgaPosition = this.activeFile.getPositionRGA(e.position);
+        const [id, offset] = this.activeFile.getPositionRGA(e.position);
         const movement: CursorMovement = {
           path: this.activeFile.path,
-          id: rgaPosition
+          id,
+          offset
         };
         socket.emit("cursor/move", movement);
       }
@@ -148,7 +149,10 @@ export default class Editor {
       }
       newWidgets.set(cursor.socketId, widget);
 
-      widget.updatePosition(new RGAIdentifier(cursor.id.sid, cursor.id.sum));
+      widget.updatePosition(
+        new RGAIdentifier(cursor.id.sid, cursor.id.sum),
+        cursor.offset
+      );
     }
 
     // Clear cursors that weren't updated

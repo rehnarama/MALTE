@@ -69,12 +69,12 @@ class CursorWidget implements monaco.editor.IContentWidget {
     };
   }
 
-  private calculatePosition(id: RGAIdentifier): void {
+  private calculatePosition(id: RGAIdentifier, offset: number): void {
     const model = this.editor.getModel();
     if (model) {
       // +1 since the cursor has an "extra" position in comparison to number of
       // indices (i.e., cursor can both be BEFORE all text, and AFTER all text)
-      const position = model.getPositionAt(this.file.getIndex(id) + 1);
+      const position = model.getPositionAt(this.file.getIndex(id, offset) + 1);
       this.position = position;
     }
   }
@@ -84,8 +84,8 @@ class CursorWidget implements monaco.editor.IContentWidget {
    * @param id  Where in the document (currently open in the file given in the
    * constructor) this cursor should be
    */
-  updatePosition(id: RGAIdentifier) {
-    this.calculatePosition(id);
+  updatePosition(id: RGAIdentifier, offset: number) {
+    this.calculatePosition(id, offset);
     this.bubbleWidget.updatePosition(this.position);
     this.editor.layoutContentWidget(this);
     this.editor.layoutContentWidget(this.bubbleWidget);
