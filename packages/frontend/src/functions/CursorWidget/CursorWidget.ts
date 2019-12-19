@@ -4,6 +4,9 @@ import File from "../File";
 import RGAIdentifier from "rga/dist/RGAIdentifier";
 import BubbleWidget from "./BubbleWidget";
 import classes from "./Widget.module.css";
+import { CursorMovement } from "malte-common/dist/Cursor";
+import { editor as editorType } from "monaco-editor";
+import Monaco from "../Monaco";
 
 const WIDGET_PREFIX = "cursor";
 const HOVER_TOLERANCE = 20;
@@ -24,6 +27,8 @@ class CursorWidget implements monaco.editor.IContentWidget {
   private bubbleWidgetAdded = false;
 
   private mouseMoveListener: monaco.IDisposable | null = null;
+
+  private decorationIds: string[] = [];
 
   /**
    * @param editor  An instance of the monaco editor. The cursor will be drawn
@@ -69,13 +74,42 @@ class CursorWidget implements monaco.editor.IContentWidget {
     };
   }
 
-  private calculatePosition(id: RGAIdentifier, offset: number): void {
+  private calculatePosition(cursor: CursorMovement): void {
     const model = this.editor.getModel();
     if (model) {
       // +1 since the cursor has an "extra" position in comparison to number of
       // indices (i.e., cursor can both be BEFORE all text, and AFTER all text)
-      const position = model.getPositionAt(this.file.getIndex(id, offset) + 1);
-      this.position = position;
+      const toId = new RGAIdentifier(cursor.to.sid, cursor.to.sum);
+      const toPosition = model.getPositionAt(
+        this.file.getIndex(toId, cursor.to.offset) + 1
+      );
+      if (cursor.from) {
+        const fromId = new RGAIdentifier(cursor.from.sid, cursor.from.sum);
+        const fromPosition = model.getPositionAt(
+          this.file.getIndex(fromId, cursor.from.offset) + 1
+        );
+        const decorations: editorType.IModelDeltaDecoration = {
+          range: {
+            startLineNumber: fromPosition.lineNumber,
+            startColumn: fromPosition.column,
+            endLineNumber: toPosition.lineNumber,
+            endColumn: toPosition.column
+          },
+          options: {
+            className: classes.selection
+          }
+        };
+
+        this.decorationIds = this.editor.deltaDecorations(this.decorationIds, [
+          decorations
+        ]);
+      } else {
+        this.decorationIds = this.editor.deltaDecorations(
+          this.decorationIds,
+          []
+        );
+      }
+      this.position = toPosition;
     }
   }
 
@@ -84,8 +118,8 @@ class CursorWidget implements monaco.editor.IContentWidget {
    * @param id  Where in the document (currently open in the file given in the
    * constructor) this cursor should be
    */
-  updatePosition(id: RGAIdentifier, offset: number) {
-    this.calculatePosition(id, offset);
+  updatePosition(cursor: CursorMovement) {
+    this.calculatePosition(cursor);
     this.bubbleWidget.updatePosition(this.position);
     this.editor.layoutContentWidget(this);
     this.editor.layoutContentWidget(this.bubbleWidget);

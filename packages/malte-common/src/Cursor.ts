@@ -1,8 +1,8 @@
 export interface CursorMovement {
   path: string;
   // The important info from RGAIdentifier
-  id: { sid: number; sum: number };
-  offset: number;
+  from?: { sid: number; sum: number, offset: number };
+  to: { sid: number; sum: number, offset: number };
 }
 
 export interface CursorInfo extends CursorMovement {
