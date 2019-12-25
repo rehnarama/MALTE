@@ -115,7 +115,7 @@ class CursorWidget implements monaco.editor.IContentWidget {
 
   /**
    * Updates the position of this cursor
-   * @param id  Where in the document (currently open in the file given in the
+   * @param cursor Where in the document (currently open in the file given in the
    * constructor) this cursor should be
    */
   updatePosition(cursor: CursorMovement) {
