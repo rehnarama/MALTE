@@ -6,7 +6,6 @@ import BubbleWidget from "./BubbleWidget";
 import classes from "./Widget.module.css";
 import { CursorMovement } from "malte-common/dist/Cursor";
 import { editor as editorType } from "monaco-editor";
-import Monaco from "../Monaco";
 
 const WIDGET_PREFIX = "cursor";
 const HOVER_TOLERANCE = 20;
