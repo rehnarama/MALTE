@@ -183,6 +183,7 @@ class CursorWidget implements monaco.editor.IContentWidget {
    */
   removeWidget() {
     this.editor.removeContentWidget(this);
+    this.decorationIds = this.editor.deltaDecorations(this.decorationIds, []);
     if (this.bubbleWidgetAdded) {
       this.editor.removeContentWidget(this.bubbleWidget);
     }
