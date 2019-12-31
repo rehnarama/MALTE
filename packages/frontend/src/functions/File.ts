@@ -130,12 +130,18 @@ export default class File {
     return this.rga.toString();
   }
 
-  public getIndex(id: RGAIdentifier): number {
-    return this.rga.findPos(id);
+  public getIndex(id: RGAIdentifier, offset: number): number {
+    return this.rga.findPos(id, offset);
   }
 
-  public getPositionRGA(position: IPosition): RGAIdentifier {
-    return this.rga.findNodePos(this.model.getOffsetAt(position)).id;
+  public getPositionRGA(position: IPosition): [RGAIdentifier, number] {
+    const [node, offset] = this.rga.findNodePosOffset(
+      this.model.getOffsetAt(position)
+    );
+    // findNodePosOffset will return the "next" offset for a node, e.g.
+    // finding simple node 'a' will return offset=1, but it's position is
+    // represented with the offset it's on, i.e. offset=0, thus we have to do -1
+    return [node.id, offset - 1];
   }
 
   public getViewState(): editorType.ICodeEditorViewState | null {

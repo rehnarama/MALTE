@@ -3,7 +3,6 @@ import File from "./File";
 import Monaco from "./Monaco";
 import { RGAJSON } from "rga/dist/RGA";
 import Socket from "../functions/Socket";
-import RGAIdentifier from "rga/dist/RGAIdentifier";
 import CursorWidget from "./CursorWidget/CursorWidget";
 import { CursorMovement, CursorList } from "malte-common/dist/Cursor";
 
@@ -44,12 +43,20 @@ export default class Editor {
 
   private initCursorChangeListener() {
     const socket = Socket.getInstance().getSocket();
-    this.editor.onDidChangeCursorPosition(e => {
+    this.editor.onDidChangeCursorSelection(e => {
       if (this.activeFile) {
-        const rgaPosition = this.activeFile.getPositionRGA(e.position);
+        const [fromId, fromOffset] = this.activeFile.getPositionRGA({
+          lineNumber: e.selection.selectionStartLineNumber,
+          column: e.selection.selectionStartColumn
+        });
+        const [toId, toOffset] = this.activeFile.getPositionRGA({
+          lineNumber: e.selection.positionLineNumber,
+          column: e.selection.positionColumn
+        });
         const movement: CursorMovement = {
           path: this.activeFile.path,
-          id: rgaPosition
+          to: { ...toId, offset: toOffset },
+          from: { ...fromId, offset: fromOffset }
         };
         socket.emit("cursor/move", movement);
       }
@@ -148,7 +155,7 @@ export default class Editor {
       }
       newWidgets.set(cursor.socketId, widget);
 
-      widget.updatePosition(new RGAIdentifier(cursor.id.sid, cursor.id.sum));
+      widget.updatePosition(cursor);
     }
 
     // Clear cursors that weren't updated
