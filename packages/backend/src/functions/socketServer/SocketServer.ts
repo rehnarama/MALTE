@@ -7,6 +7,7 @@ import { getUserFromId } from "../oauth/user";
 import { getSession, updateSessionTimestamp } from "../session";
 import { User } from "../user";
 import { User as UserData } from "malte-common/dist/oauth/GitHub";
+import GitHub from "../oauth/GitHub";
 import {
   addPreApproved,
   removePreApproved,
@@ -131,10 +132,15 @@ export default class SocketServer {
       socket.emit("authorized/list", await getAllPreapproved());
     };
 
+    listeners["authorized/allow-all"] = (): void => {
+      GitHub.getInstance().allowAllUsers = true;
+    };
+
     socket.on("connection/signout", listeners["connection/signout"]);
     socket.on("authorized/add", listeners["authorized/add"]);
     socket.on("authorized/remove", listeners["authorized/remove"]);
     socket.on("authorized/fetch", listeners["authorized/fetch"]);
+    socket.on("authorized/allow-all", listeners["authorized/allow-all"]);
   }
 
   public getUserLogin(socketId: string): string | undefined {
@@ -153,6 +159,7 @@ export default class SocketServer {
     socket.off("authorized/add", listeners["authorized/add"]);
     socket.off("authorized/remove", listeners["authorized/remove"]);
     socket.off("authorized/fetch", listeners["authorized/fetch"]);
+    socket.off("authorized/allow-all", listeners["authorized/allow-all"]);
     socket.off("connection/signout", listeners["connection/signout"]);
   }
 
