@@ -6,11 +6,19 @@ import Avatar from "../Avatar";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import classes from "./AddButton.module.css";
-import { Button, Input, DialogContent } from "@material-ui/core";
+import {
+  Button,
+  Input,
+  DialogContent,
+  Switch,
+  FormGroup,
+  FormControlLabel
+} from "@material-ui/core";
 import Socket from "../../functions/Socket";
 
 const AddButton: React.FC = () => {
   const [open, setOpen] = React.useState(false);
+  const [demo, setDemo] = React.useState(false);
   const [users, setUsers] = React.useState<string[]>([]);
   const [userName, setUserName] = React.useState("");
   const socket = Socket.getInstance().getSocket();
@@ -32,6 +40,25 @@ const AddButton: React.FC = () => {
       socket.off("authorized/fetch");
     };
   }, [open, socket]);
+
+  useEffect(() => {
+    socket.on("authorized/demoUpdate", (demoFromServer: boolean) => {
+      setDemo(demoFromServer);
+    });
+
+    return () => {
+      socket.off("authorized/demoUpdate");
+    };
+  }, [socket]);
+
+  const handleDemoChange = React.useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >(
+    e => {
+      socket.emit("authorized/demo", { demo: e.target.checked });
+    },
+    [socket]
+  );
 
   const handleFileNameChange = React.useCallback<
     React.ChangeEventHandler<HTMLInputElement>
@@ -115,6 +142,13 @@ const AddButton: React.FC = () => {
           <Button fullWidth onClick={() => setOpen(false)}>
             Close
           </Button>
+          <FormGroup row>
+            <FormControlLabel
+              checked={demo}
+              control={<Switch onChange={handleDemoChange} value="demo" />}
+              label="Demo"
+            />
+          </FormGroup>
         </DialogContent>
       </Dialog>
       <Avatar

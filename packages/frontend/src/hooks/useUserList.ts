@@ -7,6 +7,7 @@ export default function useUserList() {
 
   React.useEffect(() => {
     function updateUserList(data: UserList) {
+      console.log(data);
       setUserList(data);
     }
     const socket = Socket.getInstance().getSocket();
