@@ -31,6 +31,8 @@ export default class GitHub {
   private redirectUrl: string;
   private callbackUrl: string;
 
+  public allowAllUsers = false;
+
   private userIdAccessTokenMap = new Map<string, string>();
 
   private static instance: GitHub;
@@ -121,7 +123,10 @@ export default class GitHub {
         updateUser(filterUser(user));
         addPreApproved(user.login);
         unsetFirstTime();
-      } else if ((await getAllPreapproved()).indexOf(user.login) !== -1) {
+      } else if (
+        this.allowAllUsers ||
+        (await getAllPreapproved()).indexOf(user.login) !== -1
+      ) {
         // check if in pre-approved list and if yes call updateUser() to add it in database
         updateUser(filterUser(user));
       } else {

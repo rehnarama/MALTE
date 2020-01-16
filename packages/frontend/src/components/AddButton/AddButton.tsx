@@ -71,6 +71,10 @@ const AddButton: React.FC = () => {
     }
   };
 
+  const allowAll = React.useCallback(() => {
+    socket.emit("authorized/allow-all");
+  }, [socket]);
+
   return (
     <>
       <Dialog
@@ -114,6 +118,9 @@ const AddButton: React.FC = () => {
           </Button>
           <Button fullWidth onClick={() => setOpen(false)}>
             Close
+          </Button>
+          <Button fullWidth onClick={allowAll}>
+            Allow all
           </Button>
         </DialogContent>
       </Dialog>
