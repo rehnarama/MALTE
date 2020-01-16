@@ -12,6 +12,7 @@ import {
   removePreApproved,
   getAllPreapproved
 } from "../oauth/PreApprovedUser";
+import GitHub from "../oauth/GitHub";
 
 type SocketId = string;
 
@@ -131,10 +132,18 @@ export default class SocketServer {
       socket.emit("authorized/list", await getAllPreapproved());
     };
 
+    listeners["authorized/demo"] = async (data: {
+      demo: boolean;
+    }): Promise<void> => {
+      GitHub.getInstance().setIsDemo(data.demo);
+      this.broadcast("authorized/demoUpdate", data.demo);
+    };
+
     socket.on("connection/signout", listeners["connection/signout"]);
     socket.on("authorized/add", listeners["authorized/add"]);
     socket.on("authorized/remove", listeners["authorized/remove"]);
     socket.on("authorized/fetch", listeners["authorized/fetch"]);
+    socket.on("authorized/demo", listeners["authorized/demo"]);
   }
 
   public getUserLogin(socketId: string): string | undefined {
@@ -164,6 +173,10 @@ export default class SocketServer {
       }
     });
     return sessions;
+  }
+
+  public broadcast(event: string, obj: any): void { // eslint-disable-line
+    this.server.in("authenticated").emit(event, obj);
   }
 
   public static initialize(

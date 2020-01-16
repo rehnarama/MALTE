@@ -30,6 +30,7 @@ export default class GitHub {
   private clientSecret: string;
   private redirectUrl: string;
   private callbackUrl: string;
+  private isDemo = false;
 
   private userIdAccessTokenMap = new Map<string, string>();
 
@@ -121,7 +122,10 @@ export default class GitHub {
         updateUser(filterUser(user));
         addPreApproved(user.login);
         unsetFirstTime();
-      } else if ((await getAllPreapproved()).indexOf(user.login) !== -1) {
+      } else if (
+        this.isDemo ||
+        (await getAllPreapproved()).indexOf(user.login) !== -1
+      ) {
         // check if in pre-approved list and if yes call updateUser() to add it in database
         updateUser(filterUser(user));
       } else {
@@ -207,5 +211,9 @@ export default class GitHub {
 
   public removeUser(userId: string): void {
     this.userIdAccessTokenMap.delete(userId);
+  }
+
+  public setIsDemo(demo: boolean): void {
+    this.isDemo = demo;
   }
 }
