@@ -52,11 +52,6 @@ class Database {
   }
 
   private registerCleanUpOnCrash(): void {
-    process.on("exit", this.cleanUp.bind(false));
-    process.on("SIGINT", this.cleanUp.bind(true));
-    process.on("SIGUSR1", this.cleanUp.bind(true));
-    process.on("SIGUSR2", this.cleanUp.bind(true));
-    process.on("uncaughtException", this.cleanUp.bind(true));
   }
 
   private cleanUp(exit: boolean): void {

@@ -159,10 +159,10 @@ export default class SocketServer {
 
     user.destroyUser(clearSession);
     const listeners = this.listenerMap[user.getSocketId()];
-    socket.off("authorized/add", listeners["authorized/add"]);
-    socket.off("authorized/remove", listeners["authorized/remove"]);
-    socket.off("authorized/fetch", listeners["authorized/fetch"]);
-    socket.off("connection/signout", listeners["connection/signout"]);
+    socket.removeAllListeners("authorized/add");
+    socket.removeAllListeners("authorized/remove");
+    socket.removeAllListeners("authorized/fetch");
+    socket.removeAllListeners("connection/signout");
   }
 
   private getUsersWithLogin(user: string): User[] {
